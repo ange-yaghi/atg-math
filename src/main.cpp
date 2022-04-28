@@ -1,4 +1,4 @@
-#include "../include/information.h"
+#include "../include/atg_math.h"
 
 int main() {
     return 0;

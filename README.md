@@ -1,3 +1,3 @@
-# CMake Template Project
+# Math Library
 
-This repository includes all basic features that are commonly used in my projects such as gtest, CMake and subdirectories.
+A basic math library with commonly used 3D math operations like vector and matrix multiplication.

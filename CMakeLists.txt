@@ -3,12 +3,12 @@ cmake_minimum_required(VERSION 3.10)
 set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 set_property(GLOBAL PROPERTY PREDEFINED_TARGETS_FOLDER "cmake")
 
-set(ProjectName "cmake-template")
-set(ProjectNamespace "atg_tmpl")
+set(ProjectName "atg-math")
+set(ProjectNamespace "atg_math")
 
 project("${ProjectName}")
 
-set(CMAKE_CXX_STANDARD 11)
+set(CMAKE_CXX_STANDARD 17)
 
 # =========================================================
 # gtest
@@ -36,6 +36,8 @@ add_library("${ProjectName}" STATIC
 
     # Header files
     include/information.h
+    include/atg_math.h
+    include/vector.h
 )
 
 target_compile_definitions("${ProjectName}" PRIVATE PROJECT_NAMESPACE=${ProjectNamespace})
