@@ -297,7 +297,8 @@ namespace atg_math {
             return {
                 y * b.z - z * b.y,
                 z * b.x - x * b.z,
-                x * b.y - y * b.x
+                x * b.y - y * b.x,
+                0.0f
             };
         }
 
@@ -445,13 +446,10 @@ namespace atg_math {
         inline t_vec cross(const t_vec &b) const {  
             const __m128 t1 = _mm_shuffle_ps(data_v, data_v, M128_SHUFFLE(S_Y, S_Z, S_X, S_W));
             const __m128 t2 = _mm_shuffle_ps(b.data_v, b.data_v, M128_SHUFFLE(S_Z, S_X, S_Y, S_W));
-            const __m128 t1_t2 = _mm_mul_ps(t1, t2);
-
             const __m128 t3 = _mm_shuffle_ps(data_v, data_v, M128_SHUFFLE(S_Z, S_X, S_Y, S_W));
             const __m128 t4 = _mm_shuffle_ps(b.data_v, b.data_v, M128_SHUFFLE(S_Y, S_Z, S_X, S_W));
-            const __m128 t3_t4 = _mm_mul_ps(t3, t4);
 
-            return _mm_sub_ps(t1_t2, t3_t4);
+            return _mm_sub_ps(_mm_mul_ps(t1, t2), _mm_mul_ps(t3, t4));
         }
 
         inline t_vec min(const t_vec &b) const {
