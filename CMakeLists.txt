@@ -38,6 +38,7 @@ add_library("${ProjectName}" STATIC
     include/information.h
     include/atg_math.h
     include/vector.h
+    include/matrix.h
 )
 
 target_compile_definitions("${ProjectName}" PRIVATE PROJECT_NAMESPACE=${ProjectNamespace})
