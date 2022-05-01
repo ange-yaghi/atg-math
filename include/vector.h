@@ -390,6 +390,10 @@ namespace atg_math {
             return _mm_cvtss_f32(data_v);
         }
 
+        inline operator __m128() const {
+            return data_v;
+        }
+
         inline t_vec operator-() const {
             const __m128 mask = _mm_castsi128_ps(_mm_set1_epi32(0x80000000));
             return _mm_xor_ps(data_v, mask);
@@ -486,12 +490,12 @@ namespace atg_math {
     typedef vec<int, 3, false> ivec3_s;
     typedef vec<double, 3, false> dvec3_s;
 
-    typedef vec<float, 4, false> vec4_s;
+    typedef vec<float, 4, false> vec4_s, quat_s;
     typedef vec<uint8_t, 4, false> rgba_32;
     typedef vec<int, 4, false> ivec4_s;
-    typedef vec<double, 4, false> dvec4_s;
+    typedef vec<double, 4, false> dvec4_s, dquat_s;
 
-    typedef vec<float, 4, true> vec4_v;
+    typedef vec<float, 4, true> vec4_v, quat_v;
 
     template<unsigned int t_size> using vec_s = vec<float, t_size, false>;
     template<unsigned int t_size> using dvec_s = vec<double, t_size, false>;

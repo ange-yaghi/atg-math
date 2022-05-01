@@ -167,5 +167,25 @@ int main() {
 
     std::cout << "Time: " << std::chrono::duration<double>(t1 - t0).count() << "\n";
 
+    atg_math::mat44_v test1;
+    test1.set_identity();
+
+    atg_math::mat44_v test2 = {
+        { 11.0f, 12.0f, 13.0f, 14.0f },
+        { 21.0f, 22.0f, 23.0f, 24.0f },
+        { 31.0f, 32.0f, 33.0f, 34.0f },
+        { 41.0f, 42.0f, 43.0f, 44.0f }
+    };
+
+    atg_math::mat44_v test3;
+    test1.mul(test2, &test3);
+
+    //test.set_identity();
+    for (int i = 0; i < 4; ++i) {
+        for (int j = 0; j < 4; ++j) {
+            std::cout << test3.columns[j].data[i] << "\n";
+        }
+    }
+
     return 0;
 }
