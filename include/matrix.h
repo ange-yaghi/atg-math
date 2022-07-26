@@ -90,7 +90,7 @@ namespace atg_math {
         inline t_matrix transpose() { return set_transpose(&t_matrix()); }
         inline t_vec operator*(const t_vec &v) { return generic_vector_multiply(*this, v); }
         inline t_matrix &mul(const t_matrix &m, t_matrix *target) const {
-            assert(&v != target);
+            assert(&m != target);
             assert(this != target);
 
             return generic_matrix_multiply(*this, m, target);

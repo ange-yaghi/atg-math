@@ -3,6 +3,7 @@
 
 #include <cmath>
 #include <cstdint>
+
 #include <xmmintrin.h>
 #include <emmintrin.h>
 
@@ -103,6 +104,21 @@ namespace atg_math {
             return (*this) / magnitude(); \
         }
 
+#define DEFINE_CONVERSION_CONSTRUCTOR \
+        template<typename t_b_type> \
+        vec(const t_b_type &b) { \
+            constexpr unsigned int l = (t_size < t_b_type::t_size) \
+                ? t_size \
+                : t_b_type::t_size; \
+            for (unsigned int i = 0; i < t_size; ++i) { \
+                data[i] = (t_scalar)b.data[i]; \
+            } \
+            \
+            for (unsigned int i = l; i < t_size; ++i) { \
+                data[i] = (t_scalar)0; \
+            } \
+        }
+
 #define DEFINE_CONVERSION \
         template<typename t_b_type> \
         inline t_vec operator=(const t_b_type &b) { \
@@ -110,11 +126,11 @@ namespace atg_math {
                 ? t_size \
                 : t_b_type::t_size; \
             for (unsigned int i = 0; i < t_size; ++i) { \
-                data[i] = b.data[i]; \
+                data[i] = (t_scalar)b.data[i]; \
             } \
             \
             for (unsigned int i = l; i < t_size; ++i) { \
-                data[i] = 0; \
+                data[i] = (t_scalar)0; \
             } \
             \
             return *this; \
@@ -163,6 +179,7 @@ namespace atg_math {
             t_scalar data[t_size];
         };
 
+        DEFINE_CONVERSION_CONSTRUCTOR
         DEFINE_CONVERSION
         DEFINE_DEFAULT_CONSTRUCTOR
 
@@ -194,9 +211,11 @@ namespace atg_math {
             struct { t_scalar s, t; };
             struct { t_scalar u, v; };
             struct { t_scalar x, y; };
+            struct { t_scalar w, h; };
             t_scalar data[t_size];
         };
 
+        DEFINE_CONVERSION_CONSTRUCTOR
         DEFINE_CONVERSION
         DEFINE_SCALAR_CONSTRUCTOR
         DEFINE_DEFAULT_CONSTRUCTOR
@@ -250,6 +269,7 @@ namespace atg_math {
             };
         }
 
+        DEFINE_CONVERSION_CONSTRUCTOR
         DEFINE_CONVERSION
         DEFINE_SCALAR_CONSTRUCTOR
         DEFINE_DEFAULT_CONSTRUCTOR
@@ -302,6 +322,7 @@ namespace atg_math {
             };
         }
 
+        DEFINE_CONVERSION_CONSTRUCTOR
         DEFINE_CONVERSION
         DEFINE_SCALAR_CONSTRUCTOR
         DEFINE_DEFAULT_CONSTRUCTOR
@@ -337,6 +358,7 @@ namespace atg_math {
 
         t_scalar data[t_size];
 
+        DEFINE_CONVERSION_CONSTRUCTOR
         DEFINE_CONVERSION
         DEFINE_SCALAR_CONSTRUCTOR
         DEFINE_DEFAULT_CONSTRUCTOR
@@ -500,6 +522,24 @@ namespace atg_math {
     template<unsigned int t_size> using vec_s = vec<float, t_size, false>;
     template<unsigned int t_size> using dvec_s = vec<double, t_size, false>;
     template<unsigned int t_size> using ivec_s = vec<int, t_size, false>;
+
+#if ATG_MATH_USE_INTRINSICS
+    using vec4 = vec4_v;
+#else
+    using vec4 = vec4_s;
+#endif  // ATG_MATH_USE_INTRINSICS
+
+    using vec2 = vec2_s;
+    using ivec2 = ivec2_s;
+    using dvec2 = dvec2_s;
+
+    using vec3 = vec3_s;
+    using ivec3 = ivec3_s;
+    using dvec3 = dvec3_s;
+
+    using quat = quat_s;
+    using ivec4 = ivec4_s;
+    using dvec4 = dvec4_s;
 } /* namespace atg_math */
 
 #endif /* ATG_MATH_ATG_MATH_H */
