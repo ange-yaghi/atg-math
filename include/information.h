@@ -6,7 +6,7 @@
  */
 
 namespace PROJECT_NAMESPACE {
-    const char *getVersion();
+const char* getVersion();
 } /* namespace PROJECT_NAMESPACE */
 
 #endif /* ATG_MATH_INFORMATION_H */

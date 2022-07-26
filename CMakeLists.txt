@@ -43,13 +43,6 @@ add_library("${ProjectName}" STATIC
 
 target_compile_definitions("${ProjectName}" PRIVATE PROJECT_NAMESPACE=${ProjectNamespace})
 
-add_executable("${ProjectName}-main"
-    # Source files
-    src/main.cpp
-
-    # Header files
-)
-
 # gtest
 
 enable_testing()
