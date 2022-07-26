@@ -22,7 +22,7 @@ t_vec *generate_random_array(int seed, int test_size) {
     //}
 
     for (int i = 0; i < test_size; ++i) {
-        data[i] = t_vec(i, i + 1, i + 2, i + 3) * 0.0001f;
+        data[i] = t_vec((float) i, (float) i + 1, (float) i + 2, (float) i + 3) * 0.0001f;
     }
 
     return data;
