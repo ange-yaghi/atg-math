@@ -452,12 +452,8 @@ template<>
 struct vec<float, 4, true> {
     typedef vec<float, 4, true> t_vec;
 
-    inline vec()
-    { /* void */
-    }
-    inline vec(const __m128& v) : data_v(v)
-    { /* void */
-    }
+    inline vec() : x(0), y(0), z(0), w(0) {}
+    inline vec(const __m128& v) : data_v(v) {}
     inline vec(float x, float y, float z, float w = 0)
     {
         data_v = _mm_set_ps(w, z, y, x);
@@ -541,9 +537,12 @@ struct vec<float, 4, true> {
 
     inline t_vec sum() const
     {
-        const __m128 t1 = _mm_shuffle_ps(data_v, data_v, M128_SHUFFLE(S_Z, S_W, S_X, S_Y));
-        const __m128 t2 = _mm_add_ps(data_v, t1);
-        const __m128 t3 = _mm_shuffle_ps(t2, t2, M128_SHUFFLE(S_Y, S_X, S_Z, S_W));
+        const __m128 t1 =
+            _mm_shuffle_ps(data_v, data_v, M128_SHUFFLE(S_Z, S_W, S_X, S_Y));
+        const __m128 t2 =
+            _mm_add_ps(data_v, t1);
+        const __m128 t3 =
+            _mm_shuffle_ps(t2, t2, M128_SHUFFLE(S_Y, S_X, S_Z, S_W));
         return _mm_add_ps(t3, t2);
     }
 
@@ -555,10 +554,14 @@ struct vec<float, 4, true> {
 
     inline t_vec cross(const t_vec& b) const
     {
-        const __m128 t1 = _mm_shuffle_ps(data_v, data_v, M128_SHUFFLE(S_Y, S_Z, S_X, S_W));
-        const __m128 t2 = _mm_shuffle_ps(b.data_v, b.data_v, M128_SHUFFLE(S_Z, S_X, S_Y, S_W));
-        const __m128 t3 = _mm_shuffle_ps(data_v, data_v, M128_SHUFFLE(S_Z, S_X, S_Y, S_W));
-        const __m128 t4 = _mm_shuffle_ps(b.data_v, b.data_v, M128_SHUFFLE(S_Y, S_Z, S_X, S_W));
+        const __m128 t1 = _mm_shuffle_ps(
+                data_v, data_v, M128_SHUFFLE(S_Y, S_Z, S_X, S_W));
+        const __m128 t2 = _mm_shuffle_ps(
+                b.data_v, b.data_v, M128_SHUFFLE(S_Z, S_X, S_Y, S_W));
+        const __m128 t3 = _mm_shuffle_ps(
+                data_v, data_v, M128_SHUFFLE(S_Z, S_X, S_Y, S_W));
+        const __m128 t4 = _mm_shuffle_ps(
+                b.data_v, b.data_v, M128_SHUFFLE(S_Y, S_Z, S_X, S_W));
 
         return _mm_sub_ps(_mm_mul_ps(t1, t2), _mm_mul_ps(t3, t4));
     }
