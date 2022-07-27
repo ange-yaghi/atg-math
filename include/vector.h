@@ -150,7 +150,6 @@ struct vec {
         return *this;                                          \
     }                                                          \
                                                                \
-    template<>                                                 \
     inline t_vec operator=(const t_scalar& b)                  \
     {                                                          \
         for (unsigned int i = 0; i < t_size; ++i) {            \
