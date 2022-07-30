@@ -12,6 +12,10 @@ template<typename t_scalar, unsigned int t_size, bool t_enable_simd>
 struct vec {
 };
 
+#define ATG_MATH_ALIAS(name, index)                 \
+    inline t_scalar& name() { return data[index]; } \
+    inline t_scalar name() const { return data[index]; }
+
 #define DEFINE_T_VEC \
     typedef vec<t_scalar, t_size, false> t_vec
 
@@ -27,6 +31,17 @@ struct vec {
             result.data[i] = data[i] op b.data[i];  \
         }                                           \
         return result;                              \
+    }
+
+#define DEFINE_COMPARISON_OPERATOR(op)              \
+    inline bool operator op(const t_vec& b) const   \
+    {                                               \
+        for (unsigned int i = 0; i < t_size; ++i) { \
+            if (!(data[i] op b.data[i])) {          \
+                return false;                       \
+            }                                       \
+        }                                           \
+        return true;                                \
     }
 
 #define DEFINE_ASSIGNMENT_OPERATOR(full_op, op)     \
@@ -124,11 +139,11 @@ struct vec {
                                            ? t_size            \
                                            : t_b_type::t_size; \
         for (unsigned int i = 0; i < t_size; ++i) {            \
-            data[i] = (t_scalar) b.data[i];                    \
+            data[i] = static_cast<t_scalar>(b.data[i]);        \
         }                                                      \
                                                                \
         for (unsigned int i = l; i < t_size; ++i) {            \
-            data[i] = (t_scalar) 0;                            \
+            data[i] = static_cast<t_scalar>(0);                \
         }                                                      \
     }
 
@@ -211,9 +226,7 @@ struct vec<t_scalar, 1, false> {
     }
 
     union {
-        struct {
-            t_scalar s;
-        };
+        t_scalar s;
         t_scalar data[t_size];
     };
 
@@ -227,6 +240,7 @@ struct vec<t_scalar, 1, false> {
     DEFINE_COMPONENT_WISE_OPERATOR(-)
     DEFINE_COMPONENT_WISE_OPERATOR(*)
     DEFINE_COMPONENT_WISE_OPERATOR(/)
+    DEFINE_COMPARISON_OPERATOR(==)
 
     DEFINE_NEGATE_OPERATOR
     DEFINE_POSITIVE_OPERATOR
@@ -241,26 +255,25 @@ template<typename t_scalar>
 struct vec<t_scalar, 2, false> {
     VEC_DEFINES(2)
 
-    vec(t_scalar x, t_scalar y) : x(x), y(y)
+    vec(t_scalar x, t_scalar y)
     {
-        /* void */
+        data[0] = x;
+        data[1] = y;
     }
 
-    union {
-        struct {
-            t_scalar s, t;
-        };
-        struct {
-            t_scalar u, v;
-        };
-        struct {
-            t_scalar x, y;
-        };
-        struct {
-            t_scalar w, h;
-        };
-        t_scalar data[t_size];
-    };
+    ATG_MATH_ALIAS(x, 0)
+    ATG_MATH_ALIAS(y, 1)
+
+    ATG_MATH_ALIAS(s, 0)
+    ATG_MATH_ALIAS(t, 1)
+
+    ATG_MATH_ALIAS(u, 0)
+    ATG_MATH_ALIAS(v, 1)
+
+    ATG_MATH_ALIAS(w, 0)
+    ATG_MATH_ALIAS(h, 1)
+
+    t_scalar data[t_size];
 
     DEFINE_CONVERSION_CONSTRUCTOR
     DEFINE_CONVERSION
@@ -273,6 +286,7 @@ struct vec<t_scalar, 2, false> {
     DEFINE_COMPONENT_WISE_OPERATOR(-)
     DEFINE_COMPONENT_WISE_OPERATOR(*)
     DEFINE_COMPONENT_WISE_OPERATOR(/)
+    DEFINE_COMPARISON_OPERATOR(==)
 
     DEFINE_NEGATE_OPERATOR
     DEFINE_POSITIVE_OPERATOR
@@ -295,32 +309,35 @@ struct vec<t_scalar, 2, false> {
 
 template<typename t_scalar>
 struct vec<t_scalar, 3, false> {
-    VEC_DEFINES(3);
+    VEC_DEFINES(3)
 
-    vec(t_scalar x, t_scalar y, t_scalar z) : x(x), y(y), z(z)
+    vec(t_scalar x, t_scalar y, t_scalar z)
     {
-        /* void */
+        data[0] = x;
+        data[1] = y;
+        data[2] = z;
     }
 
-    union {
-        struct {
-            t_scalar u, v, w;
-        };
-        struct {
-            t_scalar x, y, z;
-        };
-        struct {
-            t_scalar r, g, b;
-        };
-        t_scalar data[t_size];
-    };
+    ATG_MATH_ALIAS(x, 0)
+    ATG_MATH_ALIAS(y, 1)
+    ATG_MATH_ALIAS(z, 2)
+
+    ATG_MATH_ALIAS(u, 0)
+    ATG_MATH_ALIAS(v, 1)
+    ATG_MATH_ALIAS(w, 2)
+
+    ATG_MATH_ALIAS(r, 0)
+    ATG_MATH_ALIAS(g, 1)
+    ATG_MATH_ALIAS(b, 2)
+
+    t_scalar data[t_size];
 
     t_vec cross(const t_vec& b) const
     {
         return {
-                y * b.z - z * b.y,
-                z * b.x - x * b.z,
-                x * b.y - y * b.x};
+                y() * b.z() - z() * b.y(),
+                z() * b.x() - x() * b.z(),
+                x() * b.y() - y() * b.x()};
     }
 
     DEFINE_CONVERSION_CONSTRUCTOR
@@ -334,6 +351,7 @@ struct vec<t_scalar, 3, false> {
     DEFINE_COMPONENT_WISE_OPERATOR(-)
     DEFINE_COMPONENT_WISE_OPERATOR(*)
     DEFINE_COMPONENT_WISE_OPERATOR(/)
+    DEFINE_COMPARISON_OPERATOR(==)
 
     DEFINE_NEGATE_OPERATOR
     DEFINE_POSITIVE_OPERATOR
@@ -355,30 +373,36 @@ struct vec<t_scalar, 3, false> {
 
 template<typename t_scalar>
 struct vec<t_scalar, 4, false> {
-    VEC_DEFINES(4);
+    VEC_DEFINES(4)
 
-    vec(t_scalar x, t_scalar y, t_scalar z, t_scalar w) : x(x), y(y), z(z), w(w)
+    vec(t_scalar x, t_scalar y, t_scalar z, t_scalar w)
     {
-        /* void */
+        data[0] = x;
+        data[1] = y;
+        data[2] = z;
+        data[3] = w;
     }
 
-    union {
-        struct {
-            t_scalar x, y, z, w;
-        };
-        struct {
-            t_scalar r, g, b, a;
-        };
-        t_scalar data[t_size];
-    };
+    ATG_MATH_ALIAS(x, 0)
+    ATG_MATH_ALIAS(y, 1)
+    ATG_MATH_ALIAS(z, 2)
+    ATG_MATH_ALIAS(w, 3)
+
+    ATG_MATH_ALIAS(r, 0)
+    ATG_MATH_ALIAS(g, 1)
+    ATG_MATH_ALIAS(b, 2)
+    ATG_MATH_ALIAS(a, 3)
+
+
+    t_scalar data[t_size];
 
     t_vec cross(const t_vec& b) const
     {
         return {
-                y * b.z - z * b.y,
-                z * b.x - x * b.z,
-                x * b.y - y * b.x,
-                0.0f};
+                y() * b.z() - z() * b.y(),
+                z() * b.x() - x() * b.z(),
+                x() * b.y() - y() * b.x(),
+                (t_scalar) 0};
     }
 
     DEFINE_CONVERSION_CONSTRUCTOR
@@ -392,6 +416,7 @@ struct vec<t_scalar, 4, false> {
     DEFINE_COMPONENT_WISE_OPERATOR(-)
     DEFINE_COMPONENT_WISE_OPERATOR(*)
     DEFINE_COMPONENT_WISE_OPERATOR(/)
+    DEFINE_COMPARISON_OPERATOR(==)
 
     DEFINE_NEGATE_OPERATOR
     DEFINE_POSITIVE_OPERATOR
@@ -428,6 +453,7 @@ struct vec<t_scalar, t_size, false> {
     DEFINE_COMPONENT_WISE_OPERATOR(-)
     DEFINE_COMPONENT_WISE_OPERATOR(*)
     DEFINE_COMPONENT_WISE_OPERATOR(/)
+    DEFINE_COMPARISON_OPERATOR(==)
 
     DEFINE_NEGATE_OPERATOR
     DEFINE_POSITIVE_OPERATOR
@@ -449,9 +475,10 @@ struct vec<t_scalar, t_size, false> {
 
 template<>
 struct vec<float, 4, true> {
+    using t_scalar = float;
     typedef vec<float, 4, true> t_vec;
 
-    inline vec() : x(0), y(0), z(0), w(0) {}
+    inline vec() { data[0] = data[1] = data[2] = data[3] = 0; }
     inline vec(const __m128& v) : data_v(v) {}
     inline vec(float x, float y, float z, float w = 0)
     {
@@ -462,13 +489,17 @@ struct vec<float, 4, true> {
         data_v = _mm_set_ps1(s);
     }
 
+    ATG_MATH_ALIAS(x, 0)
+    ATG_MATH_ALIAS(y, 1)
+    ATG_MATH_ALIAS(z, 2)
+    ATG_MATH_ALIAS(w, 3)
+
+    ATG_MATH_ALIAS(r, 0)
+    ATG_MATH_ALIAS(g, 1)
+    ATG_MATH_ALIAS(b, 2)
+    ATG_MATH_ALIAS(a, 3)
+
     union {
-        struct {
-            float x, y, z, w;
-        };
-        struct {
-            float r, g, b, a;
-        };
         float data[4];
         __m128 data_v;
     };
@@ -485,7 +516,8 @@ struct vec<float, 4, true> {
 
     inline t_vec operator-() const
     {
-        const __m128 mask = _mm_castsi128_ps(_mm_set1_epi32(0x80000000));
+        const __m128 mask = _mm_castsi128_ps(
+                _mm_set1_epi32(-2147483647 - 1));
         return _mm_xor_ps(data_v, mask);
     }
 
@@ -514,6 +546,12 @@ struct vec<float, 4, true> {
         return _mm_div_ps(data_v, b.data_v);
     }
 
+    inline bool operator==(const t_vec& b) const
+    {
+        const t_vec cmp = _mm_cmpeq_ps(data_v, b.data_v);
+        return !(cmp.x() == 0 || cmp.y() == 0 || cmp.z() == 0 || cmp.w() == 0);
+    }
+
     inline t_vec operator+=(const t_vec& b)
     {
         return data_v = _mm_add_ps(data_v, b.data_v);
@@ -537,11 +575,11 @@ struct vec<float, 4, true> {
     inline t_vec sum() const
     {
         const __m128 t1 =
-            _mm_shuffle_ps(data_v, data_v, M128_SHUFFLE(S_Z, S_W, S_X, S_Y));
+                _mm_shuffle_ps(data_v, data_v, M128_SHUFFLE(S_Z, S_W, S_X, S_Y));
         const __m128 t2 =
-            _mm_add_ps(data_v, t1);
+                _mm_add_ps(data_v, t1);
         const __m128 t3 =
-            _mm_shuffle_ps(t2, t2, M128_SHUFFLE(S_Y, S_X, S_Z, S_W));
+                _mm_shuffle_ps(t2, t2, M128_SHUFFLE(S_Y, S_X, S_Z, S_W));
         return _mm_add_ps(t3, t2);
     }
 
