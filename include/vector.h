@@ -155,11 +155,11 @@ struct vec {
                                            ? t_size            \
                                            : t_b_type::t_size; \
         for (unsigned int i = 0; i < t_size; ++i) {            \
-            data[i] = (t_scalar) b.data[i];                    \
+            data[i] = static_cast<t_scalar>(b.data[i]);        \
         }                                                      \
                                                                \
         for (unsigned int i = l; i < t_size; ++i) {            \
-            data[i] = (t_scalar) 0;                            \
+            data[i] = static_cast<t_scalar>(0);                \
         }                                                      \
                                                                \
         return *this;                                          \
@@ -178,25 +178,25 @@ struct vec {
     vec(int s)                                      \
     {                                               \
         for (unsigned int i = 0; i < t_size; ++i) { \
-            data[i] = (t_scalar) s;                 \
+            data[i] = static_cast<t_scalar>(s);     \
         }                                           \
     }                                               \
     vec(float s)                                    \
     {                                               \
         for (unsigned int i = 0; i < t_size; ++i) { \
-            data[i] = (t_scalar) s;                 \
+            data[i] = static_cast<t_scalar>(s);     \
         }                                           \
     }                                               \
     vec(double s)                                   \
     {                                               \
         for (unsigned int i = 0; i < t_size; ++i) { \
-            data[i] = (t_scalar) s;                 \
+            data[i] = static_cast<t_scalar>(s);     \
         }                                           \
     }                                               \
     vec(unsigned int s)                             \
     {                                               \
         for (unsigned int i = 0; i < t_size; ++i) { \
-            data[i] = (t_scalar) s;                 \
+            data[i] = static_cast<t_scalar>(s);     \
         }                                           \
     }
 
@@ -220,15 +220,14 @@ template<typename t_scalar>
 struct vec<t_scalar, 1, false> {
     VEC_DEFINES(1)
 
-    vec(t_scalar s) : s(s)
+    vec(t_scalar s)
     {
-        /* void */
+        data[0] = s;
     }
 
-    union {
-        t_scalar s;
-        t_scalar data[t_size];
-    };
+    ATG_MATH_ALIAS(s, 0)
+
+    t_scalar data[t_size];
 
     DEFINE_CONVERSION_CONSTRUCTOR
     DEFINE_CONVERSION
@@ -402,7 +401,7 @@ struct vec<t_scalar, 4, false> {
                 y() * b.z() - z() * b.y(),
                 z() * b.x() - x() * b.z(),
                 x() * b.y() - y() * b.x(),
-                (t_scalar) 0};
+                0};
     }
 
     DEFINE_CONVERSION_CONSTRUCTOR

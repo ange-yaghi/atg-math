@@ -19,9 +19,8 @@ NON_SIMD_MATRIX& generic_set_identity(NON_SIMD_MATRIX* target)
 {
     for (unsigned int i = 0; i < t_size; ++i) {
         for (unsigned int j = 0; j < t_size; ++j) {
-            target->columns[i].data[j] = (i == j)
-                                                 ? (t_scalar) 1
-                                                 : (t_scalar) 0;
+            target->columns[i].data[j] =
+                    static_cast<t_scalar>((i == j) ? 1 : 0);
         }
     }
 
