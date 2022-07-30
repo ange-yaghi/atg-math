@@ -240,6 +240,7 @@ struct vec<t_scalar, 1, false> {
     DEFINE_COMPONENT_WISE_OPERATOR(*)
     DEFINE_COMPONENT_WISE_OPERATOR(/)
     DEFINE_COMPARISON_OPERATOR(==)
+    DEFINE_COMPARISON_OPERATOR(!=)
 
     DEFINE_NEGATE_OPERATOR
     DEFINE_POSITIVE_OPERATOR
@@ -286,6 +287,7 @@ struct vec<t_scalar, 2, false> {
     DEFINE_COMPONENT_WISE_OPERATOR(*)
     DEFINE_COMPONENT_WISE_OPERATOR(/)
     DEFINE_COMPARISON_OPERATOR(==)
+    DEFINE_COMPARISON_OPERATOR(!=)
 
     DEFINE_NEGATE_OPERATOR
     DEFINE_POSITIVE_OPERATOR
@@ -351,6 +353,7 @@ struct vec<t_scalar, 3, false> {
     DEFINE_COMPONENT_WISE_OPERATOR(*)
     DEFINE_COMPONENT_WISE_OPERATOR(/)
     DEFINE_COMPARISON_OPERATOR(==)
+    DEFINE_COMPARISON_OPERATOR(!=)
 
     DEFINE_NEGATE_OPERATOR
     DEFINE_POSITIVE_OPERATOR
@@ -416,6 +419,7 @@ struct vec<t_scalar, 4, false> {
     DEFINE_COMPONENT_WISE_OPERATOR(*)
     DEFINE_COMPONENT_WISE_OPERATOR(/)
     DEFINE_COMPARISON_OPERATOR(==)
+    DEFINE_COMPARISON_OPERATOR(!=)
 
     DEFINE_NEGATE_OPERATOR
     DEFINE_POSITIVE_OPERATOR
@@ -453,6 +457,7 @@ struct vec<t_scalar, t_size, false> {
     DEFINE_COMPONENT_WISE_OPERATOR(*)
     DEFINE_COMPONENT_WISE_OPERATOR(/)
     DEFINE_COMPARISON_OPERATOR(==)
+    DEFINE_COMPARISON_OPERATOR(!=)
 
     DEFINE_NEGATE_OPERATOR
     DEFINE_POSITIVE_OPERATOR
@@ -549,6 +554,12 @@ struct vec<float, 4, true> {
     {
         const t_vec cmp = _mm_cmpeq_ps(data_v, b.data_v);
         return !(cmp.x() == 0 || cmp.y() == 0 || cmp.z() == 0 || cmp.w() == 0);
+    }
+
+    inline bool operator!=(const t_vec& b) const
+    {
+        const t_vec cmp = _mm_cmpeq_ps(data_v, b.data_v);
+        return cmp.x() == 0 && cmp.y() == 0 && cmp.z() == 0 && cmp.w() == 0;
     }
 
     inline t_vec operator+=(const t_vec& b)
