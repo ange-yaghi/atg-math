@@ -116,7 +116,7 @@ struct vec {
 #define DEFINE_MAGNITUDE_SQUARED              \
     inline t_scalar magnitude_squared() const \
     {                                         \
-        return dot(*this);                    \
+        return t_scalar(dot(*this));          \
     }
 
 #define DEFINE_MAGNITUDE                       \
@@ -208,7 +208,7 @@ struct vec {
     }
 
 #define DEFINE_EXPLICIT_SCALAR_CONVERSION \
-    inline explicit operator float() const { return data[0]; }
+    inline explicit operator t_scalar() const { return data[0]; }
 
 #define S_X 0
 #define S_Y 1
@@ -383,6 +383,19 @@ struct vec<t_scalar, 4, false> {
         data[1] = y;
         data[2] = z;
         data[3] = w;
+    }
+
+    vec(t_scalar x, t_scalar y) {
+        data[0] = x;
+        data[1] = y;
+        data[2] = data[3] = 0;
+    }
+
+    vec(t_scalar x, t_scalar y, t_scalar z) {
+        data[0] = x;
+        data[1] = y;
+        data[2] = z;
+        data[3] = 0;
     }
 
     ATG_MATH_ALIAS(x, 0)
