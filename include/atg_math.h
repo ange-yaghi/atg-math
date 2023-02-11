@@ -3,5 +3,6 @@
 
 #include "matrix.h"
 #include "vector.h"
+#include "library.h"
 
 #endif /* ATG_MATH_ATG_MATH_H */

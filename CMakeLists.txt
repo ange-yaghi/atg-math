@@ -35,10 +35,11 @@ add_library("${ProjectName}" STATIC
     src/information.cpp
 
     # Header files
-    include/information.h
     include/atg_math.h
-    include/vector.h
+    include/information.h
+    include/library.h
     include/matrix.h
+    include/vector.h
 )
 
 target_compile_definitions("${ProjectName}" PRIVATE PROJECT_NAMESPACE=${ProjectNamespace})
@@ -49,6 +50,7 @@ enable_testing()
 
 add_executable("${ProjectName}-test"
     # Source files
+    test/library_test.cpp
     test/sanity_test.cpp
 
     # Head files

@@ -15,8 +15,7 @@ struct matrix { /* void */
 #define NON_SIMD_VECTOR vec<t_scalar, t_size, false>
 
 NON_SIMD_TEMPLATE
-NON_SIMD_MATRIX& generic_set_identity(NON_SIMD_MATRIX* target)
-{
+NON_SIMD_MATRIX &generic_set_identity(NON_SIMD_MATRIX *target) {
     for (unsigned int i = 0; i < t_size; ++i) {
         for (unsigned int j = 0; j < t_size; ++j) {
             target->columns[i].data[j] =
@@ -28,10 +27,8 @@ NON_SIMD_MATRIX& generic_set_identity(NON_SIMD_MATRIX* target)
 }
 
 NON_SIMD_TEMPLATE
-NON_SIMD_MATRIX& generic_set_transpose(
-        const NON_SIMD_MATRIX& source,
-        NON_SIMD_MATRIX* target)
-{
+NON_SIMD_MATRIX &generic_set_transpose(const NON_SIMD_MATRIX &source,
+                                       NON_SIMD_MATRIX *target) {
     for (unsigned int i = 0; i < t_size; ++i) {
         for (unsigned int j = 0; j < t_size; ++j) {
             const t_scalar temp = source.columns[i].data[j];
@@ -44,24 +41,20 @@ NON_SIMD_MATRIX& generic_set_transpose(
 }
 
 NON_SIMD_TEMPLATE
-NON_SIMD_VECTOR generic_vector_multiply(
-        const NON_SIMD_MATRIX& mat,
-        const NON_SIMD_VECTOR& v)
-{
-    NON_SIMD_VECTOR result = v.data[0] * mat.columns[0];
+NON_SIMD_VECTOR generic_vector_multiply(const NON_SIMD_MATRIX &mat,
+                                        const NON_SIMD_VECTOR &v) {
+    NON_SIMD_VECTOR result = mat.columns[0] * v.data[0];
     for (unsigned int i = 1; i < t_size; ++i) {
-        result += v.data[i] * mat.columns[i];
+        result += mat.columns[i] * v.data[i];
     }
 
     return result;
 }
 
 NON_SIMD_TEMPLATE
-NON_SIMD_MATRIX& generic_matrix_multiply(
-        const NON_SIMD_MATRIX& mat0,
-        const NON_SIMD_MATRIX& mat1,
-        NON_SIMD_MATRIX* target)
-{
+NON_SIMD_MATRIX &generic_matrix_multiply(const NON_SIMD_MATRIX &mat0,
+                                         const NON_SIMD_MATRIX &mat1,
+                                         NON_SIMD_MATRIX *target) {
     for (unsigned int col = 0; col < t_size; ++col) {
         for (unsigned int row = 0; row < t_size; ++row) {
             t_scalar dot = 0;
@@ -78,55 +71,56 @@ NON_SIMD_MATRIX& generic_matrix_multiply(
 
 template<typename t_scalar, unsigned int t_size>
 struct matrix<t_scalar, t_size, false> {
+    typedef t_scalar t_scalar;
     typedef vec<t_scalar, t_size, false> t_vec;
     typedef matrix<t_scalar, t_size, false> t_matrix;
 
     t_vec columns[t_size];
 
-    inline t_matrix& set_identity() { return generic_set_identity(this); }
-    inline t_matrix& set_transpose(t_matrix* target) const
-    {
+    inline t_matrix &set_identity() { return generic_set_identity(this); }
+    inline t_matrix &set_transpose(t_matrix *target) const {
         return generic_set_transpose(*this, target);
     }
-    inline t_matrix& set_transpose() { return set_transpose(this); }
+    inline t_matrix &set_transpose() { return set_transpose(this); }
     inline t_matrix transpose() { return set_transpose(&t_matrix()); }
-    inline t_vec operator*(const t_vec& v) { return generic_vector_multiply(*this, v); }
-    inline t_matrix& mul(const t_matrix& m, t_matrix* target) const
-    {
+    inline t_vec operator*(const t_vec &v) {
+        return generic_vector_multiply(*this, v);
+    }
+    inline t_matrix &mul(const t_matrix &m, t_matrix *target) const {
         assert(&m != target);
         assert(this != target);
 
         return generic_matrix_multiply(*this, m, target);
     }
-    inline t_matrix operator*(const t_matrix& v) const { return mul(v, &t_matrix()); }
-    inline t_matrix operator*=(const t_matrix& v) { *this = (*this) * v; }
+    inline t_matrix operator*(const t_matrix &v) const {
+        return mul(v, &t_matrix());
+    }
+    inline t_matrix operator*=(const t_matrix &v) { *this = (*this) * v; }
 };
 
 template<typename t_scalar>
 struct matrix<t_scalar, 4, true> {
+    typedef t_scalar t_scalar;
     typedef vec<t_scalar, 4, true> t_vec;
     typedef matrix<t_scalar, 4, true> t_matrix;
 
     t_vec columns[4];
 
-    inline matrix()
-    { /* void */
-    }
-    inline matrix(const t_vec& c0, const t_vec& c1, const t_vec& c2, const t_vec& c3)
-    {
+    inline matrix() {}
+    inline matrix(const t_vec &c0, const t_vec &c1, const t_vec &c2,
+                  const t_vec &c3) {
         set(c0, c1, c2, c3);
     }
 
-    inline void set(const t_vec& c0, const t_vec& c1, const t_vec& c2, const t_vec& c3)
-    {
+    inline void set(const t_vec &c0, const t_vec &c1, const t_vec &c2,
+                    const t_vec &c3) {
         columns[0] = c0;
         columns[1] = c1;
         columns[2] = c2;
         columns[3] = c3;
     }
 
-    inline t_matrix& set_identity()
-    {
+    inline t_matrix &set_identity() {
         columns[0] = {1.0f, 0.0f, 0.0f, 0.0f};
         columns[1] = {0.0f, 1.0f, 0.0f, 0.0f};
         columns[2] = {0.0f, 0.0f, 1.0f, 0.0f};
@@ -135,8 +129,7 @@ struct matrix<t_scalar, 4, true> {
         return *this;
     }
 
-    inline t_matrix& set_transpose(t_matrix* target) const
-    {
+    inline t_matrix &set_transpose(t_matrix *target) const {
         const __m128 t0 = _mm_shuffle_ps(columns[0], columns[1], 0x44);
         const __m128 t1 = _mm_shuffle_ps(columns[0], columns[1], 0xEE);
         const __m128 t2 = _mm_shuffle_ps(columns[2], columns[3], 0x44);
@@ -150,25 +143,24 @@ struct matrix<t_scalar, 4, true> {
         return *target;
     }
 
-    inline t_matrix& set_transpose() { return set_transpose(this); }
+    inline t_matrix &set_transpose() { return set_transpose(this); }
     inline t_matrix transpose() { return set_transpose(&t_matrix()); }
 
-    inline t_vec operator*(const t_vec& v)
-    {
-        const t_vec v_x =
-                _mm_shuffle_ps(v.data_v, v.data_v, M128_SHUFFLE(S_X, S_X, S_X, S_X));
-        const t_vec v_y =
-                _mm_shuffle_ps(v.data_v, v.data_v, M128_SHUFFLE(S_Y, S_Y, S_Y, S_Y));
-        const t_vec v_z =
-                _mm_shuffle_ps(v.data_v, v.data_v, M128_SHUFFLE(S_Z, S_Z, S_Z, S_Z));
-        const t_vec v_w =
-                _mm_shuffle_ps(v.data_v, v.data_v, M128_SHUFFLE(S_W, S_W, S_W, S_W));
+    inline t_vec operator*(const t_vec &v) {
+        const t_vec v_x = _mm_shuffle_ps(v.data_v, v.data_v,
+                                         M128_SHUFFLE(S_X, S_X, S_X, S_X));
+        const t_vec v_y = _mm_shuffle_ps(v.data_v, v.data_v,
+                                         M128_SHUFFLE(S_Y, S_Y, S_Y, S_Y));
+        const t_vec v_z = _mm_shuffle_ps(v.data_v, v.data_v,
+                                         M128_SHUFFLE(S_Z, S_Z, S_Z, S_Z));
+        const t_vec v_w = _mm_shuffle_ps(v.data_v, v.data_v,
+                                         M128_SHUFFLE(S_W, S_W, S_W, S_W));
 
-        return v_x * columns[0] + v_y * columns[1] + v_z * columns[2] + v_w * columns[3];
+        return v_x * columns[0] + v_y * columns[1] + v_z * columns[2] +
+               v_w * columns[3];
     }
 
-    inline t_matrix& mul(const t_matrix& m, t_matrix* target) const
-    {
+    inline t_matrix &mul(const t_matrix &m, t_matrix *target) const {
         assert(&m != target);
         assert(this != target);
 
@@ -183,8 +175,11 @@ struct matrix<t_scalar, 4, true> {
         return *target;
     }
 
-    inline t_matrix operator*(const t_matrix& v) const { return mul(v, &t_matrix()); }
-    inline t_matrix operator*=(const t_matrix& v) { *this = (*this) * v; }
+    inline t_matrix operator*(const t_matrix &v) const {
+        return mul(v, &t_matrix());
+    }
+
+    inline t_matrix operator*=(const t_matrix &v) { *this = (*this) * v; }
 };
 
 typedef matrix<float, 3, false> mat33_s;
