@@ -105,7 +105,7 @@ struct vec {};
     inline t_scalar magnitude() const { return std::sqrt(magnitude_squared()); }
 
 #define DEFINE_NORMALIZE                                                       \
-    inline t_scalar normalize() const { return (*this) / magnitude(); }
+    inline t_vec normalize() const { return (*this) / magnitude(); }
 
 #define DEFINE_CONVERSION_CONSTRUCTOR                                          \
     template<typename t_b_type>                                                \
@@ -540,7 +540,7 @@ struct vec<float, 4, true> {
                                          M128_SHUFFLE(S_Z, S_W, S_X, S_Y));
         const __m128 t2 = _mm_add_ps(data_v, t1);
         const __m128 t3 =
-                _mm_shuffle_ps(t2, t2, M128_SHUFFLE(S_Y, S_X, S_Z, S_W));
+                _mm_shuffle_ps(t2, t2, M128_SHUFFLE(S_Y, S_X, S_W, S_Z));
         return _mm_add_ps(t3, t2);
     }
 
@@ -574,6 +574,9 @@ struct vec<float, 4, true> {
     inline t_vec magnitude_squared() const { return dot(*this); }
     inline t_vec sqrt() const { return _mm_sqrt_ps(data_v); }
     inline t_vec magnitude() const { return magnitude_squared().sqrt(); }
+    inline t_vec normalize() const {
+        return _mm_div_ps(data_v, magnitude());
+    }
 };
 
 typedef vec<float, 2, false> vec2_s;

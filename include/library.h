@@ -54,6 +54,84 @@ void rotationMatrixReference(const typename t_matrix::t_vec &axis,
             cos_theta + axis.z() * axis.z() * (1 - cos_theta)};
 }
 
+template<typename t_matrix>
+void translationMatrix(const typename t_matrix::t_vec &translation,
+                       t_matrix *target) {
+    target->set_identity();
+    target->columns[3] = translation;
+    target->columns[3].data[3] = 1;
+}
+
+template<typename t_matrix>
+void scaleMatrix(const typename t_matrix::t_vec &scale, t_matrix *target) {
+    target->set_identity();
+    target->columns[0].data[0] = scale.x();
+    target->columns[1].data[1] = scale.y();
+    target->columns[2].data[2] = scale.z();
+}
+
+template<typename t_matrix>
+void frustumPerspective(typename t_matrix::t_scalar fov_y,
+                        typename t_matrix::t_scalar aspect,
+                        typename t_matrix::t_scalar near,
+                        typename t_matrix::t_scalar far,
+                        t_matrix *target) {
+    using t_scalar = typename t_matrix::t_scalar;
+
+    const t_scalar sin_fov = std::sin(fov_y / 2);
+    const t_scalar cos_fov = std::cos(fov_y / 2);
+
+    const t_scalar height = cos_fov / sin_fov;
+    const t_scalar width = height / aspect;
+
+    target->columns[0] = {width, 0, 0, 0};
+    target->columns[1] = {0, height, 0, 0};
+    target->columns[2] = {0, 0, far / (far - near), -1};
+    target->columns[3] = {0, 0, -(far * near) / (far - near), 0};
+}
+
+template<typename t_matrix>
+void orthographicProjection(typename t_matrix::t_scalar width,
+                            typename t_matrix::t_scalar height,
+                            typename t_matrix::t_scalar near,
+                            typename t_matrix::t_scalar far,
+                            t_matrix *transform) {
+    using t_scalar = typename t_matrix::t_scalar;
+
+    const t_scalar f_range = 1 / (far - near);
+    transform->columns[0] = {2 / width, 0, 0, 0};
+    transform->columns[1] = {0, 2 / height, 0, 0};
+    transform->columns[2] = {0, 0, 2 * f_range, -f_range * near};
+    transform->columns[3] = {0, 0, 0, 1};
+}
+
+template<typename t_matrix>
+void cameraTarget(typename t_matrix::t_vec eye,
+                  typename t_matrix::t_vec target,
+                  typename t_matrix::t_vec up, t_matrix *transform) {
+    using t_scalar = typename t_matrix::t_scalar;
+    using t_vec = typename t_matrix::t_vec;
+
+    const t_vec c2 = (eye - target).normalize();
+    const t_vec c0 = c2.cross(up).normalize();
+    const t_vec c1 = c0.cross(c2);
+    const t_vec n_eye = -eye;
+
+    const t_scalar d0 = (t_scalar) c0.dot(n_eye);
+    const t_scalar d1 = (t_scalar) c1.dot(n_eye);
+    const t_scalar d2 = (t_scalar) c2.dot(n_eye);
+
+    transform->set_identity();
+    transform->columns[0] = c0;
+    transform->columns[1] = c1;
+    transform->columns[2] = c2;
+
+    transform->columns[0].w() = d0;
+    transform->columns[1].w() = d1;
+    transform->columns[2].w() = d2;
+    transform->set_transpose();
+}
+
 }// namespace atg_math
 
 #endif /* ATG_MATH_LIBRARY_H */

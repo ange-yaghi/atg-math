@@ -30,7 +30,7 @@ NON_SIMD_TEMPLATE
 NON_SIMD_MATRIX &generic_set_transpose(const NON_SIMD_MATRIX &source,
                                        NON_SIMD_MATRIX *target) {
     for (unsigned int i = 0; i < t_size; ++i) {
-        for (unsigned int j = 0; j < t_size; ++j) {
+        for (unsigned int j = i + 1; j < t_size; ++j) {
             const t_scalar temp = source.columns[i].data[j];
             target->columns[i].data[j] = source.columns[j].data[i];
             target->columns[j].data[i] = temp;
@@ -83,7 +83,7 @@ struct matrix<t_scalar, t_size, false> {
     }
     inline t_matrix &set_transpose() { return set_transpose(this); }
     inline t_matrix transpose() { return set_transpose(&t_matrix()); }
-    inline t_vec operator*(const t_vec &v) {
+    inline t_vec operator*(const t_vec &v) const {
         return generic_vector_multiply(*this, v);
     }
     inline t_matrix &mul(const t_matrix &m, t_matrix *target) const {
@@ -93,9 +93,12 @@ struct matrix<t_scalar, t_size, false> {
         return generic_matrix_multiply(*this, m, target);
     }
     inline t_matrix operator*(const t_matrix &v) const {
-        return mul(v, &t_matrix());
+        t_matrix result;
+        return mul(v, &result);
     }
-    inline t_matrix operator*=(const t_matrix &v) { *this = (*this) * v; }
+    inline t_matrix operator*=(const t_matrix &v) {
+        return *this = (*this) * v;
+    }
 };
 
 template<typename t_scalar>
@@ -146,7 +149,7 @@ struct matrix<t_scalar, 4, true> {
     inline t_matrix &set_transpose() { return set_transpose(this); }
     inline t_matrix transpose() { return set_transpose(&t_matrix()); }
 
-    inline t_vec operator*(const t_vec &v) {
+    inline t_vec operator*(const t_vec &v) const {
         const t_vec v_x = _mm_shuffle_ps(v.data_v, v.data_v,
                                          M128_SHUFFLE(S_X, S_X, S_X, S_X));
         const t_vec v_y = _mm_shuffle_ps(v.data_v, v.data_v,
@@ -164,22 +167,22 @@ struct matrix<t_scalar, 4, true> {
         assert(&m != target);
         assert(this != target);
 
-        t_matrix transpose = *this;
-        transpose.set_transpose();
-
-        target->columns[0] = transpose * m.columns[0];
-        target->columns[1] = transpose * m.columns[1];
-        target->columns[2] = transpose * m.columns[2];
-        target->columns[3] = transpose * m.columns[3];
+        target->columns[0] = (*this) * m.columns[0];
+        target->columns[1] = (*this) * m.columns[1];
+        target->columns[2] = (*this) * m.columns[2];
+        target->columns[3] = (*this) * m.columns[3];
 
         return *target;
     }
 
     inline t_matrix operator*(const t_matrix &v) const {
-        return mul(v, &t_matrix());
+        t_matrix result;
+        return mul(v, &result);
     }
 
-    inline t_matrix operator*=(const t_matrix &v) { *this = (*this) * v; }
+    inline t_matrix operator*=(const t_matrix &v) {
+        return *this = (*this) * v;
+    }
 };
 
 typedef matrix<float, 3, false> mat33_s;
