@@ -147,7 +147,10 @@ struct matrix<t_scalar, 4, true> {
     }
 
     inline t_matrix &set_transpose() { return set_transpose(this); }
-    inline t_matrix transpose() { return set_transpose(&t_matrix()); }
+    inline t_matrix transpose() {
+        t_matrix result;
+        return set_transpose(&result);
+    }
 
     inline t_vec operator*(const t_vec &v) const {
         const t_vec v_x = _mm_shuffle_ps(v.data_v, v.data_v,
