@@ -113,7 +113,7 @@ void cameraTarget(typename t_matrix::t_vec eye,
     using t_vec = typename t_matrix::t_vec;
 
     const t_vec c2 = (eye - target).normalize();
-    const t_vec c0 = c2.cross(up).normalize();
+    const t_vec c0 = -c2.cross(up).normalize();
     const t_vec c1 = c0.cross(c2);
     const t_vec n_eye = -eye;
 
