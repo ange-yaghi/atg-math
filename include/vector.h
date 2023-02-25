@@ -38,6 +38,14 @@ struct vec {};
         return true;                                                           \
     }
 
+#define DEFINE_N_COMPARISON_OPERATOR(op)                                       \
+    inline bool operator op(const t_vec &b) const {                            \
+        for (unsigned int i = 0; i < t_size; ++i) {                            \
+            if (data[i] op b.data[i]) { return true; }                         \
+        }                                                                      \
+        return false;                                                          \
+    }
+
 #define DEFINE_ASSIGNMENT_OPERATOR(full_op, op)                                \
     inline t_vec &operator full_op(const t_vec &b) {                           \
         for (unsigned int i = 0; i < t_size; ++i) {                            \
@@ -200,7 +208,7 @@ struct vec<t_scalar, 1, false> {
     DEFINE_COMPONENT_WISE_OPERATOR(*)
     DEFINE_COMPONENT_WISE_OPERATOR(/)
     DEFINE_COMPARISON_OPERATOR(==)
-    DEFINE_COMPARISON_OPERATOR(!=)
+    DEFINE_N_COMPARISON_OPERATOR(!=)
 
     DEFINE_NEGATE_OPERATOR
     DEFINE_POSITIVE_OPERATOR
@@ -246,7 +254,7 @@ struct vec<t_scalar, 2, false> {
     DEFINE_COMPONENT_WISE_OPERATOR(*)
     DEFINE_COMPONENT_WISE_OPERATOR(/)
     DEFINE_COMPARISON_OPERATOR(==)
-    DEFINE_COMPARISON_OPERATOR(!=)
+    DEFINE_N_COMPARISON_OPERATOR(!=)
 
     DEFINE_NEGATE_OPERATOR
     DEFINE_POSITIVE_OPERATOR
@@ -313,7 +321,7 @@ struct vec<t_scalar, 3, false> {
     DEFINE_COMPONENT_WISE_OPERATOR(*)
     DEFINE_COMPONENT_WISE_OPERATOR(/)
     DEFINE_COMPARISON_OPERATOR(==)
-    DEFINE_COMPARISON_OPERATOR(!=)
+    DEFINE_N_COMPARISON_OPERATOR(!=)
 
     DEFINE_NEGATE_OPERATOR
     DEFINE_POSITIVE_OPERATOR
@@ -392,7 +400,7 @@ struct vec<t_scalar, 4, false> {
     DEFINE_COMPONENT_WISE_OPERATOR(*)
     DEFINE_COMPONENT_WISE_OPERATOR(/)
     DEFINE_COMPARISON_OPERATOR(==)
-    DEFINE_COMPARISON_OPERATOR(!=)
+    DEFINE_N_COMPARISON_OPERATOR(!=)
 
     DEFINE_NEGATE_OPERATOR
     DEFINE_POSITIVE_OPERATOR
@@ -430,7 +438,7 @@ struct vec<t_scalar, t_size, false> {
     DEFINE_COMPONENT_WISE_OPERATOR(*)
     DEFINE_COMPONENT_WISE_OPERATOR(/)
     DEFINE_COMPARISON_OPERATOR(==)
-    DEFINE_COMPARISON_OPERATOR(!=)
+    DEFINE_N_COMPARISON_OPERATOR(!=)
 
     DEFINE_NEGATE_OPERATOR
     DEFINE_POSITIVE_OPERATOR
@@ -574,9 +582,7 @@ struct vec<float, 4, true> {
     inline t_vec magnitude_squared() const { return dot(*this); }
     inline t_vec sqrt() const { return _mm_sqrt_ps(data_v); }
     inline t_vec magnitude() const { return magnitude_squared().sqrt(); }
-    inline t_vec normalize() const {
-        return _mm_div_ps(data_v, magnitude());
-    }
+    inline t_vec normalize() const { return _mm_div_ps(data_v, magnitude()); }
 };
 
 typedef vec<float, 2, false> vec2_s;
