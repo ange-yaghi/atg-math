@@ -69,9 +69,9 @@ NON_SIMD_MATRIX &generic_matrix_multiply(const NON_SIMD_MATRIX &mat0,
     return *target;
 }
 
-template<typename t_scalar, unsigned int t_size>
-struct matrix<t_scalar, t_size, false> {
-    typedef t_scalar t_scalar;
+template<typename t_scalar_, unsigned int t_size>
+struct matrix<t_scalar_, t_size, false> {
+    typedef t_scalar_ t_scalar;
     typedef vec<t_scalar, t_size, false> t_vec;
     typedef matrix<t_scalar, t_size, false> t_matrix;
 
@@ -101,9 +101,9 @@ struct matrix<t_scalar, t_size, false> {
     }
 };
 
-template<typename t_scalar>
-struct matrix<t_scalar, 4, true> {
-    typedef t_scalar t_scalar;
+template<typename t_scalar_>
+struct matrix<t_scalar_, 4, true> {
+    typedef t_scalar_ t_scalar;
     typedef vec<t_scalar, 4, true> t_vec;
     typedef matrix<t_scalar, 4, true> t_matrix;
 

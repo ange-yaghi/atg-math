@@ -12,19 +12,19 @@ void rotationMatrix(const typename t_matrix::t_vec &axis,
     const typename t_matrix::t_scalar sin_theta = std::sin(angle);
     const typename t_matrix::t_vec t{cos_theta, sin_theta};
 
-    const typename t_matrix::t_vec a0{t_matrix::t_vec(1 - cos_theta)};
+    const typename t_matrix::t_vec a0{typename t_matrix::t_vec(1 - cos_theta)};
 
     const typename t_matrix::t_vec b0{1, axis.z(), -axis.y()};
     const typename t_matrix::t_vec b1{-axis.z(), 1, axis.x()};
     const typename t_matrix::t_vec b2{axis.y(), -axis.x(), 1};
 
-    const typename t_matrix::t_vec c0 = t.shuffle<0, 1, 1>();
-    const typename t_matrix::t_vec c1 = t.shuffle<1, 0, 1>();
-    const typename t_matrix::t_vec c2 = t.shuffle<1, 1, 0>();
+    const typename t_matrix::t_vec c0 = t.template shuffle<0, 1, 1>();
+    const typename t_matrix::t_vec c1 = t.template shuffle<1, 0, 1>();
+    const typename t_matrix::t_vec c2 = t.template shuffle<1, 1, 0>();
 
-    const typename t_matrix::t_vec axis_xxx = axis.shuffle<0, 0, 0>();
-    const typename t_matrix::t_vec axis_yyy = axis.shuffle<1, 1, 1>();
-    const typename t_matrix::t_vec axis_zzz = axis.shuffle<2, 2, 2>();
+    const typename t_matrix::t_vec axis_xxx = axis.template shuffle<0, 0, 0>();
+    const typename t_matrix::t_vec axis_yyy = axis.template shuffle<1, 1, 1>();
+    const typename t_matrix::t_vec axis_zzz = axis.template shuffle<2, 2, 2>();
 
     target->set_identity();
     target->columns[0] = axis * axis_xxx * a0 + b0 * c0;
@@ -117,9 +117,9 @@ void cameraTarget(typename t_matrix::t_vec eye,
     const t_vec c1 = c0.cross(c2);
     const t_vec n_eye = -eye;
 
-    const t_scalar d0 = (t_scalar) c0.dot(n_eye);
-    const t_scalar d1 = (t_scalar) c1.dot(n_eye);
-    const t_scalar d2 = (t_scalar) c2.dot(n_eye);
+    const t_scalar d0 = t_scalar(c0.dot(n_eye));
+    const t_scalar d1 = t_scalar(c1.dot(n_eye));
+    const t_scalar d2 = t_scalar(c2.dot(n_eye));
 
     transform->set_identity();
     transform->columns[0] = c0;
