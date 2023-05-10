@@ -461,6 +461,7 @@ struct vec<t_scalar, t_size, false> {
 template<>
 struct vec<float, 4, true> {
     using t_scalar = float;
+    static constexpr unsigned int t_size = 4;
     typedef vec<float, 4, true> t_vec;
 
     inline vec() { data[0] = data[1] = data[2] = data[3] = 0; }
