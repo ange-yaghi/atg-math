@@ -53,7 +53,7 @@ add_executable("${ProjectName}-test"
     test/library_test.cpp
     test/sanity_test.cpp
 
-    # Head files
+    # Header files
 )
 
 target_link_libraries("${ProjectName}-test"
