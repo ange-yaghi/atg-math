@@ -375,7 +375,6 @@ struct vec<t_scalar, 4, false> {
     ATG_MATH_ALIAS(b, 2)
     ATG_MATH_ALIAS(a, 3)
 
-
     t_scalar data[t_size];
 
     t_vec cross(const t_vec &b) const {
