@@ -39,6 +39,7 @@ add_library("${ProjectName}" STATIC
     include/information.h
     include/library.h
     include/matrix.h
+    include/scalar.h
     include/vector.h
 )
 
