@@ -3,10 +3,10 @@ cmake_minimum_required(VERSION 3.10)
 set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 set_property(GLOBAL PROPERTY PREDEFINED_TARGETS_FOLDER "cmake")
 
-set(ProjectName "atg-math")
+set(ProjectName atg-math)
 set(ProjectNamespace "atg_math")
 
-project("${ProjectName}")
+project(atg-math)
 
 set(CMAKE_CXX_STANDARD 20)
 
@@ -30,7 +30,15 @@ set_property(TARGET gtest_main PROPERTY FOLDER "gtest")
 
 # =========================================================
 
-add_library("${ProjectName}" STATIC
+# -----------------------------------------------------------------------------
+# Compile definitions
+# -----------------------------------------------------------------------------
+add_library(atg-math-include INTERFACE)
+target_include_directories(atg-math-include INTERFACE
+    "${CMAKE_CURRENT_SOURCE_DIR}/include/"
+)
+
+add_library(atg-math STATIC
     # Source files
     src/information.cpp
 
@@ -43,24 +51,26 @@ add_library("${ProjectName}" STATIC
     include/vector.h
 )
 
-target_compile_definitions("${ProjectName}" PRIVATE PROJECT_NAMESPACE=${ProjectNamespace})
+target_compile_definitions(atg-math PRIVATE PROJECT_NAMESPACE=${ProjectNamespace})
+target_link_libraries(atg-math INTERFACE atg-math-include)
 
 # gtest
 
 enable_testing()
 
-add_executable("${ProjectName}-test"
+add_executable(atg-math-test
     # Source files
     test/library_test.cpp
     test/sanity_test.cpp
+    test/vector_tests.cpp
 
     # Header files
 )
 
-target_link_libraries("${ProjectName}-test"
+target_link_libraries(atg-math-test
     gtest_main
-    "${ProjectName}"
+    atg-math
 )
 
 include(GoogleTest)
-gtest_discover_tests("${ProjectName}-test")
+gtest_discover_tests(atg-math-test)

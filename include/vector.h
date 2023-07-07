@@ -382,7 +382,7 @@ struct vec<t_scalar, 4, false> {
                 x() * b.y() - y() * b.x(), 0};
     }
 
-    template<int i0 = 0, int i1 = 0, int i2 = 2, int i3 = 3>
+    template<int i0 = 0, int i1 = 1, int i2 = 2, int i3 = 3>
     t_vec shuffle() const {
         return {data[i0], data[i1], data[i2], data[i3]};
     }
@@ -417,6 +417,12 @@ struct vec<t_scalar, 4, false> {
     DEFINE_MAGNITUDE_SQUARED
     DEFINE_MAGNITUDE
     DEFINE_NORMALIZE
+
+    inline t_vec xy() const { return {x(), y(), 0.0f, 0.0f}; }
+    inline t_vec yz() const { return {y(), z(), 0.0f, 0.0f}; }
+    inline t_vec xz() const { return {x(), z(), 0.0f, 0.0f}; }
+    inline t_vec xyz() const { return {x(), y(), z(), 0.0f}; }
+    inline t_vec position() const { return {x(), y(), z(), 1.0f}; }
 };
 
 template<typename t_scalar, unsigned int t_size>
@@ -480,12 +486,13 @@ struct vec<float, 4, true> {
     ATG_MATH_ALIAS(b, 2)
     ATG_MATH_ALIAS(a, 3)
 
-    template<int i0 = 0, int i1 = 0, int i2 = 2, int i3 = 3>
+    template<int i0 = 0, int i1 = 1, int i2 = 2, int i3 = 3>
     inline t_vec shuffle() const {
         return _mm_shuffle_ps(data_v, data_v, M128_SHUFFLE(i0, i1, i2, i3));
     }
 
     union {
+        int mask[4];
         float data[4];
         __m128 data_v;
     };
@@ -583,7 +590,37 @@ struct vec<float, 4, true> {
     inline t_vec sqrt() const { return _mm_sqrt_ps(data_v); }
     inline t_vec magnitude() const { return magnitude_squared().sqrt(); }
     inline t_vec normalize() const { return _mm_div_ps(data_v, magnitude()); }
+
+    inline t_vec xy() const {
+        return _mm_shuffle_ps(data_v, {0.0f, 0.0f, 0.0f, 0.0f},
+                              M128_SHUFFLE(S_X, S_Y, S_Z, S_W));
+    }
+
+    inline t_vec yz() const {
+        return _mm_shuffle_ps(data_v, {0.0f, 0.0f, 0.0f, 0.0f},
+                              M128_SHUFFLE(S_Y, S_Z, S_Z, S_W));
+    }
+
+    inline t_vec xz() const {
+        return _mm_shuffle_ps(data_v, {0.0f, 0.0f, 0.0f, 0.0f},
+                              M128_SHUFFLE(S_X, S_Z, S_Z, S_W));
+    }
+
+    inline t_vec xyz() const {
+        return _mm_and_ps(data_v,
+                          _mm_castsi128_ps(_mm_set_epi32(0, -1, -1, -1)));
+    }
+
+    inline t_vec position() const {
+        return _mm_or_ps(_mm_and_ps(data_v, _mm_castsi128_ps(_mm_set_epi32(
+                                                    0, -1, -1, -1))),
+                         {0.0f, 0.0f, 0.0f, 1.0f});
+    }
 };
+
+inline vec<float, 4, true> operator*(float left, const vec<float, 4, true> &right) {
+    return right * left;
+}
 
 typedef vec<float, 2, false> vec2_s;
 typedef vec<int, 2, false> ivec2_s;
