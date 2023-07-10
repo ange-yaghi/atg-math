@@ -33,11 +33,6 @@ set_property(TARGET gtest_main PROPERTY FOLDER "gtest")
 # -----------------------------------------------------------------------------
 # Compile definitions
 # -----------------------------------------------------------------------------
-add_library(atg-math-include INTERFACE)
-target_include_directories(atg-math-include INTERFACE
-    "${CMAKE_CURRENT_SOURCE_DIR}/include/"
-)
-
 add_library(atg-math STATIC
     # Source files
     src/information.cpp
@@ -51,8 +46,11 @@ add_library(atg-math STATIC
     include/vector.h
 )
 
+target_include_directories(atg-math INTERFACE
+    include/
+)
+
 target_compile_definitions(atg-math PRIVATE PROJECT_NAMESPACE=${ProjectNamespace})
-target_link_libraries(atg-math INTERFACE atg-math-include)
 
 # gtest
 
