@@ -1,5 +1,6 @@
 #include <gtest/gtest.h>
 
+#include "../include/constants.h"
 #include "../include/library.h"
 
 #include <chrono>
@@ -49,4 +50,67 @@ TEST(LibraryTest, MatrixMultiplicationTest) {
 
     atg_math::mat44_v s = I * m;
     int a = 0;
+}
+
+TEST(LibraryTest, CameraTests) {
+    atg_math::mat44_s c, m, t;
+    atg_math::cameraTarget({0.0f, 0.0f, 10.0f, 1.0f},
+                           atg_math::vec4(0.0f).position(),
+                           {0.0f, 1.0f, 0.0f, 1.0f}, &c);
+    atg_math::frustumPerspective(atg_math::constants::pi_f / 4, 1.0f, 1.0f,
+                                 50.0f, &m);
+    t = m * c;
+
+    {
+        const atg_math::vec4_s vertex =
+                atg_math::vec4_s(-1.0f, 1.0f, 9.0f, 1.0f);
+        atg_math::vec4_s proj0 = t * vertex;
+        proj0 /= proj0.w();
+
+        EXPECT_NEAR(
+                float((proj0 - atg_math::vec4{-1.0f, -1.0f, 0.0f, 1.0f}).sum()),
+                0.0f, 1E-7f);
+    }
+
+    {
+        const atg_math::vec4_s vertex =
+                atg_math::vec4_s(0.0f, 0.0f, -40.0f, 1.0f);
+        atg_math::vec4_s proj0 = t * vertex;
+        proj0 /= proj0.w();
+
+        EXPECT_NEAR(
+                float((proj0 - atg_math::vec4{0.0f, 0.0f, 1.0f, 1.0f}).sum()),
+                0.0f, 1E-7f);
+    }
+}
+
+TEST(LibraryTest, OrthographicCameraTests) {
+    atg_math::mat44_s c, m, t;
+    atg_math::cameraTarget({0.0f, 0.0f, 10.0f, 1.0f},
+                           atg_math::vec4(0.0f).position(),
+                           {0.0f, 1.0f, 0.0f, 1.0f}, &c);
+    atg_math::orthographicProjection(10.0f, 5.0f, 1.0f, 50.0f, &m);
+    t = m * c;
+
+    {
+        const atg_math::vec4_s vertex =
+                atg_math::vec4_s(-5.0f, 2.5f, 9.0f, 1.0f);
+        atg_math::vec4_s proj0 = t * vertex;
+        proj0 /= proj0.w();
+
+        EXPECT_NEAR(
+                float((proj0 - atg_math::vec4{-1.0f, -1.0f, 0.0f, 1.0f}).sum()),
+                0.0f, 1E-7f);
+    }
+
+    {
+        const atg_math::vec4_s vertex =
+                atg_math::vec4_s(0.0f, 0.0f, -40.0f, 1.0f);
+        atg_math::vec4_s proj0 = t * vertex;
+        proj0 /= proj0.w();
+
+        EXPECT_NEAR(
+                float((proj0 - atg_math::vec4{0.0f, 0.0f, 1.0f, 1.0f}).sum()),
+                0.0f, 1E-7f);
+    }
 }

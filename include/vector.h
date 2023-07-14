@@ -76,6 +76,14 @@ struct vec {};
         return result;                                                         \
     }
 
+#define DEFINE_SUM                                                             \
+    inline t_vec sum() const {                                                 \
+        t_scalar result = 0;                                                   \
+        for (unsigned int i = 0; i < t_size; ++i) { result += data[i]; }       \
+                                                                               \
+        return result;                                                         \
+    }
+
 #define DEFINE_COMPONENT_MIN                                                   \
     inline t_vec min(const t_vec &b) const {                                   \
         t_vec result;                                                          \
@@ -264,6 +272,7 @@ struct vec<t_scalar, 2, false> {
     DEFINE_ASSIGNMENT_OPERATOR(*=, *)
     DEFINE_ASSIGNMENT_OPERATOR(/=, /)
 
+    DEFINE_SUM
     DEFINE_DOT_PRODUCT
 
     DEFINE_COMPONENT_MIN
@@ -331,6 +340,7 @@ struct vec<t_scalar, 3, false> {
     DEFINE_ASSIGNMENT_OPERATOR(*=, *)
     DEFINE_ASSIGNMENT_OPERATOR(/=, /)
 
+    DEFINE_SUM
     DEFINE_DOT_PRODUCT
     DEFINE_COMPONENT_MIN
     DEFINE_COMPONENT_MAX
@@ -409,6 +419,7 @@ struct vec<t_scalar, 4, false> {
     DEFINE_ASSIGNMENT_OPERATOR(*=, *)
     DEFINE_ASSIGNMENT_OPERATOR(/=, /)
 
+    DEFINE_SUM
     DEFINE_DOT_PRODUCT
     DEFINE_COMPONENT_MIN
     DEFINE_COMPONENT_MAX
@@ -453,6 +464,7 @@ struct vec<t_scalar, t_size, false> {
     DEFINE_ASSIGNMENT_OPERATOR(*=, *)
     DEFINE_ASSIGNMENT_OPERATOR(/=, /)
 
+    DEFINE_SUM
     DEFINE_DOT_PRODUCT
     DEFINE_COMPONENT_MIN
     DEFINE_COMPONENT_MAX
@@ -618,7 +630,8 @@ struct vec<float, 4, true> {
     }
 };
 
-inline vec<float, 4, true> operator*(float left, const vec<float, 4, true> &right) {
+inline vec<float, 4, true> operator*(float left,
+                                     const vec<float, 4, true> &right) {
     return right * left;
 }
 

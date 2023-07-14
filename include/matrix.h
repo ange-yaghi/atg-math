@@ -82,7 +82,11 @@ struct matrix<t_scalar_, t_size, false> {
         return generic_set_transpose(*this, target);
     }
     inline t_matrix &set_transpose() { return set_transpose(this); }
-    inline t_matrix transpose() { return set_transpose(&t_matrix()); }
+    inline t_matrix transpose() {
+        t_matrix result;
+        return set_transpose(&result);
+    }
+
     inline t_vec operator*(const t_vec &v) const {
         return generic_vector_multiply(*this, v);
     }
@@ -194,6 +198,9 @@ typedef matrix<double, 3, false> dmat33_s;
 typedef matrix<double, 4, false> dmat44_s, dmat_s;
 
 typedef matrix<float, 4, true> mat44_v;
+
+typedef mat33_s mat3;
+typedef mat44_s mat4;
 } /* namespace atg_math */
 
 #endif /* ATG_MATH_MATRIX_H */

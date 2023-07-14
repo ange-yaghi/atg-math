@@ -78,15 +78,12 @@ void frustumPerspective(typename t_matrix::t_scalar fov_y,
                         t_matrix *target) {
     using t_scalar = typename t_matrix::t_scalar;
 
-    const t_scalar sin_fov = std::sin(fov_y / 2);
-    const t_scalar cos_fov = std::cos(fov_y / 2);
-
-    const t_scalar height = cos_fov / sin_fov;
+    const t_scalar height = 2 * std::tan(fov_y) * near;
     const t_scalar width = height / aspect;
 
-    target->columns[0] = {width, 0, 0, 0};
-    target->columns[1] = {0, height, 0, 0};
-    target->columns[2] = {0, 0, far / (far - near), -1};
+    target->columns[0] = {2 * near / width, 0, 0, 0};
+    target->columns[1] = {0, 2 * near / height, 0, 0};
+    target->columns[2] = {0, 0, far / (far - near), 1};
     target->columns[3] = {0, 0, -(far * near) / (far - near), 0};
 }
 
@@ -98,11 +95,11 @@ void orthographicProjection(typename t_matrix::t_scalar width,
                             t_matrix *transform) {
     using t_scalar = typename t_matrix::t_scalar;
 
-    const t_scalar f_range = 1 / (far - near);
+    const t_scalar inv_f_range = 1 / (far - near);
     transform->columns[0] = {2 / width, 0, 0, 0};
     transform->columns[1] = {0, 2 / height, 0, 0};
-    transform->columns[2] = {0, 0, 2 * f_range, -f_range * near};
-    transform->columns[3] = {0, 0, 0, 1};
+    transform->columns[2] = {0, 0, inv_f_range, 0};
+    transform->columns[3] = {0, 0, -inv_f_range, 1};
 }
 
 template<typename t_matrix>
@@ -112,9 +109,9 @@ void cameraTarget(typename t_matrix::t_vec eye,
     using t_scalar = typename t_matrix::t_scalar;
     using t_vec = typename t_matrix::t_vec;
 
-    const t_vec c2 = (eye - target).normalize();
-    const t_vec c0 = -c2.cross(up).normalize();
-    const t_vec c1 = c0.cross(c2);
+    const t_vec c2 = (target - eye).normalize();
+    const t_vec c0 = c2.cross(up).normalize();
+    const t_vec c1 = c2.cross(c0);
     const t_vec n_eye = -eye;
 
     const t_scalar d0 = t_scalar(c0.dot(n_eye));

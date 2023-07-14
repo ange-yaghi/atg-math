@@ -38,7 +38,8 @@ add_library(atg-math STATIC
     src/information.cpp
 
     # Header files
-    include/atg_math.h
+    include/public/atg_math.h
+    include/constants.h
     include/information.h
     include/library.h
     include/matrix.h
@@ -47,7 +48,7 @@ add_library(atg-math STATIC
 )
 
 target_include_directories(atg-math INTERFACE
-    include/
+    include/public
 )
 
 target_compile_definitions(atg-math PRIVATE PROJECT_NAMESPACE=${ProjectNamespace})
@@ -72,3 +73,6 @@ target_link_libraries(atg-math-test
 
 include(GoogleTest)
 gtest_discover_tests(atg-math-test)
+
+set_property(TARGET atg-math PROPERTY FOLDER "math")
+set_property(TARGET atg-math-test PROPERTY FOLDER "math")
