@@ -62,6 +62,7 @@ add_executable(atg-math-test
     test/sanity_test.cpp
     test/vector2_tests.cpp
     test/vector4_tests.cpp
+    test/vector8_tests.cpp
 )
 
 target_link_libraries(atg-math-test PRIVATE

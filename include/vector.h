@@ -856,6 +856,25 @@ struct vec<float, 8, true> {
         return _mm256_and_ps(data_v, mask);
     }
 
+    inline t_vec sum() const {
+        __m256 sum = data_v;
+        const __m256 s0 = _mm256_shuffle_ps(
+                data_v, data_v,
+                ATG_MATH_M128_SHUFFLE(ATG_MATH_S_Y, ATG_MATH_S_Z, ATG_MATH_S_W,
+                                      ATG_MATH_S_X));
+        sum = _mm256_add_ps(sum, s0);
+
+        const __m256 s1 = _mm256_shuffle_ps(
+                sum, sum,
+                ATG_MATH_M128_SHUFFLE(ATG_MATH_S_Z, ATG_MATH_S_W, ATG_MATH_S_X,
+                                      ATG_MATH_S_Y));
+
+        sum = _mm256_add_ps(sum, s1);
+
+        const __m256 s2 = _mm256_permute2f128_ps(sum, sum, 0x01);
+        return _mm256_add_ps(s2, sum);
+    }
+
     inline t_vec sqrt() const { return _mm256_sqrt_ps(data_v); }
 };
 
