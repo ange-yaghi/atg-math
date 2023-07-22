@@ -1026,6 +1026,208 @@ struct vec<double, 2, true> {
     inline t_vec normalize() const { return _mm_div_pd(data_v, magnitude()); }
 };
 
+template<>
+struct vec<double, 4, true> {
+    using t_scalar = double;
+    static constexpr unsigned int t_size = 4;
+    typedef vec<double, 4, true> t_vec;
+
+    inline vec() { data[0] = data[1] = data[2] = data[3] = 0; }
+    inline vec(const __m256d &v) : data_v(v) {}
+    inline vec(double x, double y, double z = 0, double w = 0) {
+        data_v = _mm256_set_pd(w, z, y, x);
+    }
+    inline vec(double s) { data_v = _mm256_set1_pd(s); }
+
+    ATG_MATH_ALIAS(x, 0)
+    ATG_MATH_ALIAS(y, 1)
+    ATG_MATH_ALIAS(z, 2)
+    ATG_MATH_ALIAS(w, 3)
+
+    ATG_MATH_ALIAS(r, 0)
+    ATG_MATH_ALIAS(g, 1)
+    ATG_MATH_ALIAS(b, 2)
+    ATG_MATH_ALIAS(a, 3)
+
+    template<int i0 = 0, int i1 = 1, int i2 = 2, int i3 = 3>
+    inline t_vec shuffle() const {
+        return _mm_shuffle_ps(data_v, data_v,
+                              ATG_MATH_M128_SHUFFLE(i0, i1, i2, i3));
+    }
+
+    union {
+        int64_t mask[4];
+        double data[4];
+        __m256d data_v;
+    };
+
+    inline explicit operator double() const { return _mm256_cvtsd_f64(data_v); }
+
+    inline operator __m256d() const { return data_v; }
+
+    inline t_vec operator-() const {
+        const __m256d mask =
+                _mm256_castsi256_pd(_mm256_set1_epi64x(~0x7FFFFFFFFFFFFFFF));
+        return _mm256_xor_pd(data_v, mask);
+    }
+
+    inline t_vec operator+() const { return *this; }
+
+    inline t_vec operator+(const t_vec &b) const {
+        return _mm256_add_pd(data_v, b.data_v);
+    }
+
+    inline t_vec operator-(const t_vec &b) const {
+        return _mm256_sub_pd(data_v, b.data_v);
+    }
+
+    inline t_vec operator*(const t_vec &b) const {
+        return _mm256_mul_pd(data_v, b.data_v);
+    }
+
+    inline t_vec operator/(const t_vec &b) const {
+        return _mm256_div_pd(data_v, b.data_v);
+    }
+
+    inline t_vec compare_eq(const t_vec &b) const {
+        const t_vec cmp_mask = _mm256_cmp_pd(data_v, b.data_v, _CMP_EQ_OQ);
+        return _mm256_and_pd(cmp_mask, t_vec(1.0f));
+    }
+
+    inline t_vec compare_neq(const t_vec &b) const {
+        const t_vec cmp_mask = _mm256_cmp_pd(data_v, b.data_v, _CMP_NEQ_OQ);
+        return _mm256_and_pd(cmp_mask, t_vec(1.0f));
+    }
+
+    inline t_vec compare_le(const t_vec &b) const {
+        const t_vec cmp_mask = _mm256_cmp_pd(data_v, b.data_v, _CMP_LE_OQ);
+        return _mm256_and_pd(cmp_mask, t_vec(1.0f));
+    }
+
+    inline t_vec compare_ge(const t_vec &b) const {
+        const t_vec cmp_mask = _mm256_cmp_pd(data_v, b.data_v, _CMP_GE_OQ);
+        return _mm256_and_pd(cmp_mask, t_vec(1.0f));
+    }
+
+    inline bool operator==(const t_vec &b) const {
+        const t_vec cmp = _mm256_cmp_pd(data_v, b.data_v, _CMP_EQ_OQ);
+        return !(cmp.x() == 0 || cmp.y() == 0 || cmp.z() == 0 || cmp.w() == 0);
+    }
+
+    inline bool operator<=(const t_vec &b) const {
+        const t_vec cmp = _mm256_cmp_pd(data_v, b.data_v, _CMP_LE_OQ);
+        return !(cmp.x() == 0 || cmp.y() == 0 || cmp.z() == 0 || cmp.w() == 0);
+    }
+
+    inline bool operator>=(const t_vec &b) const {
+        const t_vec cmp = _mm256_cmp_pd(data_v, b.data_v, _CMP_GE_OQ);
+        return !(cmp.x() == 0 || cmp.y() == 0 || cmp.z() == 0 || cmp.w() == 0);
+    }
+
+    inline bool operator!=(const t_vec &b) const {
+        const t_vec cmp = _mm256_cmp_pd(data_v, b.data_v, _CMP_NEQ_OQ);
+        return !(cmp.x() == 0 && cmp.y() == 0 && cmp.z() == 0 && cmp.w() == 0);
+    }
+
+    inline t_vec operator+=(const t_vec &b) {
+        return data_v = _mm256_add_pd(data_v, b.data_v);
+    }
+
+    inline t_vec operator-=(const t_vec &b) {
+        return data_v = _mm256_sub_pd(data_v, b.data_v);
+    }
+
+    inline t_vec operator*=(const t_vec &b) {
+        return data_v = _mm256_mul_pd(data_v, b.data_v);
+    }
+
+    inline t_vec operator/=(const t_vec &b) {
+        return data_v = _mm256_div_pd(data_v, b.data_v);
+    }
+
+    inline t_vec sum() const {
+        const __m256d t1 = _mm256_shuffle_pd(data_v, data_v, 0b11);
+        const __m256d t2 = _mm256_add_pd(data_v, t1);
+        const __m256d t3 = _mm256_permute2f128_pd(t2, t2, 0x01);
+        return _mm256_add_pd(t3, t2);
+    }
+
+    inline t_vec dot(const t_vec &b) const {
+        const __m256d t0 = _mm256_mul_pd(data_v, b.data_v);
+        return t_vec(t0).sum();
+    }
+
+    inline t_vec cross(const t_vec &b) const {
+        const __m256d t1 = _mm256_permute4x64_pd(
+                data_v, ATG_MATH_M128_SHUFFLE(ATG_MATH_S_Y, ATG_MATH_S_Z,
+                                              ATG_MATH_S_X, ATG_MATH_S_W));
+        const __m256d t2 = _mm256_permute4x64_pd(
+                b.data_v, ATG_MATH_M128_SHUFFLE(ATG_MATH_S_Z, ATG_MATH_S_X,
+                                                ATG_MATH_S_Y, ATG_MATH_S_W));
+        const __m256d t3 = _mm256_permute4x64_pd(
+                data_v, ATG_MATH_M128_SHUFFLE(ATG_MATH_S_Z, ATG_MATH_S_X,
+                                              ATG_MATH_S_Y, ATG_MATH_S_W));
+        const __m256d t4 = _mm256_permute4x64_pd(
+                b.data_v, ATG_MATH_M128_SHUFFLE(ATG_MATH_S_Y, ATG_MATH_S_Z,
+                                                ATG_MATH_S_X, ATG_MATH_S_W));
+
+        return _mm256_sub_pd(_mm256_mul_pd(t1, t2), _mm256_mul_pd(t3, t4));
+    }
+
+    inline t_vec min(const t_vec &b) const {
+        return _mm256_min_pd(data_v, b.data_v);
+    }
+
+    inline t_vec max(const t_vec &b) const {
+        return _mm256_max_pd(data_v, b.data_v);
+    }
+
+    inline t_vec abs() const {
+        const __m256d mask =
+                _mm256_castsi256_pd(_mm256_set1_epi64x(0x7FFFFFFFFFFFFFFF));
+        return _mm256_and_pd(data_v, mask);
+    }
+
+    inline t_vec magnitude_squared() const { return dot(*this); }
+    inline t_vec sqrt() const { return _mm256_sqrt_pd(data_v); }
+    inline t_vec magnitude() const { return magnitude_squared().sqrt(); }
+    inline t_vec normalize() const {
+        return _mm256_div_pd(data_v, magnitude());
+    }
+
+    inline t_vec xy() const {
+        return _mm256_shuffle_pd(data_v, {0.0, 0.0, 0.0, 0.0}, 0b0101);
+    }
+
+    inline t_vec yz() const {
+        const __m256d s0 = _mm256_permute4x64_pd(
+                data_v, ATG_MATH_M128_SHUFFLE(ATG_MATH_S_Y, ATG_MATH_S_Z,
+                                              ATG_MATH_S_Y, ATG_MATH_S_Z));
+        return _mm256_and_pd(
+                s0, _mm256_castsi256_pd(_mm256_set_epi64x(0, 0, -1, -1)));
+    }
+
+    inline t_vec xz() const {
+        const __m256d s0 = _mm256_permute4x64_pd(
+                data_v, ATG_MATH_M128_SHUFFLE(ATG_MATH_S_X, ATG_MATH_S_Z,
+                                              ATG_MATH_S_X, ATG_MATH_S_Z));
+        return _mm256_and_pd(
+                s0, _mm256_castsi256_pd(_mm256_set_epi64x(0, 0, -1, -1)));
+    }
+
+    inline t_vec xyz() const {
+        return _mm256_and_pd(
+                data_v, _mm256_castsi256_pd(_mm256_set_epi64x(0, -1, -1, -1)));
+    }
+
+    inline t_vec position() const {
+        return _mm256_or_pd(
+                _mm256_and_pd(data_v, _mm256_castsi256_pd(_mm256_set_epi64x(
+                                              0, -1, -1, -1))),
+                {0.0, 0.0, 0.0, 1.0});
+    }
+};
+
 ATG_MATH_DEFINE_LEFT_SCALAR_OPERATOR(*);
 
 typedef vec<float, 2, false> vec2_s;
@@ -1045,6 +1247,7 @@ typedef vec<double, 4, false> dvec4_s, dquat_s;
 typedef vec<float, 4, true> vec4_v, quat_v;
 typedef vec<float, 8, true> vec8_v;
 typedef vec<double, 2, true> dvec2_v;
+typedef vec<double, 4, true> dvec4_v;
 
 template<unsigned int t_size>
 using vec_s = vec<float, t_size, false>;

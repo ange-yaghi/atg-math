@@ -19,6 +19,7 @@ TEST(Vector4Tests, ScalarMultiplicationTest) {
     scalarMultiplicationTest<atg_math::vec<float, 4, true>>();
     scalarMultiplicationTest<atg_math::vec<float, 4, false>>();
     scalarMultiplicationTest<atg_math::vec<double, 4, false>>();
+    scalarMultiplicationTest<atg_math::vec<double, 4, true>>();
     scalarMultiplicationTest<atg_math::vec<int, 4, false>>();
 }
 
@@ -34,6 +35,7 @@ TEST(Vector4Tests, AbsoluteTest) {
     absTest<atg_math::vec<float, 4, true>>();
     absTest<atg_math::vec<float, 4, false>>();
     absTest<atg_math::vec<double, 4, false>>();
+    absTest<atg_math::vec<double, 4, true>>();
     absTest<atg_math::vec<int, 4, false>>();
 }
 
@@ -49,5 +51,6 @@ TEST(Vector4Tests, NegateTest) {
     negateTest<atg_math::vec<float, 4, true>>();
     negateTest<atg_math::vec<float, 4, false>>();
     negateTest<atg_math::vec<double, 4, false>>();
+    negateTest<atg_math::vec<double, 4, true>>();
     negateTest<atg_math::vec<int, 4, false>>();
 }
