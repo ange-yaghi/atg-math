@@ -18,8 +18,7 @@ NON_SIMD_TEMPLATE
 NON_SIMD_MATRIX &generic_set_identity(NON_SIMD_MATRIX *target) {
     for (unsigned int i = 0; i < t_size; ++i) {
         for (unsigned int j = 0; j < t_size; ++j) {
-            target->columns[i].data[j] =
-                    static_cast<t_scalar>((i == j) ? 1 : 0);
+            target->columns[i].data[j] = t_scalar((i == j) ? 1 : 0);
         }
     }
 
@@ -158,13 +157,13 @@ struct matrix<t_scalar_, 4, true> {
 
     inline t_vec operator*(const t_vec &v) const {
         const t_vec v_x = _mm_shuffle_ps(v.data_v, v.data_v,
-                                         M128_SHUFFLE(S_X, S_X, S_X, S_X));
+                                         ATG_MATH_M128_SHUFFLE(ATG_MATH_S_X, ATG_MATH_S_X, ATG_MATH_S_X, ATG_MATH_S_X));
         const t_vec v_y = _mm_shuffle_ps(v.data_v, v.data_v,
-                                         M128_SHUFFLE(S_Y, S_Y, S_Y, S_Y));
+                                         ATG_MATH_M128_SHUFFLE(ATG_MATH_S_Y, ATG_MATH_S_Y, ATG_MATH_S_Y, ATG_MATH_S_Y));
         const t_vec v_z = _mm_shuffle_ps(v.data_v, v.data_v,
-                                         M128_SHUFFLE(S_Z, S_Z, S_Z, S_Z));
+                                         ATG_MATH_M128_SHUFFLE(ATG_MATH_S_Z, ATG_MATH_S_Z, ATG_MATH_S_Z, ATG_MATH_S_Z));
         const t_vec v_w = _mm_shuffle_ps(v.data_v, v.data_v,
-                                         M128_SHUFFLE(S_W, S_W, S_W, S_W));
+                                         ATG_MATH_M128_SHUFFLE(ATG_MATH_S_W, ATG_MATH_S_W, ATG_MATH_S_W, ATG_MATH_S_W));
 
         return v_x * columns[0] + v_y * columns[1] + v_z * columns[2] +
                v_w * columns[3];

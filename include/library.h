@@ -74,8 +74,7 @@ template<typename t_matrix>
 void frustumPerspective(typename t_matrix::t_scalar fov_y,
                         typename t_matrix::t_scalar aspect,
                         typename t_matrix::t_scalar near,
-                        typename t_matrix::t_scalar far,
-                        t_matrix *target) {
+                        typename t_matrix::t_scalar far, t_matrix *target) {
     using t_scalar = typename t_matrix::t_scalar;
 
     const t_scalar height = 2 * std::tan(fov_y) * near;
@@ -103,8 +102,7 @@ void orthographicProjection(typename t_matrix::t_scalar width,
 }
 
 template<typename t_matrix>
-void cameraTarget(typename t_matrix::t_vec eye,
-                  typename t_matrix::t_vec target,
+void cameraTarget(typename t_matrix::t_vec eye, typename t_matrix::t_vec target,
                   typename t_matrix::t_vec up, t_matrix *transform) {
     using t_scalar = typename t_matrix::t_scalar;
     using t_vec = typename t_matrix::t_vec;

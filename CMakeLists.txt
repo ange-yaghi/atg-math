@@ -53,20 +53,29 @@ target_include_directories(atg-math INTERFACE
 
 target_compile_definitions(atg-math PRIVATE PROJECT_NAMESPACE=${ProjectNamespace})
 
-# gtest
-
+# gtest - unit tests
 enable_testing()
 
 add_executable(atg-math-test
     # Source files
     test/library_test.cpp
     test/sanity_test.cpp
-    test/vector_tests.cpp
-
-    # Header files
+    test/vector2_tests.cpp
+    test/vector4_tests.cpp
 )
 
-target_link_libraries(atg-math-test
+target_link_libraries(atg-math-test PRIVATE
+    gtest_main
+    atg-math
+)
+
+# gtest - benchmarks
+add_executable(atg-math-benchmark
+    # Source files
+    benchmark/empty_benchmark.cpp
+)
+
+target_link_libraries(atg-math-benchmark PRIVATE
     gtest_main
     atg-math
 )
@@ -74,5 +83,6 @@ target_link_libraries(atg-math-test
 include(GoogleTest)
 gtest_discover_tests(atg-math-test)
 
-set_property(TARGET atg-math PROPERTY FOLDER "math")
-set_property(TARGET atg-math-test PROPERTY FOLDER "math")
+set_property(TARGET atg-math PROPERTY FOLDER "atg-math")
+set_property(TARGET atg-math-test PROPERTY FOLDER "atg-math")
+set_property(TARGET atg-math-benchmark PROPERTY FOLDER "atg-math")
