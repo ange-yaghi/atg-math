@@ -4,10 +4,9 @@
 
 template<typename t_vec>
 void sumTest() {
-    const t_vec v = {t_vec::t_scalar(1), t_vec::t_scalar(2), t_vec::t_scalar(3),
-                     t_vec::t_scalar(4), t_vec::t_scalar(5), t_vec::t_scalar(6),
-                     t_vec::t_scalar(7), t_vec::t_scalar(8)};
-    EXPECT_EQ(v.sum(), (t_vec{t_vec::t_scalar(36)}));
+    t_vec v;
+    for (int i = 0; i < 8; ++i) { v.data[i] = t_vec::t_scalar(i); }
+    EXPECT_EQ(v.sum(), (t_vec{t_vec::t_scalar(28)}));
 }
 
 TEST(Vector8Tests, SumTest) {
