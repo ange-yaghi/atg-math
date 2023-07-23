@@ -740,9 +740,9 @@ struct vec<float, 8, true> {
     inline vec(float s) { data_v = _mm256_set1_ps(s); }
 
     union {
-        int mask[8];
-        float data[8];
         __m256 data_v;
+        float data[8];
+        int mask[8];   
     };
 
     inline explicit operator float() const { return _mm256_cvtss_f32(data_v); }
@@ -1056,9 +1056,9 @@ struct vec<double, 4, true> {
     }
 
     union {
-        int64_t mask[4];
-        double data[4];
         __m256d data_v;
+        double data[4];
+        int64_t mask[4];        
     };
 
     inline explicit operator double() const { return _mm256_cvtsd_f64(data_v); }
