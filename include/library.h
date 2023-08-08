@@ -33,6 +33,14 @@ void rotationMatrix(const typename t_matrix::t_vec &axis,
 }
 
 template<typename t_matrix>
+inline t_matrix rotationMatrix(const typename t_matrix::t_vec &axis,
+                               typename t_matrix::t_scalar angle) {
+    t_matrix result;
+    rotationMatrix(axis, angle, &result);
+    return result;
+}
+
+template<typename t_matrix>
 void rotationMatrixReference(const typename t_matrix::t_vec &axis,
                              typename t_matrix::t_scalar angle,
                              t_matrix *target) {
@@ -63,11 +71,25 @@ void translationMatrix(const typename t_matrix::t_vec &translation,
 }
 
 template<typename t_matrix>
+inline t_matrix translationMatrix(const typename t_matrix::t_vec &translation) {
+    t_matrix result;
+    translationMatrix(translation, &result);
+    return result;
+}
+
+template<typename t_matrix>
 void scaleMatrix(const typename t_matrix::t_vec &scale, t_matrix *target) {
     target->set_identity();
     target->columns[0].data[0] = scale.x();
     target->columns[1].data[1] = scale.y();
     target->columns[2].data[2] = scale.z();
+}
+
+template<typename t_matrix>
+inline t_matrix scaleMatrix(const typename t_matrix::t_vec &scale) {
+    t_matrix result;
+    scaleMatrix(scale, &result);
+    return result;
 }
 
 template<typename t_matrix>
@@ -87,6 +109,16 @@ void frustumPerspective(typename t_matrix::t_scalar fov_y,
 }
 
 template<typename t_matrix>
+inline t_matrix frustumPerspective(typename t_matrix::t_scalar fov_y,
+                                   typename t_matrix::t_scalar aspect,
+                                   typename t_matrix::t_scalar near,
+                                   typename t_matrix::t_scalar far) {
+    t_matrix result;
+    frustumPerspective(fov_y, aspect, near, far, &result);
+    return result;
+}
+
+template<typename t_matrix>
 void orthographicProjection(typename t_matrix::t_scalar width,
                             typename t_matrix::t_scalar height,
                             typename t_matrix::t_scalar near,
@@ -102,8 +134,19 @@ void orthographicProjection(typename t_matrix::t_scalar width,
 }
 
 template<typename t_matrix>
-void cameraTarget(typename t_matrix::t_vec eye, typename t_matrix::t_vec target,
-                  typename t_matrix::t_vec up, t_matrix *transform) {
+inline t_matrix orthographicProjection(typename t_matrix::t_scalar width,
+                                       typename t_matrix::t_scalar height,
+                                       typename t_matrix::t_scalar near,
+                                       typename t_matrix::t_scalar far) {
+    t_matrix result;
+    orthographicProjection(width, height, near, far, &result);
+    return result;
+}
+
+template<typename t_matrix>
+void cameraTarget(const typename t_matrix::t_vec &eye,
+                  const typename t_matrix::t_vec &target,
+                  const typename t_matrix::t_vec &up, t_matrix *transform) {
     using t_scalar = typename t_matrix::t_scalar;
     using t_vec = typename t_matrix::t_vec;
 
@@ -125,6 +168,15 @@ void cameraTarget(typename t_matrix::t_vec eye, typename t_matrix::t_vec target,
     transform->columns[1].w() = d1;
     transform->columns[2].w() = d2;
     transform->set_transpose();
+}
+
+template<typename t_matrix>
+inline t_matrix cameraTarget(const typename t_matrix::t_vec &eye,
+                             const typename t_matrix::t_vec &target,
+                             const typename t_matrix::t_vec &up) {
+    t_matrix result;
+    cameraTarget(eye, target, up, &result);
+    return result;
 }
 
 }// namespace atg_math
