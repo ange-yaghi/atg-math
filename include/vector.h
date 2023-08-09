@@ -727,6 +727,11 @@ struct vec<float, 4, true> {
                                                     0, -1, -1, -1))),
                          {0.0f, 0.0f, 0.0f, 1.0f});
     }
+
+    inline void load(float *data) { data_v = _mm_load_ps(data); }
+    inline void extract(float *data) {
+        memcpy(data, this->data, sizeof(float) * t_size);
+    }
 };
 
 template<>
@@ -881,6 +886,11 @@ struct vec<float, 8, true> {
     }
 
     inline t_vec sqrt() const { return _mm256_sqrt_ps(data_v); }
+
+    inline void load(float *data) { data_v = _mm256_load_ps(data); }
+    inline void extract(float *data) {
+        memcpy(data, this->data, sizeof(float) * t_size);
+    }
 };
 
 template<>
@@ -1029,6 +1039,11 @@ struct vec<double, 2, true> {
     inline t_vec sqrt() const { return _mm_sqrt_pd(data_v); }
     inline t_vec magnitude() const { return magnitude_squared().sqrt(); }
     inline t_vec normalize() const { return _mm_div_pd(data_v, magnitude()); }
+
+    inline void load(double *data) { data_v = _mm_load_pd(data); }
+    inline void extract(double *data) {
+        memcpy(data, this->data, sizeof(double) * t_size);
+    }
 };
 
 template<>
@@ -1230,6 +1245,11 @@ struct vec<double, 4, true> {
                 _mm256_and_pd(data_v, _mm256_castsi256_pd(_mm256_set_epi64x(
                                               0, -1, -1, -1))),
                 {0.0, 0.0, 0.0, 1.0});
+    }
+
+    inline void load(double *data) { data_v = _mm256_load_pd(data); }
+    inline void extract(double *data) {
+        memcpy(data, this->data, sizeof(double) * t_size);
     }
 };
 
