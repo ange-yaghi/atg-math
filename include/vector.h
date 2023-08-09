@@ -742,7 +742,7 @@ struct vec<float, 8, true> {
     union {
         __m256 data_v;
         float data[8];
-        int mask[8];   
+        int mask[8];
     };
 
     inline explicit operator float() const { return _mm256_cvtss_f32(data_v); }
@@ -854,6 +854,11 @@ struct vec<float, 8, true> {
     inline t_vec abs() const {
         const __m256 mask = _mm256_castsi256_ps(_mm256_set1_epi32(0x7FFFFFFF));
         return _mm256_and_ps(data_v, mask);
+    }
+
+    inline t_vec sign() const {
+        const __m256 mask = _mm256_castsi256_ps(_mm256_set1_epi32(~0x7FFFFFFF));
+        return _mm256_or_ps(_mm256_set1_ps(1.0f), _mm256_and_ps(data_v, mask));
     }
 
     inline t_vec sum() const {
@@ -1058,7 +1063,7 @@ struct vec<double, 4, true> {
     union {
         __m256d data_v;
         double data[4];
-        int64_t mask[4];        
+        int64_t mask[4];
     };
 
     inline explicit operator double() const { return _mm256_cvtsd_f64(data_v); }
