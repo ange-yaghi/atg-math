@@ -1208,6 +1208,12 @@ struct vec<double, 4, true> {
         return _mm256_and_pd(data_v, mask);
     }
 
+    inline t_vec sign() const {
+        const __m256d mask =
+                _mm256_castsi256_pd(_mm256_set1_epi64x(~0x7FFFFFFFFFFFFFFF));
+        return _mm256_or_pd(_mm256_set1_pd(1.0), _mm256_and_pd(data_v, mask));
+    }
+
     inline t_vec magnitude_squared() const { return dot(*this); }
     inline t_vec sqrt() const { return _mm256_sqrt_pd(data_v); }
     inline t_vec magnitude() const { return magnitude_squared().sqrt(); }
