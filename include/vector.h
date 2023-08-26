@@ -533,6 +533,9 @@ struct vec<float, 4, true> {
         data_v = _mm_set_ps(w, z, y, x);
     }
     inline vec(float s) { data_v = _mm_set_ps1(s); }
+    inline vec(const vec<float, 4, false> &v) {
+        data_v = _mm_set_ps(v.w(), v.z(), v.y(), v.x());
+    }
 
     ATG_MATH_ALIAS(x, 0)
     ATG_MATH_ALIAS(y, 1)
