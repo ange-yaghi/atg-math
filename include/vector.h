@@ -554,9 +554,9 @@ struct vec<float, 4, true> {
     }
 
     union {
-        int mask[4];
-        float data[4];
         __m128 data_v;
+        float data[4];
+        int mask[4];
     };
 
     inline explicit operator float() const { return _mm_cvtss_f32(data_v); }
