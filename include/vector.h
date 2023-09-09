@@ -802,7 +802,7 @@ struct vec<float, 8, true> {
     inline bool operator==(const t_vec &b) const {
         const t_vec cmp = _mm256_cmp_ps(data_v, b.data_v, _CMP_EQ_OQ);
         for (int i = 0; i < 8; ++i) {
-            if (cmp.data[0] == 0) { return false; }
+            if (cmp.data[i] == 0) { return false; }
         }
 
         return true;
@@ -811,7 +811,7 @@ struct vec<float, 8, true> {
     inline bool operator<=(const t_vec &b) const {
         const t_vec cmp = _mm256_cmp_ps(data_v, b.data_v, _CMP_LE_OQ);
         for (int i = 0; i < 8; ++i) {
-            if (cmp.data[0] == 0) { return false; }
+            if (cmp.data[i] == 0) { return false; }
         }
 
         return true;
@@ -820,7 +820,7 @@ struct vec<float, 8, true> {
     inline bool operator>=(const t_vec &b) const {
         const t_vec cmp = _mm256_cmp_ps(data_v, b.data_v, _CMP_GE_OQ);
         for (int i = 0; i < 8; ++i) {
-            if (cmp.data[0] == 0) { return false; }
+            if (cmp.data[i] == 0) { return false; }
         }
 
         return true;
@@ -829,10 +829,10 @@ struct vec<float, 8, true> {
     inline bool operator!=(const t_vec &b) const {
         const t_vec cmp = _mm256_cmp_ps(data_v, b.data_v, _CMP_NEQ_OQ);
         for (int i = 0; i < 8; ++i) {
-            if (cmp.data[0] == 0) { return false; }
+            if (cmp.data[i] != 0) { return true; }
         }
 
-        return true;
+        return false;
     }
 
     inline t_vec operator+=(const t_vec &b) {
