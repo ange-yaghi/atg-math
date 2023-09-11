@@ -8,24 +8,27 @@
 #include <immintrin.h>
 #include <xmmintrin.h>
 
+#define FORCE_INLINE __forceinline
+
 namespace atg_math {
 template<typename t_scalar_, unsigned int t_size, bool t_enable_simd>
 struct vec {};
 
 #define ATG_MATH_ALIAS(name, index)                                            \
-    inline t_scalar &name() { return data[index]; }                            \
-    inline t_scalar name() const { return data[index]; }
+    FORCE_INLINE t_scalar &name() { return data[index]; }                            \
+    FORCE_INLINE t_scalar name() const { return data[index]; }
 
 #define ATG_MATH_DEFINE_T_VEC typedef vec<t_scalar_, t_size, false> t_vec
 #define ATG_MATH_DEFINE_T_SCALAR typedef t_scalar_ t_scalar
 
-#define ATG_MATH_VEC_DEFINES(size)                                             \
+#define ATG_MATH_VEC_DEFINES(size, simd)                                       \
     static constexpr unsigned int t_size = size;                               \
+    static constexpr bool t_simd = simd;                                       \
     ATG_MATH_DEFINE_T_VEC;                                                     \
     ATG_MATH_DEFINE_T_SCALAR;
 
 #define ATG_MATH_DEFINE_COMPONENT_WISE_OPERATOR(op)                            \
-    inline t_vec operator op(const t_vec &b) const {                           \
+    FORCE_INLINE t_vec operator op(const t_vec &b) const {                           \
         t_vec result;                                                          \
         for (unsigned int i = 0; i < t_size; ++i) {                            \
             result.data[i] = data[i] op b.data[i];                             \
@@ -33,8 +36,13 @@ struct vec {};
         return result;                                                         \
     }
 
+#define ATG_MATH_DEFINE_MADD()                                                 \
+    FORCE_INLINE t_vec madd(const t_vec &m, const t_vec &a) const {                  \
+        return (*this) * m + a;                                                \
+    }
+
 #define ATG_MATH_DEFINE_SCALAR_OPERATOR(op)                                    \
-    inline t_vec operator op(t_scalar b) const {                               \
+    FORCE_INLINE t_vec operator op(t_scalar b) const {                               \
         t_vec result;                                                          \
         for (unsigned int i = 0; i < t_size; ++i) {                            \
             result.data[i] = data[i] op b;                                     \
@@ -44,14 +52,14 @@ struct vec {};
 
 #define ATG_MATH_DEFINE_LEFT_SCALAR_OPERATOR(op)                               \
     template<typename t_scalar, unsigned int t_size, bool t_simd>              \
-    inline vec<t_scalar, t_size, t_simd> operator*(                            \
+    FORCE_INLINE vec<t_scalar, t_size, t_simd> operator*(                            \
             typename vec<t_scalar, t_size, t_simd>::t_scalar left,             \
             const vec<t_scalar, t_size, t_simd> &right) {                      \
         return right op left;                                                  \
     }
 
 #define ATG_MATH_DEFINE_BOOLEAN_COMPARISON_OPERATOR(op)                        \
-    inline bool operator op(const t_vec &b) const {                            \
+    FORCE_INLINE bool operator op(const t_vec &b) const {                            \
         for (unsigned int i = 0; i < t_size; ++i) {                            \
             if (!(data[i] op b.data[i])) { return false; }                     \
         }                                                                      \
@@ -59,7 +67,7 @@ struct vec {};
     }
 
 #define ATG_MATH_DEFINE_VECTOR_COMPARISON_OPERATOR(op, name)                   \
-    inline t_vec compare_##name(const t_vec &b) const {                        \
+    FORCE_INLINE t_vec compare_##name(const t_vec &b) const {                        \
         t_vec result;                                                          \
         for (unsigned int i = 0; i < t_size; ++i) {                            \
             if (data[i] op b.data[i]) {                                        \
@@ -71,8 +79,17 @@ struct vec {};
         return result;                                                         \
     }
 
+#define ATG_MATH_DEFINE_SIGN                                                   \
+    FORCE_INLINE t_vec sign() const {                                                \
+        t_vec result;                                                          \
+        for (unsigned int i = 0; i < t_size; ++i) {                            \
+            result.data[i] = data[i] < 0 ? t_scalar(-1) : t_scalar(1);         \
+        }                                                                      \
+        return result;                                                         \
+    }
+
 #define ATG_MATH_DEFINE_NEGATED_BOOLEAN_COMPARISON_OPERATOR(op)                \
-    inline bool operator op(const t_vec &b) const {                            \
+    FORCE_INLINE bool operator op(const t_vec &b) const {                            \
         for (unsigned int i = 0; i < t_size; ++i) {                            \
             if (data[i] op b.data[i]) { return true; }                         \
         }                                                                      \
@@ -80,7 +97,7 @@ struct vec {};
     }
 
 #define ATG_MATH_DEFINE_ASSIGNMENT_OPERATOR(full_op, op)                       \
-    inline t_vec &operator full_op(const t_vec &b) {                           \
+    FORCE_INLINE t_vec &operator full_op(const t_vec &b) {                           \
         for (unsigned int i = 0; i < t_size; ++i) {                            \
             data[i] = data[i] op b.data[i];                                    \
         }                                                                      \
@@ -88,7 +105,7 @@ struct vec {};
     }
 
 #define ATG_MATH_DEFINE_NEGATE_OPERATOR                                        \
-    inline t_vec operator-() const {                                           \
+    FORCE_INLINE t_vec operator-() const {                                           \
         t_vec result;                                                          \
         for (unsigned int i = 0; i < t_size; ++i) {                            \
             result.data[i] = -data[i];                                         \
@@ -97,10 +114,10 @@ struct vec {};
     }
 
 #define ATG_MATH_DEFINE_POSITIVE_OPERATOR                                      \
-    inline t_vec operator+() const { return *this; }
+    FORCE_INLINE t_vec operator+() const { return *this; }
 
 #define ATG_MATH_DEFINE_DOT_PRODUCT                                            \
-    inline t_vec dot(const t_vec &b) const {                                   \
+    FORCE_INLINE t_vec dot(const t_vec &b) const {                                   \
         t_scalar result = 0;                                                   \
         for (unsigned int i = 0; i < t_size; ++i) {                            \
             result += data[i] * b.data[i];                                     \
@@ -110,7 +127,7 @@ struct vec {};
     }
 
 #define ATG_MATH_DEFINE_SUM                                                    \
-    inline t_vec sum() const {                                                 \
+    FORCE_INLINE t_vec sum() const {                                                 \
         t_scalar result = 0;                                                   \
         for (unsigned int i = 0; i < t_size; ++i) { result += data[i]; }       \
                                                                                \
@@ -118,7 +135,7 @@ struct vec {};
     }
 
 #define ATG_MATH_DEFINE_COMPONENT_MIN                                          \
-    inline t_vec min(const t_vec &b) const {                                   \
+    FORCE_INLINE t_vec min(const t_vec &b) const {                                   \
         t_vec result;                                                          \
         for (unsigned int i = 0; i < t_size; ++i) {                            \
             result.data[i] = std::min(data[i], b.data[i]);                     \
@@ -128,7 +145,7 @@ struct vec {};
     }
 
 #define ATG_MATH_DEFINE_COMPONENT_MAX                                          \
-    inline t_vec max(const t_vec &b) const {                                   \
+    FORCE_INLINE t_vec max(const t_vec &b) const {                                   \
         t_vec result;                                                          \
         for (unsigned int i = 0; i < t_size; ++i) {                            \
             result.data[i] = std::max(data[i], b.data[i]);                     \
@@ -138,7 +155,7 @@ struct vec {};
     }
 
 #define ATG_MATH_DEFINE_ABS                                                    \
-    inline t_vec abs() const {                                                 \
+    FORCE_INLINE t_vec abs() const {                                                 \
         t_vec result;                                                          \
         for (unsigned int i = 0; i < t_size; ++i) {                            \
             result.data[i] = std::abs(data[i]);                                \
@@ -147,14 +164,24 @@ struct vec {};
         return result;                                                         \
     }
 
+#define ATG_MATH_DEFINE_SQRT                                                   \
+    FORCE_INLINE t_vec sqrt() const {                                                \
+        t_vec result;                                                          \
+        for (unsigned int i = 0; i < t_size; ++i) {                            \
+            result.data[i] = std::sqrt(data[i]);                               \
+        }                                                                      \
+                                                                               \
+        return result;                                                         \
+    }
+
 #define ATG_MATH_DEFINE_MAGNITUDE_SQUARED                                      \
-    inline t_scalar magnitude_squared() const { return t_scalar(dot(*this)); }
+    FORCE_INLINE t_scalar magnitude_squared() const { return t_scalar(dot(*this)); }
 
 #define ATG_MATH_DEFINE_MAGNITUDE                                              \
-    inline t_scalar magnitude() const { return std::sqrt(magnitude_squared()); }
+    FORCE_INLINE t_scalar magnitude() const { return std::sqrt(magnitude_squared()); }
 
 #define ATG_MATH_DEFINE_NORMALIZE                                              \
-    inline t_vec normalize() const { return (*this) / magnitude(); }
+    FORCE_INLINE t_vec normalize() const { return (*this) / magnitude(); }
 
 #define ATG_MATH_DEFINE_CONVERSION_CONSTRUCTOR                                 \
     template<typename t_b_type>                                                \
@@ -170,7 +197,7 @@ struct vec {};
 
 #define ATG_MATH_DEFINE_CONVERSION                                             \
     template<typename t_b_type>                                                \
-    inline t_vec operator=(const t_b_type &b) {                                \
+    FORCE_INLINE t_vec operator=(const t_b_type &b) {                                \
         constexpr unsigned int l =                                             \
                 (t_size < t_b_type::t_size) ? t_size : t_b_type::t_size;       \
         for (unsigned int i = 0; i < t_size; ++i) {                            \
@@ -182,7 +209,7 @@ struct vec {};
         return *this;                                                          \
     }                                                                          \
                                                                                \
-    inline t_vec operator=(const t_scalar &b) {                                \
+    FORCE_INLINE t_vec operator=(const t_scalar &b) {                                \
         for (unsigned int i = 0; i < t_size; ++i) { data[i] = b; }             \
                                                                                \
         return *this;                                                          \
@@ -205,8 +232,13 @@ struct vec {};
 #define ATG_MATH_DEFINE_DEFAULT_CONSTRUCTOR                                    \
     vec() {}
 
+#define ATG_MATH_DEFINE_LOAD                                                   \
+    FORCE_INLINE void load(const t_scalar *data) {                                   \
+        for (unsigned int i = 0; i < t_size; ++i) { this->data[i] = data[i]; } \
+    }
+
 #define ATG_MATH_DEFINE_EXPLICIT_SCALAR_CONVERSION                             \
-    inline explicit operator t_scalar() const { return data[0]; }
+    FORCE_INLINE explicit operator t_scalar() const { return data[0]; }
 
 #define ATG_MATH_S_X 0
 #define ATG_MATH_S_Y 1
@@ -217,17 +249,16 @@ struct vec {};
 
 template<typename t_scalar_>
 struct vec<t_scalar_, 1, false> {
-    ATG_MATH_VEC_DEFINES(1)
-
-    vec(t_scalar s) { data[0] = s; }
-
+    ATG_MATH_VEC_DEFINES(1, false)
     ATG_MATH_ALIAS(s, 0)
 
     t_scalar data[t_size];
 
     ATG_MATH_DEFINE_CONVERSION_CONSTRUCTOR
     ATG_MATH_DEFINE_CONVERSION
+    ATG_MATH_DEFINE_SCALAR_CONSTRUCTOR
     ATG_MATH_DEFINE_DEFAULT_CONSTRUCTOR
+    ATG_MATH_DEFINE_LOAD
 
     ATG_MATH_DEFINE_EXPLICIT_SCALAR_CONVERSION
 
@@ -238,23 +269,31 @@ struct vec<t_scalar_, 1, false> {
     ATG_MATH_DEFINE_BOOLEAN_COMPARISON_OPERATOR(==)
     ATG_MATH_DEFINE_BOOLEAN_COMPARISON_OPERATOR(<=)
     ATG_MATH_DEFINE_BOOLEAN_COMPARISON_OPERATOR(>=)
-    ATG_MATH_DEFINE_VECTOR_COMPARISON_OPERATOR(==, eq);
-    ATG_MATH_DEFINE_VECTOR_COMPARISON_OPERATOR(<=, le);
-    ATG_MATH_DEFINE_VECTOR_COMPARISON_OPERATOR(>=, ge);
+    ATG_MATH_DEFINE_VECTOR_COMPARISON_OPERATOR(==, eq)
+    ATG_MATH_DEFINE_VECTOR_COMPARISON_OPERATOR(<=, le)
+    ATG_MATH_DEFINE_VECTOR_COMPARISON_OPERATOR(>=, ge)
     ATG_MATH_DEFINE_NEGATED_BOOLEAN_COMPARISON_OPERATOR(!=)
+    ATG_MATH_DEFINE_MADD()
 
     ATG_MATH_DEFINE_NEGATE_OPERATOR
     ATG_MATH_DEFINE_POSITIVE_OPERATOR
+    ATG_MATH_DEFINE_SQRT
+    ATG_MATH_DEFINE_SIGN
 
     ATG_MATH_DEFINE_ASSIGNMENT_OPERATOR(+=, +)
     ATG_MATH_DEFINE_ASSIGNMENT_OPERATOR(-=, -)
     ATG_MATH_DEFINE_ASSIGNMENT_OPERATOR(*=, *)
     ATG_MATH_DEFINE_ASSIGNMENT_OPERATOR(/=, /)
+
+    ATG_MATH_DEFINE_COMPONENT_MAX
+    ATG_MATH_DEFINE_COMPONENT_MIN
+    ATG_MATH_DEFINE_ABS
+    ATG_MATH_DEFINE_SUM
 };
 
 template<typename t_scalar_>
 struct vec<t_scalar_, 2, false> {
-    ATG_MATH_VEC_DEFINES(2)
+    ATG_MATH_VEC_DEFINES(2, false)
 
     vec(t_scalar x, t_scalar y) {
         data[0] = x;
@@ -279,6 +318,7 @@ struct vec<t_scalar_, 2, false> {
     ATG_MATH_DEFINE_CONVERSION
     ATG_MATH_DEFINE_SCALAR_CONSTRUCTOR
     ATG_MATH_DEFINE_DEFAULT_CONSTRUCTOR
+    ATG_MATH_DEFINE_LOAD
 
     ATG_MATH_DEFINE_EXPLICIT_SCALAR_CONVERSION
 
@@ -312,11 +352,13 @@ struct vec<t_scalar_, 2, false> {
     ATG_MATH_DEFINE_MAGNITUDE
     ATG_MATH_DEFINE_MAGNITUDE_SQUARED
     ATG_MATH_DEFINE_NORMALIZE
+    ATG_MATH_DEFINE_SIGN
+    ATG_MATH_DEFINE_SQRT
 };
 
 template<typename t_scalar_>
 struct vec<t_scalar_, 3, false> {
-    ATG_MATH_VEC_DEFINES(3)
+    ATG_MATH_VEC_DEFINES(3, false)
 
     vec(t_scalar x, t_scalar y, t_scalar z = 0) {
         data[0] = x;
@@ -352,6 +394,7 @@ struct vec<t_scalar_, 3, false> {
     ATG_MATH_DEFINE_CONVERSION
     ATG_MATH_DEFINE_SCALAR_CONSTRUCTOR
     ATG_MATH_DEFINE_DEFAULT_CONSTRUCTOR
+    ATG_MATH_DEFINE_LOAD
 
     ATG_MATH_DEFINE_EXPLICIT_SCALAR_CONVERSION
 
@@ -366,6 +409,7 @@ struct vec<t_scalar_, 3, false> {
     ATG_MATH_DEFINE_VECTOR_COMPARISON_OPERATOR(<=, le);
     ATG_MATH_DEFINE_VECTOR_COMPARISON_OPERATOR(>=, ge);
     ATG_MATH_DEFINE_NEGATED_BOOLEAN_COMPARISON_OPERATOR(!=)
+    ATG_MATH_DEFINE_MADD()
 
     ATG_MATH_DEFINE_NEGATE_OPERATOR
     ATG_MATH_DEFINE_POSITIVE_OPERATOR
@@ -384,11 +428,13 @@ struct vec<t_scalar_, 3, false> {
     ATG_MATH_DEFINE_MAGNITUDE_SQUARED
     ATG_MATH_DEFINE_MAGNITUDE
     ATG_MATH_DEFINE_NORMALIZE
+    ATG_MATH_DEFINE_SIGN
+    ATG_MATH_DEFINE_SQRT
 };
 
 template<typename t_scalar_>
 struct vec<t_scalar_, 4, false> {
-    ATG_MATH_VEC_DEFINES(4)
+    ATG_MATH_VEC_DEFINES(4, false)
 
     vec(t_scalar x, t_scalar y, t_scalar z, t_scalar w) {
         data[0] = x;
@@ -436,6 +482,7 @@ struct vec<t_scalar_, 4, false> {
     ATG_MATH_DEFINE_CONVERSION
     ATG_MATH_DEFINE_SCALAR_CONSTRUCTOR
     ATG_MATH_DEFINE_DEFAULT_CONSTRUCTOR
+    ATG_MATH_DEFINE_LOAD
 
     ATG_MATH_DEFINE_EXPLICIT_SCALAR_CONVERSION
 
@@ -450,6 +497,7 @@ struct vec<t_scalar_, 4, false> {
     ATG_MATH_DEFINE_VECTOR_COMPARISON_OPERATOR(<=, le);
     ATG_MATH_DEFINE_VECTOR_COMPARISON_OPERATOR(>=, ge);
     ATG_MATH_DEFINE_NEGATED_BOOLEAN_COMPARISON_OPERATOR(!=)
+    ATG_MATH_DEFINE_MADD()
 
     ATG_MATH_DEFINE_NEGATE_OPERATOR
     ATG_MATH_DEFINE_POSITIVE_OPERATOR
@@ -468,16 +516,21 @@ struct vec<t_scalar_, 4, false> {
     ATG_MATH_DEFINE_MAGNITUDE_SQUARED
     ATG_MATH_DEFINE_MAGNITUDE
     ATG_MATH_DEFINE_NORMALIZE
+    ATG_MATH_DEFINE_SIGN
+    ATG_MATH_DEFINE_SQRT
 
-    inline t_vec xy() const { return {x(), y(), t_scalar(0), t_scalar(0)}; }
-    inline t_vec yz() const { return {y(), z(), t_scalar(0), t_scalar(0)}; }
-    inline t_vec xz() const { return {x(), z(), t_scalar(0), t_scalar(0)}; }
-    inline t_vec xyz() const { return {x(), y(), z(), t_scalar(0)}; }
-    inline t_vec position() const { return {x(), y(), z(), t_scalar(1)}; }
+    FORCE_INLINE t_vec xy() const { return {x(), y(), t_scalar(0), t_scalar(0)}; }
+    FORCE_INLINE t_vec yz() const { return {y(), z(), t_scalar(0), t_scalar(0)}; }
+    FORCE_INLINE t_vec xz() const { return {x(), z(), t_scalar(0), t_scalar(0)}; }
+    FORCE_INLINE t_vec xyz() const { return {x(), y(), z(), t_scalar(0)}; }
+    FORCE_INLINE t_vec position() const { return {x(), y(), z(), t_scalar(1)}; }
 };
 
-template<typename t_scalar_, unsigned int t_size>
-struct vec<t_scalar_, t_size, false> {
+template<typename t_scalar_, unsigned int t_size_>
+struct vec<t_scalar_, t_size_, false> {
+    static constexpr unsigned int t_size = t_size_;
+    static constexpr bool t_simd = false;
+
     ATG_MATH_DEFINE_T_VEC;
     ATG_MATH_DEFINE_T_SCALAR;
 
@@ -487,6 +540,7 @@ struct vec<t_scalar_, t_size, false> {
     ATG_MATH_DEFINE_CONVERSION
     ATG_MATH_DEFINE_SCALAR_CONSTRUCTOR
     ATG_MATH_DEFINE_DEFAULT_CONSTRUCTOR
+    ATG_MATH_DEFINE_LOAD
 
     ATG_MATH_DEFINE_EXPLICIT_SCALAR_CONVERSION
 
@@ -501,6 +555,7 @@ struct vec<t_scalar_, t_size, false> {
     ATG_MATH_DEFINE_VECTOR_COMPARISON_OPERATOR(<=, le);
     ATG_MATH_DEFINE_VECTOR_COMPARISON_OPERATOR(>=, ge);
     ATG_MATH_DEFINE_NEGATED_BOOLEAN_COMPARISON_OPERATOR(!=)
+    ATG_MATH_DEFINE_MADD()
 
     ATG_MATH_DEFINE_NEGATE_OPERATOR
     ATG_MATH_DEFINE_POSITIVE_OPERATOR
@@ -519,21 +574,24 @@ struct vec<t_scalar_, t_size, false> {
     ATG_MATH_DEFINE_MAGNITUDE_SQUARED
     ATG_MATH_DEFINE_MAGNITUDE
     ATG_MATH_DEFINE_NORMALIZE
+    ATG_MATH_DEFINE_SQRT
+    ATG_MATH_DEFINE_SIGN
 };
 
 template<>
 struct vec<float, 4, true> {
     using t_scalar = float;
     static constexpr unsigned int t_size = 4;
+    static constexpr bool t_simd = true;
     typedef vec<float, 4, true> t_vec;
 
-    inline vec() { data[0] = data[1] = data[2] = data[3] = 0; }
-    inline vec(const __m128 &v) : data_v(v) {}
-    inline vec(float x, float y, float z = 0, float w = 0) {
+    FORCE_INLINE vec() { data[0] = data[1] = data[2] = data[3] = 0; }
+    FORCE_INLINE vec(const __m128 &v) : data_v(v) {}
+    FORCE_INLINE vec(float x, float y, float z = 0, float w = 0) {
         data_v = _mm_set_ps(w, z, y, x);
     }
-    inline vec(float s) { data_v = _mm_set_ps1(s); }
-    inline vec(const vec<float, 4, false> &v) {
+    FORCE_INLINE vec(float s) { data_v = _mm_set_ps1(s); }
+    FORCE_INLINE vec(const vec<float, 4, false> &v) {
         data_v = _mm_set_ps(v.w(), v.z(), v.y(), v.x());
     }
 
@@ -548,7 +606,7 @@ struct vec<float, 4, true> {
     ATG_MATH_ALIAS(a, 3)
 
     template<int i0 = 0, int i1 = 1, int i2 = 2, int i3 = 3>
-    inline t_vec shuffle() const {
+    FORCE_INLINE t_vec shuffle() const {
         return _mm_shuffle_ps(data_v, data_v,
                               ATG_MATH_M128_SHUFFLE(i0, i1, i2, i3));
     }
@@ -559,90 +617,90 @@ struct vec<float, 4, true> {
         int mask[4];
     };
 
-    inline explicit operator float() const { return _mm_cvtss_f32(data_v); }
+    FORCE_INLINE explicit operator float() const { return _mm_cvtss_f32(data_v); }
 
-    inline operator __m128() const { return data_v; }
+    FORCE_INLINE operator __m128() const { return data_v; }
 
-    inline t_vec operator-() const {
+    FORCE_INLINE t_vec operator-() const {
         const __m128 mask = _mm_castsi128_ps(_mm_set1_epi32(~0x7FFFFFFF));
         return _mm_xor_ps(data_v, mask);
     }
 
-    inline t_vec operator+() const { return *this; }
+    FORCE_INLINE t_vec operator+() const { return *this; }
 
-    inline t_vec operator+(const t_vec &b) const {
+    FORCE_INLINE t_vec operator+(const t_vec &b) const {
         return _mm_add_ps(data_v, b.data_v);
     }
 
-    inline t_vec operator-(const t_vec &b) const {
+    FORCE_INLINE t_vec operator-(const t_vec &b) const {
         return _mm_sub_ps(data_v, b.data_v);
     }
 
-    inline t_vec operator*(const t_vec &b) const {
+    FORCE_INLINE t_vec operator*(const t_vec &b) const {
         return _mm_mul_ps(data_v, b.data_v);
     }
 
-    inline t_vec operator/(const t_vec &b) const {
+    FORCE_INLINE t_vec operator/(const t_vec &b) const {
         return _mm_div_ps(data_v, b.data_v);
     }
 
-    inline t_vec compare_eq(const t_vec &b) const {
+    FORCE_INLINE t_vec compare_eq(const t_vec &b) const {
         const t_vec cmp_mask = _mm_cmpeq_ps(data_v, b.data_v);
         return _mm_and_ps(cmp_mask, t_vec(1.0f));
     }
 
-    inline t_vec compare_neq(const t_vec &b) const {
+    FORCE_INLINE t_vec compare_neq(const t_vec &b) const {
         const t_vec cmp_mask = _mm_cmpneq_ps(data_v, b.data_v);
         return _mm_and_ps(cmp_mask, t_vec(1.0f));
     }
 
-    inline t_vec compare_le(const t_vec &b) const {
+    FORCE_INLINE t_vec compare_le(const t_vec &b) const {
         const t_vec cmp_mask = _mm_cmple_ps(data_v, b.data_v);
         return _mm_and_ps(cmp_mask, t_vec(1.0f));
     }
 
-    inline t_vec compare_ge(const t_vec &b) const {
+    FORCE_INLINE t_vec compare_ge(const t_vec &b) const {
         const t_vec cmp_mask = _mm_cmpge_ps(data_v, b.data_v);
         return _mm_and_ps(cmp_mask, t_vec(1.0f));
     }
 
-    inline bool operator==(const t_vec &b) const {
+    FORCE_INLINE bool operator==(const t_vec &b) const {
         const t_vec cmp = _mm_cmpeq_ps(data_v, b.data_v);
         return !(cmp.x() == 0 || cmp.y() == 0 || cmp.z() == 0 || cmp.w() == 0);
     }
 
-    inline bool operator<=(const t_vec &b) const {
+    FORCE_INLINE bool operator<=(const t_vec &b) const {
         const t_vec cmp = _mm_cmple_ps(data_v, b.data_v);
         return !(cmp.x() == 0 || cmp.y() == 0 || cmp.z() == 0 || cmp.w() == 0);
     }
 
-    inline bool operator>=(const t_vec &b) const {
+    FORCE_INLINE bool operator>=(const t_vec &b) const {
         const t_vec cmp = _mm_cmpge_ps(data_v, b.data_v);
         return !(cmp.x() == 0 || cmp.y() == 0 || cmp.z() == 0 || cmp.w() == 0);
     }
 
-    inline bool operator!=(const t_vec &b) const {
+    FORCE_INLINE bool operator!=(const t_vec &b) const {
         const t_vec cmp = _mm_cmpeq_ps(data_v, b.data_v);
         return cmp.x() == 0 && cmp.y() == 0 && cmp.z() == 0 && cmp.w() == 0;
     }
 
-    inline t_vec operator+=(const t_vec &b) {
+    FORCE_INLINE t_vec operator+=(const t_vec &b) {
         return data_v = _mm_add_ps(data_v, b.data_v);
     }
 
-    inline t_vec operator-=(const t_vec &b) {
+    FORCE_INLINE t_vec operator-=(const t_vec &b) {
         return data_v = _mm_sub_ps(data_v, b.data_v);
     }
 
-    inline t_vec operator*=(const t_vec &b) {
+    FORCE_INLINE t_vec operator*=(const t_vec &b) {
         return data_v = _mm_mul_ps(data_v, b.data_v);
     }
 
-    inline t_vec operator/=(const t_vec &b) {
+    FORCE_INLINE t_vec operator/=(const t_vec &b) {
         return data_v = _mm_div_ps(data_v, b.data_v);
     }
 
-    inline t_vec sum() const {
+    FORCE_INLINE t_vec sum() const {
         const __m128 t1 = _mm_shuffle_ps(
                 data_v, data_v,
                 ATG_MATH_M128_SHUFFLE(ATG_MATH_S_Z, ATG_MATH_S_W, ATG_MATH_S_X,
@@ -655,12 +713,12 @@ struct vec<float, 4, true> {
         return _mm_add_ps(t3, t2);
     }
 
-    inline t_vec dot(const t_vec &b) const {
+    FORCE_INLINE t_vec dot(const t_vec &b) const {
         const __m128 t0 = _mm_mul_ps(data_v, b.data_v);
         return t_vec(t0).sum();
     }
 
-    inline t_vec cross(const t_vec &b) const {
+    FORCE_INLINE t_vec cross(const t_vec &b) const {
         const __m128 t1 = _mm_shuffle_ps(
                 data_v, data_v,
                 ATG_MATH_M128_SHUFFLE(ATG_MATH_S_Y, ATG_MATH_S_Z, ATG_MATH_S_X,
@@ -681,58 +739,58 @@ struct vec<float, 4, true> {
         return _mm_sub_ps(_mm_mul_ps(t1, t2), _mm_mul_ps(t3, t4));
     }
 
-    inline t_vec min(const t_vec &b) const {
+    FORCE_INLINE t_vec min(const t_vec &b) const {
         return _mm_min_ps(data_v, b.data_v);
     }
 
-    inline t_vec max(const t_vec &b) const {
+    FORCE_INLINE t_vec max(const t_vec &b) const {
         return _mm_max_ps(data_v, b.data_v);
     }
 
-    inline t_vec abs() const {
+    FORCE_INLINE t_vec abs() const {
         const __m128 mask = _mm_castsi128_ps(_mm_set1_epi32(0x7FFFFFFF));
         return _mm_and_ps(data_v, mask);
     }
 
-    inline t_vec magnitude_squared() const { return dot(*this); }
-    inline t_vec sqrt() const { return _mm_sqrt_ps(data_v); }
-    inline t_vec magnitude() const { return magnitude_squared().sqrt(); }
-    inline t_vec normalize() const { return _mm_div_ps(data_v, magnitude()); }
+    FORCE_INLINE t_vec magnitude_squared() const { return dot(*this); }
+    FORCE_INLINE t_vec sqrt() const { return _mm_sqrt_ps(data_v); }
+    FORCE_INLINE t_vec magnitude() const { return magnitude_squared().sqrt(); }
+    FORCE_INLINE t_vec normalize() const { return _mm_div_ps(data_v, magnitude()); }
 
-    inline t_vec xy() const {
+    FORCE_INLINE t_vec xy() const {
         return _mm_shuffle_ps(data_v, {0.0f, 0.0f, 0.0f, 0.0f},
                               ATG_MATH_M128_SHUFFLE(ATG_MATH_S_X, ATG_MATH_S_Y,
                                                     ATG_MATH_S_Z,
                                                     ATG_MATH_S_W));
     }
 
-    inline t_vec yz() const {
+    FORCE_INLINE t_vec yz() const {
         return _mm_shuffle_ps(data_v, {0.0f, 0.0f, 0.0f, 0.0f},
                               ATG_MATH_M128_SHUFFLE(ATG_MATH_S_Y, ATG_MATH_S_Z,
                                                     ATG_MATH_S_Z,
                                                     ATG_MATH_S_W));
     }
 
-    inline t_vec xz() const {
+    FORCE_INLINE t_vec xz() const {
         return _mm_shuffle_ps(data_v, {0.0f, 0.0f, 0.0f, 0.0f},
                               ATG_MATH_M128_SHUFFLE(ATG_MATH_S_X, ATG_MATH_S_Z,
                                                     ATG_MATH_S_Z,
                                                     ATG_MATH_S_W));
     }
 
-    inline t_vec xyz() const {
+    FORCE_INLINE t_vec xyz() const {
         return _mm_and_ps(data_v,
                           _mm_castsi128_ps(_mm_set_epi32(0, -1, -1, -1)));
     }
 
-    inline t_vec position() const {
+    FORCE_INLINE t_vec position() const {
         return _mm_or_ps(_mm_and_ps(data_v, _mm_castsi128_ps(_mm_set_epi32(
                                                     0, -1, -1, -1))),
                          {0.0f, 0.0f, 0.0f, 1.0f});
     }
 
-    inline void load(float *data) { data_v = _mm_load_ps(data); }
-    inline void extract(float *data) {
+    FORCE_INLINE void load(float *data) { data_v = _mm_load_ps(data); }
+    FORCE_INLINE void extract(float *data) {
         memcpy(data, this->data, sizeof(float) * t_size);
     }
 };
@@ -741,11 +799,12 @@ template<>
 struct vec<float, 8, true> {
     using t_scalar = float;
     static constexpr unsigned int t_size = 8;
+    static constexpr bool t_simd = true;
     typedef vec<float, 8, true> t_vec;
 
-    inline vec() { data_v = _mm256_set1_ps(0.0f); }
-    inline vec(const __m256 &v) : data_v(v) {}
-    inline vec(float s) { data_v = _mm256_set1_ps(s); }
+    FORCE_INLINE vec() { data_v = _mm256_set1_ps(0.0f); }
+    FORCE_INLINE vec(const __m256 &v) : data_v(v) {}
+    FORCE_INLINE vec(float s) { data_v = _mm256_set1_ps(s); }
 
     union {
         __m256 data_v;
@@ -753,53 +812,57 @@ struct vec<float, 8, true> {
         int mask[8];
     };
 
-    inline explicit operator float() const { return _mm256_cvtss_f32(data_v); }
-    inline operator __m256() const { return data_v; }
+    FORCE_INLINE explicit operator float() const { return _mm256_cvtss_f32(data_v); }
+    FORCE_INLINE operator __m256() const { return data_v; }
 
-    inline t_vec operator-() const {
+    FORCE_INLINE t_vec operator-() const {
         const __m256 mask = _mm256_castsi256_ps(_mm256_set1_epi32(~0x7FFFFFFF));
         return _mm256_xor_ps(data_v, mask);
     }
 
-    inline t_vec operator+() const { return *this; }
+    FORCE_INLINE t_vec operator+() const { return *this; }
 
-    inline t_vec operator+(const t_vec &b) const {
+    FORCE_INLINE t_vec operator+(const t_vec &b) const {
         return _mm256_add_ps(data_v, b.data_v);
     }
 
-    inline t_vec operator-(const t_vec &b) const {
+    FORCE_INLINE t_vec operator-(const t_vec &b) const {
         return _mm256_sub_ps(data_v, b.data_v);
     }
 
-    inline t_vec operator*(const t_vec &b) const {
+    FORCE_INLINE t_vec operator*(const t_vec &b) const {
         return _mm256_mul_ps(data_v, b.data_v);
     }
 
-    inline t_vec operator/(const t_vec &b) const {
+    FORCE_INLINE t_vec operator/(const t_vec &b) const {
         return _mm256_div_ps(data_v, b.data_v);
     }
 
-    inline t_vec compare_eq(const t_vec &b) const {
+    FORCE_INLINE t_vec madd(const t_vec &m, const t_vec &a) const {
+        return _mm256_fmadd_ps(data_v, m, a);
+    }
+
+    FORCE_INLINE t_vec compare_eq(const t_vec &b) const {
         const t_vec cmp_mask = _mm256_cmp_ps(data_v, b.data_v, _CMP_EQ_OQ);
         return _mm256_and_ps(cmp_mask, t_vec(1.0f));
     }
 
-    inline t_vec compare_neq(const t_vec &b) const {
+    FORCE_INLINE t_vec compare_neq(const t_vec &b) const {
         const t_vec cmp_mask = _mm256_cmp_ps(data_v, b.data_v, _CMP_NEQ_OQ);
         return _mm256_and_ps(cmp_mask, t_vec(1.0f));
     }
 
-    inline t_vec compare_le(const t_vec &b) const {
+    FORCE_INLINE t_vec compare_le(const t_vec &b) const {
         const t_vec cmp_mask = _mm256_cmp_ps(data_v, b.data_v, _CMP_LE_OQ);
         return _mm256_and_ps(cmp_mask, t_vec(1.0f));
     }
 
-    inline t_vec compare_ge(const t_vec &b) const {
+    FORCE_INLINE t_vec compare_ge(const t_vec &b) const {
         const t_vec cmp_mask = _mm256_cmp_ps(data_v, b.data_v, _CMP_GE_OQ);
         return _mm256_and_ps(cmp_mask, t_vec(1.0f));
     }
 
-    inline bool operator==(const t_vec &b) const {
+    FORCE_INLINE bool operator==(const t_vec &b) const {
         const t_vec cmp = _mm256_cmp_ps(data_v, b.data_v, _CMP_EQ_OQ);
         for (int i = 0; i < 8; ++i) {
             if (cmp.data[i] == 0) { return false; }
@@ -808,7 +871,7 @@ struct vec<float, 8, true> {
         return true;
     }
 
-    inline bool operator<=(const t_vec &b) const {
+    FORCE_INLINE bool operator<=(const t_vec &b) const {
         const t_vec cmp = _mm256_cmp_ps(data_v, b.data_v, _CMP_LE_OQ);
         for (int i = 0; i < 8; ++i) {
             if (cmp.data[i] == 0) { return false; }
@@ -817,7 +880,7 @@ struct vec<float, 8, true> {
         return true;
     }
 
-    inline bool operator>=(const t_vec &b) const {
+    FORCE_INLINE bool operator>=(const t_vec &b) const {
         const t_vec cmp = _mm256_cmp_ps(data_v, b.data_v, _CMP_GE_OQ);
         for (int i = 0; i < 8; ++i) {
             if (cmp.data[i] == 0) { return false; }
@@ -826,7 +889,7 @@ struct vec<float, 8, true> {
         return true;
     }
 
-    inline bool operator!=(const t_vec &b) const {
+    FORCE_INLINE bool operator!=(const t_vec &b) const {
         const t_vec cmp = _mm256_cmp_ps(data_v, b.data_v, _CMP_NEQ_OQ);
         for (int i = 0; i < 8; ++i) {
             if (cmp.data[i] != 0) { return true; }
@@ -835,41 +898,41 @@ struct vec<float, 8, true> {
         return false;
     }
 
-    inline t_vec operator+=(const t_vec &b) {
+    FORCE_INLINE t_vec operator+=(const t_vec &b) {
         return data_v = _mm256_add_ps(data_v, b.data_v);
     }
 
-    inline t_vec operator-=(const t_vec &b) {
+    FORCE_INLINE t_vec operator-=(const t_vec &b) {
         return data_v = _mm256_sub_ps(data_v, b.data_v);
     }
 
-    inline t_vec operator*=(const t_vec &b) {
+    FORCE_INLINE t_vec operator*=(const t_vec &b) {
         return data_v = _mm256_mul_ps(data_v, b.data_v);
     }
 
-    inline t_vec operator/=(const t_vec &b) {
+    FORCE_INLINE t_vec operator/=(const t_vec &b) {
         return data_v = _mm256_div_ps(data_v, b.data_v);
     }
 
-    inline t_vec min(const t_vec &b) const {
+    FORCE_INLINE t_vec min(const t_vec &b) const {
         return _mm256_min_ps(data_v, b.data_v);
     }
 
-    inline t_vec max(const t_vec &b) const {
+    FORCE_INLINE t_vec max(const t_vec &b) const {
         return _mm256_max_ps(data_v, b.data_v);
     }
 
-    inline t_vec abs() const {
+    FORCE_INLINE t_vec abs() const {
         const __m256 mask = _mm256_castsi256_ps(_mm256_set1_epi32(0x7FFFFFFF));
         return _mm256_and_ps(data_v, mask);
     }
 
-    inline t_vec sign() const {
+    FORCE_INLINE t_vec sign() const {
         const __m256 mask = _mm256_castsi256_ps(_mm256_set1_epi32(~0x7FFFFFFF));
         return _mm256_or_ps(_mm256_set1_ps(1.0f), _mm256_and_ps(data_v, mask));
     }
 
-    inline t_vec sum() const {
+    FORCE_INLINE t_vec sum() const {
         __m256 sum = data_v;
         const __m256 s0 = _mm256_shuffle_ps(
                 data_v, data_v,
@@ -888,10 +951,10 @@ struct vec<float, 8, true> {
         return _mm256_add_ps(s2, sum);
     }
 
-    inline t_vec sqrt() const { return _mm256_sqrt_ps(data_v); }
+    FORCE_INLINE t_vec sqrt() const { return _mm256_sqrt_ps(data_v); }
 
-    inline void load(float *data) { data_v = _mm256_load_ps(data); }
-    inline void extract(float *data) {
+    FORCE_INLINE void load(float *data) { data_v = _mm256_load_ps(data); }
+    FORCE_INLINE void extract(float *data) {
         memcpy(data, this->data, sizeof(float) * t_size);
     }
 };
@@ -900,12 +963,13 @@ template<>
 struct vec<double, 2, true> {
     using t_scalar = double;
     static constexpr unsigned int t_size = 2;
+    static constexpr bool t_simd = true;
     typedef vec<double, 2, true> t_vec;
 
-    inline vec() { data[0] = data[1] = 0; }
-    inline vec(const __m128d &v) : data_v(v) {}
-    inline vec(double x, double y) { data_v = _mm_set_pd(x, y); }
-    inline vec(double s) { data_v = _mm_set_pd1(s); }
+    FORCE_INLINE vec() { data[0] = data[1] = 0; }
+    FORCE_INLINE vec(const __m128d &v) : data_v(v) {}
+    FORCE_INLINE vec(double x, double y) { data_v = _mm_set_pd(x, y); }
+    FORCE_INLINE vec(double s) { data_v = _mm_set_pd1(s); }
 
     ATG_MATH_ALIAS(x, 0)
     ATG_MATH_ALIAS(y, 1)
@@ -917,7 +981,7 @@ struct vec<double, 2, true> {
     ATG_MATH_ALIAS(h, 1)
 
     template<int i0 = 0, int i1 = 1>
-    inline t_vec shuffle() const {
+    FORCE_INLINE t_vec shuffle() const {
         return _mm_shuffle_pd(data_v, data_v,
                               ATG_MATH_M128_SHUFFLE(i0, i1, 0, 0));
     }
@@ -928,123 +992,123 @@ struct vec<double, 2, true> {
         __m128d data_v;
     };
 
-    inline explicit operator double() const { return _mm_cvtsd_f64(data_v); }
+    FORCE_INLINE explicit operator double() const { return _mm_cvtsd_f64(data_v); }
 
-    inline operator __m128d() const { return data_v; }
+    FORCE_INLINE operator __m128d() const { return data_v; }
 
-    inline t_vec operator-() const {
+    FORCE_INLINE t_vec operator-() const {
         const __m128d mask =
                 _mm_castsi128_pd(_mm_set1_epi64x(~0x7FFFFFFFFFFFFFFF));
         return _mm_xor_pd(data_v, mask);
     }
 
-    inline t_vec operator+() const { return *this; }
+    FORCE_INLINE t_vec operator+() const { return *this; }
 
-    inline t_vec operator+(const t_vec &b) const {
+    FORCE_INLINE t_vec operator+(const t_vec &b) const {
         return _mm_add_pd(data_v, b.data_v);
     }
 
-    inline t_vec operator-(const t_vec &b) const {
+    FORCE_INLINE t_vec operator-(const t_vec &b) const {
         return _mm_sub_pd(data_v, b.data_v);
     }
 
-    inline t_vec operator*(const t_vec &b) const {
+    FORCE_INLINE t_vec operator*(const t_vec &b) const {
         return _mm_mul_pd(data_v, b.data_v);
     }
 
-    inline t_vec operator/(const t_vec &b) const {
+    FORCE_INLINE t_vec operator/(const t_vec &b) const {
         return _mm_div_pd(data_v, b.data_v);
     }
 
-    inline t_vec compare_eq(const t_vec &b) const {
+    FORCE_INLINE t_vec compare_eq(const t_vec &b) const {
         const t_vec cmp_mask = _mm_cmpeq_pd(data_v, b.data_v);
         return _mm_and_pd(cmp_mask, t_vec(1.0));
     }
 
-    inline t_vec compare_neq(const t_vec &b) const {
+    FORCE_INLINE t_vec compare_neq(const t_vec &b) const {
         const t_vec cmp_mask = _mm_cmpneq_pd(data_v, b.data_v);
         return _mm_and_pd(cmp_mask, t_vec(1.0));
     }
 
-    inline t_vec compare_le(const t_vec &b) const {
+    FORCE_INLINE t_vec compare_le(const t_vec &b) const {
         const t_vec cmp_mask = _mm_cmple_pd(data_v, b.data_v);
         return _mm_and_pd(cmp_mask, t_vec(1.0));
     }
 
-    inline t_vec compare_ge(const t_vec &b) const {
+    FORCE_INLINE t_vec compare_ge(const t_vec &b) const {
         const t_vec cmp_mask = _mm_cmpge_pd(data_v, b.data_v);
         return _mm_and_pd(cmp_mask, t_vec(1.0));
     }
 
-    inline bool operator==(const t_vec &b) const {
+    FORCE_INLINE bool operator==(const t_vec &b) const {
         const t_vec cmp = _mm_cmpeq_pd(data_v, b.data_v);
         return !(cmp.x() == 0 || cmp.y() == 0);
     }
 
-    inline bool operator<=(const t_vec &b) const {
+    FORCE_INLINE bool operator<=(const t_vec &b) const {
         const t_vec cmp = _mm_cmple_pd(data_v, b.data_v);
         return !(cmp.x() == 0 || cmp.y() == 0);
     }
 
-    inline bool operator>=(const t_vec &b) const {
+    FORCE_INLINE bool operator>=(const t_vec &b) const {
         const t_vec cmp = _mm_cmpge_pd(data_v, b.data_v);
         return !(cmp.x() == 0 || cmp.y() == 0);
     }
 
-    inline bool operator!=(const t_vec &b) const {
+    FORCE_INLINE bool operator!=(const t_vec &b) const {
         const t_vec cmp = _mm_cmpeq_pd(data_v, b.data_v);
         return cmp.x() == 0 && cmp.y() == 0;
     }
 
-    inline t_vec operator+=(const t_vec &b) {
+    FORCE_INLINE t_vec operator+=(const t_vec &b) {
         return data_v = _mm_add_pd(data_v, b.data_v);
     }
 
-    inline t_vec operator-=(const t_vec &b) {
+    FORCE_INLINE t_vec operator-=(const t_vec &b) {
         return data_v = _mm_sub_pd(data_v, b.data_v);
     }
 
-    inline t_vec operator*=(const t_vec &b) {
+    FORCE_INLINE t_vec operator*=(const t_vec &b) {
         return data_v = _mm_mul_pd(data_v, b.data_v);
     }
 
-    inline t_vec operator/=(const t_vec &b) {
+    FORCE_INLINE t_vec operator/=(const t_vec &b) {
         return data_v = _mm_div_pd(data_v, b.data_v);
     }
 
-    inline t_vec sum() const {
+    FORCE_INLINE t_vec sum() const {
         const __m128d t1 = _mm_shuffle_pd(
                 data_v, data_v,
                 ATG_MATH_M128_SHUFFLE(ATG_MATH_S_Y, ATG_MATH_S_X, 0, 0));
         return _mm_add_pd(data_v, t1);
     }
 
-    inline t_vec dot(const t_vec &b) const {
+    FORCE_INLINE t_vec dot(const t_vec &b) const {
         const __m128d t0 = _mm_mul_pd(data_v, b.data_v);
         return t_vec(t0).sum();
     }
 
-    inline t_vec min(const t_vec &b) const {
+    FORCE_INLINE t_vec min(const t_vec &b) const {
         return _mm_min_pd(data_v, b.data_v);
     }
 
-    inline t_vec max(const t_vec &b) const {
+    FORCE_INLINE t_vec max(const t_vec &b) const {
         return _mm_max_pd(data_v, b.data_v);
     }
 
-    inline t_vec abs() const {
+    FORCE_INLINE t_vec abs() const {
         const __m128d mask =
                 _mm_castsi128_pd(_mm_set1_epi64x(0x7FFFFFFFFFFFFFFF));
         return _mm_and_pd(data_v, mask);
     }
 
-    inline t_vec magnitude_squared() const { return dot(*this); }
-    inline t_vec sqrt() const { return _mm_sqrt_pd(data_v); }
-    inline t_vec magnitude() const { return magnitude_squared().sqrt(); }
-    inline t_vec normalize() const { return _mm_div_pd(data_v, magnitude()); }
+    FORCE_INLINE t_vec magnitude_squared() const { return dot(*this); }
+    FORCE_INLINE t_vec sqrt() const { return _mm_sqrt_pd(data_v); }
+    FORCE_INLINE t_vec magnitude() const { return magnitude_squared().sqrt(); }
+    FORCE_INLINE t_vec normalize() const { return _mm_div_pd(data_v, magnitude()); }
 
-    inline void load(double *data) { data_v = _mm_load_pd(data); }
-    inline void extract(double *data) {
+    FORCE_INLINE void load(double *data) { data_v = _mm_load_pd(data); }
+    FORCE_INLINE void extract(double *data) {
         memcpy(data, this->data, sizeof(double) * t_size);
     }
 };
@@ -1053,14 +1117,15 @@ template<>
 struct vec<double, 4, true> {
     using t_scalar = double;
     static constexpr unsigned int t_size = 4;
+    static constexpr bool t_simd = true;
     typedef vec<double, 4, true> t_vec;
 
-    inline vec() { data[0] = data[1] = data[2] = data[3] = 0; }
-    inline vec(const __m256d &v) : data_v(v) {}
-    inline vec(double x, double y, double z = 0, double w = 0) {
+    FORCE_INLINE vec() { data[0] = data[1] = data[2] = data[3] = 0; }
+    FORCE_INLINE vec(const __m256d &v) : data_v(v) {}
+    FORCE_INLINE vec(double x, double y, double z = 0, double w = 0) {
         data_v = _mm256_set_pd(w, z, y, x);
     }
-    inline vec(double s) { data_v = _mm256_set1_pd(s); }
+    FORCE_INLINE vec(double s) { data_v = _mm256_set1_pd(s); }
 
     ATG_MATH_ALIAS(x, 0)
     ATG_MATH_ALIAS(y, 1)
@@ -1073,7 +1138,7 @@ struct vec<double, 4, true> {
     ATG_MATH_ALIAS(a, 3)
 
     template<int i0 = 0, int i1 = 1, int i2 = 2, int i3 = 3>
-    inline t_vec shuffle() const {
+    FORCE_INLINE t_vec shuffle() const {
         return _mm_shuffle_ps(data_v, data_v,
                               ATG_MATH_M128_SHUFFLE(i0, i1, i2, i3));
     }
@@ -1084,103 +1149,103 @@ struct vec<double, 4, true> {
         int64_t mask[4];
     };
 
-    inline explicit operator double() const { return _mm256_cvtsd_f64(data_v); }
+    FORCE_INLINE explicit operator double() const { return _mm256_cvtsd_f64(data_v); }
 
-    inline operator __m256d() const { return data_v; }
+    FORCE_INLINE operator __m256d() const { return data_v; }
 
-    inline t_vec operator-() const {
+    FORCE_INLINE t_vec operator-() const {
         const __m256d mask =
                 _mm256_castsi256_pd(_mm256_set1_epi64x(~0x7FFFFFFFFFFFFFFF));
         return _mm256_xor_pd(data_v, mask);
     }
 
-    inline t_vec operator+() const { return *this; }
+    FORCE_INLINE t_vec operator+() const { return *this; }
 
-    inline t_vec operator+(const t_vec &b) const {
+    FORCE_INLINE t_vec operator+(const t_vec &b) const {
         return _mm256_add_pd(data_v, b.data_v);
     }
 
-    inline t_vec operator-(const t_vec &b) const {
+    FORCE_INLINE t_vec operator-(const t_vec &b) const {
         return _mm256_sub_pd(data_v, b.data_v);
     }
 
-    inline t_vec operator*(const t_vec &b) const {
+    FORCE_INLINE t_vec operator*(const t_vec &b) const {
         return _mm256_mul_pd(data_v, b.data_v);
     }
 
-    inline t_vec operator/(const t_vec &b) const {
+    FORCE_INLINE t_vec operator/(const t_vec &b) const {
         return _mm256_div_pd(data_v, b.data_v);
     }
 
-    inline t_vec compare_eq(const t_vec &b) const {
+    FORCE_INLINE t_vec compare_eq(const t_vec &b) const {
         const t_vec cmp_mask = _mm256_cmp_pd(data_v, b.data_v, _CMP_EQ_OQ);
         return _mm256_and_pd(cmp_mask, t_vec(1.0f));
     }
 
-    inline t_vec compare_neq(const t_vec &b) const {
+    FORCE_INLINE t_vec compare_neq(const t_vec &b) const {
         const t_vec cmp_mask = _mm256_cmp_pd(data_v, b.data_v, _CMP_NEQ_OQ);
         return _mm256_and_pd(cmp_mask, t_vec(1.0f));
     }
 
-    inline t_vec compare_le(const t_vec &b) const {
+    FORCE_INLINE t_vec compare_le(const t_vec &b) const {
         const t_vec cmp_mask = _mm256_cmp_pd(data_v, b.data_v, _CMP_LE_OQ);
         return _mm256_and_pd(cmp_mask, t_vec(1.0f));
     }
 
-    inline t_vec compare_ge(const t_vec &b) const {
+    FORCE_INLINE t_vec compare_ge(const t_vec &b) const {
         const t_vec cmp_mask = _mm256_cmp_pd(data_v, b.data_v, _CMP_GE_OQ);
         return _mm256_and_pd(cmp_mask, t_vec(1.0f));
     }
 
-    inline bool operator==(const t_vec &b) const {
+    FORCE_INLINE bool operator==(const t_vec &b) const {
         const t_vec cmp = _mm256_cmp_pd(data_v, b.data_v, _CMP_EQ_OQ);
         return !(cmp.x() == 0 || cmp.y() == 0 || cmp.z() == 0 || cmp.w() == 0);
     }
 
-    inline bool operator<=(const t_vec &b) const {
+    FORCE_INLINE bool operator<=(const t_vec &b) const {
         const t_vec cmp = _mm256_cmp_pd(data_v, b.data_v, _CMP_LE_OQ);
         return !(cmp.x() == 0 || cmp.y() == 0 || cmp.z() == 0 || cmp.w() == 0);
     }
 
-    inline bool operator>=(const t_vec &b) const {
+    FORCE_INLINE bool operator>=(const t_vec &b) const {
         const t_vec cmp = _mm256_cmp_pd(data_v, b.data_v, _CMP_GE_OQ);
         return !(cmp.x() == 0 || cmp.y() == 0 || cmp.z() == 0 || cmp.w() == 0);
     }
 
-    inline bool operator!=(const t_vec &b) const {
+    FORCE_INLINE bool operator!=(const t_vec &b) const {
         const t_vec cmp = _mm256_cmp_pd(data_v, b.data_v, _CMP_NEQ_OQ);
         return !(cmp.x() == 0 && cmp.y() == 0 && cmp.z() == 0 && cmp.w() == 0);
     }
 
-    inline t_vec operator+=(const t_vec &b) {
+    FORCE_INLINE t_vec operator+=(const t_vec &b) {
         return data_v = _mm256_add_pd(data_v, b.data_v);
     }
 
-    inline t_vec operator-=(const t_vec &b) {
+    FORCE_INLINE t_vec operator-=(const t_vec &b) {
         return data_v = _mm256_sub_pd(data_v, b.data_v);
     }
 
-    inline t_vec operator*=(const t_vec &b) {
+    FORCE_INLINE t_vec operator*=(const t_vec &b) {
         return data_v = _mm256_mul_pd(data_v, b.data_v);
     }
 
-    inline t_vec operator/=(const t_vec &b) {
+    FORCE_INLINE t_vec operator/=(const t_vec &b) {
         return data_v = _mm256_div_pd(data_v, b.data_v);
     }
 
-    inline t_vec sum() const {
+    FORCE_INLINE t_vec sum() const {
         const __m256d t1 = _mm256_shuffle_pd(data_v, data_v, 0b11);
         const __m256d t2 = _mm256_add_pd(data_v, t1);
         const __m256d t3 = _mm256_permute2f128_pd(t2, t2, 0x01);
         return _mm256_add_pd(t3, t2);
     }
 
-    inline t_vec dot(const t_vec &b) const {
+    FORCE_INLINE t_vec dot(const t_vec &b) const {
         const __m256d t0 = _mm256_mul_pd(data_v, b.data_v);
         return t_vec(t0).sum();
     }
 
-    inline t_vec cross(const t_vec &b) const {
+    FORCE_INLINE t_vec cross(const t_vec &b) const {
         const __m256d t1 = _mm256_permute4x64_pd(
                 data_v, ATG_MATH_M128_SHUFFLE(ATG_MATH_S_Y, ATG_MATH_S_Z,
                                               ATG_MATH_S_X, ATG_MATH_S_W));
@@ -1197,38 +1262,38 @@ struct vec<double, 4, true> {
         return _mm256_sub_pd(_mm256_mul_pd(t1, t2), _mm256_mul_pd(t3, t4));
     }
 
-    inline t_vec min(const t_vec &b) const {
+    FORCE_INLINE t_vec min(const t_vec &b) const {
         return _mm256_min_pd(data_v, b.data_v);
     }
 
-    inline t_vec max(const t_vec &b) const {
+    FORCE_INLINE t_vec max(const t_vec &b) const {
         return _mm256_max_pd(data_v, b.data_v);
     }
 
-    inline t_vec abs() const {
+    FORCE_INLINE t_vec abs() const {
         const __m256d mask =
                 _mm256_castsi256_pd(_mm256_set1_epi64x(0x7FFFFFFFFFFFFFFF));
         return _mm256_and_pd(data_v, mask);
     }
 
-    inline t_vec sign() const {
+    FORCE_INLINE t_vec sign() const {
         const __m256d mask =
                 _mm256_castsi256_pd(_mm256_set1_epi64x(~0x7FFFFFFFFFFFFFFF));
         return _mm256_or_pd(_mm256_set1_pd(1.0), _mm256_and_pd(data_v, mask));
     }
 
-    inline t_vec magnitude_squared() const { return dot(*this); }
-    inline t_vec sqrt() const { return _mm256_sqrt_pd(data_v); }
-    inline t_vec magnitude() const { return magnitude_squared().sqrt(); }
-    inline t_vec normalize() const {
+    FORCE_INLINE t_vec magnitude_squared() const { return dot(*this); }
+    FORCE_INLINE t_vec sqrt() const { return _mm256_sqrt_pd(data_v); }
+    FORCE_INLINE t_vec magnitude() const { return magnitude_squared().sqrt(); }
+    FORCE_INLINE t_vec normalize() const {
         return _mm256_div_pd(data_v, magnitude());
     }
 
-    inline t_vec xy() const {
+    FORCE_INLINE t_vec xy() const {
         return _mm256_shuffle_pd(data_v, {0.0, 0.0, 0.0, 0.0}, 0b0101);
     }
 
-    inline t_vec yz() const {
+    FORCE_INLINE t_vec yz() const {
         const __m256d s0 = _mm256_permute4x64_pd(
                 data_v, ATG_MATH_M128_SHUFFLE(ATG_MATH_S_Y, ATG_MATH_S_Z,
                                               ATG_MATH_S_Y, ATG_MATH_S_Z));
@@ -1236,7 +1301,7 @@ struct vec<double, 4, true> {
                 s0, _mm256_castsi256_pd(_mm256_set_epi64x(0, 0, -1, -1)));
     }
 
-    inline t_vec xz() const {
+    FORCE_INLINE t_vec xz() const {
         const __m256d s0 = _mm256_permute4x64_pd(
                 data_v, ATG_MATH_M128_SHUFFLE(ATG_MATH_S_X, ATG_MATH_S_Z,
                                               ATG_MATH_S_X, ATG_MATH_S_Z));
@@ -1244,20 +1309,20 @@ struct vec<double, 4, true> {
                 s0, _mm256_castsi256_pd(_mm256_set_epi64x(0, 0, -1, -1)));
     }
 
-    inline t_vec xyz() const {
+    FORCE_INLINE t_vec xyz() const {
         return _mm256_and_pd(
                 data_v, _mm256_castsi256_pd(_mm256_set_epi64x(0, -1, -1, -1)));
     }
 
-    inline t_vec position() const {
+    FORCE_INLINE t_vec position() const {
         return _mm256_or_pd(
                 _mm256_and_pd(data_v, _mm256_castsi256_pd(_mm256_set_epi64x(
                                               0, -1, -1, -1))),
                 {0.0, 0.0, 0.0, 1.0});
     }
 
-    inline void load(double *data) { data_v = _mm256_load_pd(data); }
-    inline void extract(double *data) {
+    FORCE_INLINE void load(double *data) { data_v = _mm256_load_pd(data); }
+    FORCE_INLINE void extract(double *data) {
         memcpy(data, this->data, sizeof(double) * t_size);
     }
 };
