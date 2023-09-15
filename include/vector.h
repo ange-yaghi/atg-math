@@ -15,7 +15,7 @@ template<typename t_scalar_, unsigned int t_size, bool t_enable_simd>
 struct vec {};
 
 #define ATG_MATH_ALIAS(name, index)                                            \
-    FORCE_INLINE t_scalar &name() { return data[index]; }                            \
+    FORCE_INLINE t_scalar &name() { return data[index]; }                      \
     FORCE_INLINE t_scalar name() const { return data[index]; }
 
 #define ATG_MATH_DEFINE_T_VEC typedef vec<t_scalar_, t_size, false> t_vec
@@ -28,7 +28,7 @@ struct vec {};
     ATG_MATH_DEFINE_T_SCALAR;
 
 #define ATG_MATH_DEFINE_COMPONENT_WISE_OPERATOR(op)                            \
-    FORCE_INLINE t_vec operator op(const t_vec &b) const {                           \
+    FORCE_INLINE t_vec operator op(const t_vec &b) const {                     \
         t_vec result;                                                          \
         for (unsigned int i = 0; i < t_size; ++i) {                            \
             result.data[i] = data[i] op b.data[i];                             \
@@ -37,12 +37,12 @@ struct vec {};
     }
 
 #define ATG_MATH_DEFINE_MADD()                                                 \
-    FORCE_INLINE t_vec madd(const t_vec &m, const t_vec &a) const {                  \
+    FORCE_INLINE t_vec madd(const t_vec &m, const t_vec &a) const {            \
         return (*this) * m + a;                                                \
     }
 
 #define ATG_MATH_DEFINE_SCALAR_OPERATOR(op)                                    \
-    FORCE_INLINE t_vec operator op(t_scalar b) const {                               \
+    FORCE_INLINE t_vec operator op(t_scalar b) const {                         \
         t_vec result;                                                          \
         for (unsigned int i = 0; i < t_size; ++i) {                            \
             result.data[i] = data[i] op b;                                     \
@@ -52,14 +52,14 @@ struct vec {};
 
 #define ATG_MATH_DEFINE_LEFT_SCALAR_OPERATOR(op)                               \
     template<typename t_scalar, unsigned int t_size, bool t_simd>              \
-    FORCE_INLINE vec<t_scalar, t_size, t_simd> operator*(                            \
+    FORCE_INLINE vec<t_scalar, t_size, t_simd> operator*(                      \
             typename vec<t_scalar, t_size, t_simd>::t_scalar left,             \
             const vec<t_scalar, t_size, t_simd> &right) {                      \
         return right op left;                                                  \
     }
 
 #define ATG_MATH_DEFINE_BOOLEAN_COMPARISON_OPERATOR(op)                        \
-    FORCE_INLINE bool operator op(const t_vec &b) const {                            \
+    FORCE_INLINE bool operator op(const t_vec &b) const {                      \
         for (unsigned int i = 0; i < t_size; ++i) {                            \
             if (!(data[i] op b.data[i])) { return false; }                     \
         }                                                                      \
@@ -67,7 +67,7 @@ struct vec {};
     }
 
 #define ATG_MATH_DEFINE_VECTOR_COMPARISON_OPERATOR(op, name)                   \
-    FORCE_INLINE t_vec compare_##name(const t_vec &b) const {                        \
+    FORCE_INLINE t_vec compare_##name(const t_vec &b) const {                  \
         t_vec result;                                                          \
         for (unsigned int i = 0; i < t_size; ++i) {                            \
             if (data[i] op b.data[i]) {                                        \
@@ -80,7 +80,7 @@ struct vec {};
     }
 
 #define ATG_MATH_DEFINE_SIGN                                                   \
-    FORCE_INLINE t_vec sign() const {                                                \
+    FORCE_INLINE t_vec sign() const {                                          \
         t_vec result;                                                          \
         for (unsigned int i = 0; i < t_size; ++i) {                            \
             result.data[i] = data[i] < 0 ? t_scalar(-1) : t_scalar(1);         \
@@ -89,7 +89,7 @@ struct vec {};
     }
 
 #define ATG_MATH_DEFINE_NEGATED_BOOLEAN_COMPARISON_OPERATOR(op)                \
-    FORCE_INLINE bool operator op(const t_vec &b) const {                            \
+    FORCE_INLINE bool operator op(const t_vec &b) const {                      \
         for (unsigned int i = 0; i < t_size; ++i) {                            \
             if (data[i] op b.data[i]) { return true; }                         \
         }                                                                      \
@@ -97,7 +97,7 @@ struct vec {};
     }
 
 #define ATG_MATH_DEFINE_ASSIGNMENT_OPERATOR(full_op, op)                       \
-    FORCE_INLINE t_vec &operator full_op(const t_vec &b) {                           \
+    FORCE_INLINE t_vec &operator full_op(const t_vec &b) {                     \
         for (unsigned int i = 0; i < t_size; ++i) {                            \
             data[i] = data[i] op b.data[i];                                    \
         }                                                                      \
@@ -105,7 +105,7 @@ struct vec {};
     }
 
 #define ATG_MATH_DEFINE_NEGATE_OPERATOR                                        \
-    FORCE_INLINE t_vec operator-() const {                                           \
+    FORCE_INLINE t_vec operator-() const {                                     \
         t_vec result;                                                          \
         for (unsigned int i = 0; i < t_size; ++i) {                            \
             result.data[i] = -data[i];                                         \
@@ -117,7 +117,7 @@ struct vec {};
     FORCE_INLINE t_vec operator+() const { return *this; }
 
 #define ATG_MATH_DEFINE_DOT_PRODUCT                                            \
-    FORCE_INLINE t_vec dot(const t_vec &b) const {                                   \
+    FORCE_INLINE t_vec dot(const t_vec &b) const {                             \
         t_scalar result = 0;                                                   \
         for (unsigned int i = 0; i < t_size; ++i) {                            \
             result += data[i] * b.data[i];                                     \
@@ -127,7 +127,7 @@ struct vec {};
     }
 
 #define ATG_MATH_DEFINE_SUM                                                    \
-    FORCE_INLINE t_vec sum() const {                                                 \
+    FORCE_INLINE t_vec sum() const {                                           \
         t_scalar result = 0;                                                   \
         for (unsigned int i = 0; i < t_size; ++i) { result += data[i]; }       \
                                                                                \
@@ -135,7 +135,7 @@ struct vec {};
     }
 
 #define ATG_MATH_DEFINE_COMPONENT_MIN                                          \
-    FORCE_INLINE t_vec min(const t_vec &b) const {                                   \
+    FORCE_INLINE t_vec min(const t_vec &b) const {                             \
         t_vec result;                                                          \
         for (unsigned int i = 0; i < t_size; ++i) {                            \
             result.data[i] = std::min(data[i], b.data[i]);                     \
@@ -145,7 +145,7 @@ struct vec {};
     }
 
 #define ATG_MATH_DEFINE_COMPONENT_MAX                                          \
-    FORCE_INLINE t_vec max(const t_vec &b) const {                                   \
+    FORCE_INLINE t_vec max(const t_vec &b) const {                             \
         t_vec result;                                                          \
         for (unsigned int i = 0; i < t_size; ++i) {                            \
             result.data[i] = std::max(data[i], b.data[i]);                     \
@@ -155,7 +155,7 @@ struct vec {};
     }
 
 #define ATG_MATH_DEFINE_ABS                                                    \
-    FORCE_INLINE t_vec abs() const {                                                 \
+    FORCE_INLINE t_vec abs() const {                                           \
         t_vec result;                                                          \
         for (unsigned int i = 0; i < t_size; ++i) {                            \
             result.data[i] = std::abs(data[i]);                                \
@@ -165,7 +165,7 @@ struct vec {};
     }
 
 #define ATG_MATH_DEFINE_SQRT                                                   \
-    FORCE_INLINE t_vec sqrt() const {                                                \
+    FORCE_INLINE t_vec sqrt() const {                                          \
         t_vec result;                                                          \
         for (unsigned int i = 0; i < t_size; ++i) {                            \
             result.data[i] = std::sqrt(data[i]);                               \
@@ -175,10 +175,14 @@ struct vec {};
     }
 
 #define ATG_MATH_DEFINE_MAGNITUDE_SQUARED                                      \
-    FORCE_INLINE t_scalar magnitude_squared() const { return t_scalar(dot(*this)); }
+    FORCE_INLINE t_scalar magnitude_squared() const {                          \
+        return t_scalar(dot(*this));                                           \
+    }
 
 #define ATG_MATH_DEFINE_MAGNITUDE                                              \
-    FORCE_INLINE t_scalar magnitude() const { return std::sqrt(magnitude_squared()); }
+    FORCE_INLINE t_scalar magnitude() const {                                  \
+        return std::sqrt(magnitude_squared());                                 \
+    }
 
 #define ATG_MATH_DEFINE_NORMALIZE                                              \
     FORCE_INLINE t_vec normalize() const { return (*this) / magnitude(); }
@@ -197,7 +201,7 @@ struct vec {};
 
 #define ATG_MATH_DEFINE_CONVERSION                                             \
     template<typename t_b_type>                                                \
-    FORCE_INLINE t_vec operator=(const t_b_type &b) {                                \
+    FORCE_INLINE t_vec operator=(const t_b_type &b) {                          \
         constexpr unsigned int l =                                             \
                 (t_size < t_b_type::t_size) ? t_size : t_b_type::t_size;       \
         for (unsigned int i = 0; i < t_size; ++i) {                            \
@@ -209,7 +213,7 @@ struct vec {};
         return *this;                                                          \
     }                                                                          \
                                                                                \
-    FORCE_INLINE t_vec operator=(const t_scalar &b) {                                \
+    FORCE_INLINE t_vec operator=(const t_scalar &b) {                          \
         for (unsigned int i = 0; i < t_size; ++i) { data[i] = b; }             \
                                                                                \
         return *this;                                                          \
@@ -233,8 +237,13 @@ struct vec {};
     vec() {}
 
 #define ATG_MATH_DEFINE_LOAD                                                   \
-    FORCE_INLINE void load(const t_scalar *data) {                                   \
+    FORCE_INLINE void load(const t_scalar *data) {                             \
         for (unsigned int i = 0; i < t_size; ++i) { this->data[i] = data[i]; } \
+    }
+
+#define ATG_MATH_DEFINE_EXTRACT                                                \
+    FORCE_INLINE void extract(t_scalar *data) {                                \
+        for (unsigned int i = 0; i < t_size; ++i) { data[i] = this->data[i]; } \
     }
 
 #define ATG_MATH_DEFINE_EXPLICIT_SCALAR_CONVERSION                             \
@@ -259,6 +268,7 @@ struct vec<t_scalar_, 1, false> {
     ATG_MATH_DEFINE_SCALAR_CONSTRUCTOR
     ATG_MATH_DEFINE_DEFAULT_CONSTRUCTOR
     ATG_MATH_DEFINE_LOAD
+    ATG_MATH_DEFINE_EXTRACT
 
     ATG_MATH_DEFINE_EXPLICIT_SCALAR_CONVERSION
 
@@ -319,6 +329,7 @@ struct vec<t_scalar_, 2, false> {
     ATG_MATH_DEFINE_SCALAR_CONSTRUCTOR
     ATG_MATH_DEFINE_DEFAULT_CONSTRUCTOR
     ATG_MATH_DEFINE_LOAD
+    ATG_MATH_DEFINE_EXTRACT
 
     ATG_MATH_DEFINE_EXPLICIT_SCALAR_CONVERSION
 
@@ -395,6 +406,7 @@ struct vec<t_scalar_, 3, false> {
     ATG_MATH_DEFINE_SCALAR_CONSTRUCTOR
     ATG_MATH_DEFINE_DEFAULT_CONSTRUCTOR
     ATG_MATH_DEFINE_LOAD
+    ATG_MATH_DEFINE_EXTRACT
 
     ATG_MATH_DEFINE_EXPLICIT_SCALAR_CONVERSION
 
@@ -483,6 +495,7 @@ struct vec<t_scalar_, 4, false> {
     ATG_MATH_DEFINE_SCALAR_CONSTRUCTOR
     ATG_MATH_DEFINE_DEFAULT_CONSTRUCTOR
     ATG_MATH_DEFINE_LOAD
+    ATG_MATH_DEFINE_EXTRACT
 
     ATG_MATH_DEFINE_EXPLICIT_SCALAR_CONVERSION
 
@@ -519,9 +532,15 @@ struct vec<t_scalar_, 4, false> {
     ATG_MATH_DEFINE_SIGN
     ATG_MATH_DEFINE_SQRT
 
-    FORCE_INLINE t_vec xy() const { return {x(), y(), t_scalar(0), t_scalar(0)}; }
-    FORCE_INLINE t_vec yz() const { return {y(), z(), t_scalar(0), t_scalar(0)}; }
-    FORCE_INLINE t_vec xz() const { return {x(), z(), t_scalar(0), t_scalar(0)}; }
+    FORCE_INLINE t_vec xy() const {
+        return {x(), y(), t_scalar(0), t_scalar(0)};
+    }
+    FORCE_INLINE t_vec yz() const {
+        return {y(), z(), t_scalar(0), t_scalar(0)};
+    }
+    FORCE_INLINE t_vec xz() const {
+        return {x(), z(), t_scalar(0), t_scalar(0)};
+    }
     FORCE_INLINE t_vec xyz() const { return {x(), y(), z(), t_scalar(0)}; }
     FORCE_INLINE t_vec position() const { return {x(), y(), z(), t_scalar(1)}; }
 };
@@ -541,6 +560,7 @@ struct vec<t_scalar_, t_size_, false> {
     ATG_MATH_DEFINE_SCALAR_CONSTRUCTOR
     ATG_MATH_DEFINE_DEFAULT_CONSTRUCTOR
     ATG_MATH_DEFINE_LOAD
+    ATG_MATH_DEFINE_EXTRACT
 
     ATG_MATH_DEFINE_EXPLICIT_SCALAR_CONVERSION
 
@@ -617,7 +637,9 @@ struct vec<float, 4, true> {
         int mask[4];
     };
 
-    FORCE_INLINE explicit operator float() const { return _mm_cvtss_f32(data_v); }
+    FORCE_INLINE explicit operator float() const {
+        return _mm_cvtss_f32(data_v);
+    }
 
     FORCE_INLINE operator __m128() const { return data_v; }
 
@@ -755,7 +777,9 @@ struct vec<float, 4, true> {
     FORCE_INLINE t_vec magnitude_squared() const { return dot(*this); }
     FORCE_INLINE t_vec sqrt() const { return _mm_sqrt_ps(data_v); }
     FORCE_INLINE t_vec magnitude() const { return magnitude_squared().sqrt(); }
-    FORCE_INLINE t_vec normalize() const { return _mm_div_ps(data_v, magnitude()); }
+    FORCE_INLINE t_vec normalize() const {
+        return _mm_div_ps(data_v, magnitude());
+    }
 
     FORCE_INLINE t_vec xy() const {
         return _mm_shuffle_ps(data_v, {0.0f, 0.0f, 0.0f, 0.0f},
@@ -812,7 +836,9 @@ struct vec<float, 8, true> {
         int mask[8];
     };
 
-    FORCE_INLINE explicit operator float() const { return _mm256_cvtss_f32(data_v); }
+    FORCE_INLINE explicit operator float() const {
+        return _mm256_cvtss_f32(data_v);
+    }
     FORCE_INLINE operator __m256() const { return data_v; }
 
     FORCE_INLINE t_vec operator-() const {
@@ -992,7 +1018,9 @@ struct vec<double, 2, true> {
         __m128d data_v;
     };
 
-    FORCE_INLINE explicit operator double() const { return _mm_cvtsd_f64(data_v); }
+    FORCE_INLINE explicit operator double() const {
+        return _mm_cvtsd_f64(data_v);
+    }
 
     FORCE_INLINE operator __m128d() const { return data_v; }
 
@@ -1105,7 +1133,9 @@ struct vec<double, 2, true> {
     FORCE_INLINE t_vec magnitude_squared() const { return dot(*this); }
     FORCE_INLINE t_vec sqrt() const { return _mm_sqrt_pd(data_v); }
     FORCE_INLINE t_vec magnitude() const { return magnitude_squared().sqrt(); }
-    FORCE_INLINE t_vec normalize() const { return _mm_div_pd(data_v, magnitude()); }
+    FORCE_INLINE t_vec normalize() const {
+        return _mm_div_pd(data_v, magnitude());
+    }
 
     FORCE_INLINE void load(double *data) { data_v = _mm_load_pd(data); }
     FORCE_INLINE void extract(double *data) {
@@ -1149,7 +1179,9 @@ struct vec<double, 4, true> {
         int64_t mask[4];
     };
 
-    FORCE_INLINE explicit operator double() const { return _mm256_cvtsd_f64(data_v); }
+    FORCE_INLINE explicit operator double() const {
+        return _mm256_cvtsd_f64(data_v);
+    }
 
     FORCE_INLINE operator __m256d() const { return data_v; }
 
