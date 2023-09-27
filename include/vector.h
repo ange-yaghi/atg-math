@@ -888,6 +888,18 @@ struct vec<float, 8, true> {
         return _mm256_and_ps(cmp_mask, t_vec(1.0f));
     }
 
+    FORCE_INLINE t_vec compare_ge_mask(const t_vec &b) const {
+        return _mm256_cmp_ps(data_v, b.data_v, _CMP_GE_OQ);
+    }
+
+    FORCE_INLINE t_vec and_mask(const t_vec &mask) const {
+        return _mm256_and_ps(data_v, mask);
+    }
+
+    FORCE_INLINE t_vec and_not_mask(const t_vec &mask) const {
+        return _mm256_andnot_ps(mask, data_v);
+    }
+
     FORCE_INLINE bool operator==(const t_vec &b) const {
         const t_vec cmp = _mm256_cmp_ps(data_v, b.data_v, _CMP_EQ_OQ);
         for (int i = 0; i < 8; ++i) {
