@@ -896,6 +896,10 @@ struct vec<float, 8, true> {
         return _mm256_and_ps(data_v, mask);
     }
 
+    FORCE_INLINE t_vec bitwise_or(const t_vec &b) const {
+        return _mm256_or_ps(data_v, b);
+    }
+
     FORCE_INLINE t_vec and_not_mask(const t_vec &mask) const {
         return _mm256_andnot_ps(mask, data_v);
     }
