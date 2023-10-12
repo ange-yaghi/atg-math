@@ -1143,7 +1143,7 @@ struct vec<double, 2, true> {
 
     FORCE_INLINE vec() { data[0] = data[1] = 0; }
     FORCE_INLINE vec(const __m128d &v) : data_v(v) {}
-    FORCE_INLINE vec(double x, double y) { data_v = _mm_set_pd(x, y); }
+    FORCE_INLINE vec(double x, double y) { data_v = _mm_set_pd(y, x); }
     FORCE_INLINE vec(double s) { data_v = _mm_set_pd1(s); }
 
     ATG_MATH_ALIAS(x, 0)
@@ -1162,9 +1162,9 @@ struct vec<double, 2, true> {
     }
 
     union {
-        int mask[2];
         double data[2];
         __m128d data_v;
+        int mask[2];
     };
 
     FORCE_INLINE explicit operator double() const {
