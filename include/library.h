@@ -99,7 +99,8 @@ void frustumPerspective(typename t_matrix::t_scalar fov_y,
                         typename t_matrix::t_scalar far, t_matrix *target) {
     using t_scalar = typename t_matrix::t_scalar;
 
-    const t_scalar height = 2 * std::tan(fov_y) * near;
+    const t_scalar height =
+            t_scalar(2) * std::tan(fov_y * t_scalar(0.5)) * near;
     const t_scalar width = height / aspect;
 
     target->columns[0] = {2 * near / width, 0, 0, 0};
@@ -130,7 +131,7 @@ void orthographicProjection(typename t_matrix::t_scalar width,
     transform->columns[0] = {2 / width, 0, 0, 0};
     transform->columns[1] = {0, 2 / height, 0, 0};
     transform->columns[2] = {0, 0, inv_f_range, 0};
-    transform->columns[3] = {0, 0, -inv_f_range, 1};
+    transform->columns[3] = {0, 0, -near * inv_f_range, 1};
 }
 
 template<typename t_matrix>
