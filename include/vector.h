@@ -947,9 +947,13 @@ struct vec<float, 4, true> {
     }
 
     FORCE_INLINE void load(float *data) { data_v = _mm_load_ps(data); }
-    FORCE_INLINE void extract(float *data) {
+    FORCE_INLINE void extract(float *data) const {
         memcpy(data, this->data, sizeof(float) * t_size);
     }
+
+    FORCE_INLINE t_vec exp() const { return _mm_exp_ps(data_v); }
+    FORCE_INLINE t_vec log() const { return _mm_log_ps(data_v); }
+    FORCE_INLINE t_vec pow(const t_vec &p) const { return (p * log()).exp(); }
 };
 
 template<>
@@ -1132,6 +1136,10 @@ struct vec<float, 8, true> {
     FORCE_INLINE void extract(float *data) {
         memcpy(data, this->data, sizeof(float) * t_size);
     }
+
+    FORCE_INLINE t_vec exp() const { return _mm256_exp_ps(data_v); }
+    FORCE_INLINE t_vec log() const { return _mm256_log_ps(data_v); }
+    FORCE_INLINE t_vec pow(const t_vec &p) const { return (p * log()).exp(); }
 };
 
 template<>
@@ -1290,6 +1298,10 @@ struct vec<double, 2, true> {
     FORCE_INLINE void extract(double *data) {
         memcpy(data, this->data, sizeof(double) * t_size);
     }
+
+    FORCE_INLINE t_vec exp() const { return _mm_exp_pd(data_v); }
+    FORCE_INLINE t_vec log() const { return _mm_log_pd(data_v); }
+    FORCE_INLINE t_vec pow(const t_vec &p) const { return (p * log()).exp(); }
 };
 
 template<>
@@ -1358,9 +1370,17 @@ struct vec<double, 4, true> {
         return _mm256_div_pd(data_v, b.data_v);
     }
 
+    FORCE_INLINE t_vec madd(const t_vec &m, const t_vec &a) const {
+        return _mm256_fmadd_pd(data_v, m, a);
+    }
+
     FORCE_INLINE t_vec compare_eq(const t_vec &b) const {
         const t_vec cmp_mask = _mm256_cmp_pd(data_v, b.data_v, _CMP_EQ_OQ);
         return _mm256_and_pd(cmp_mask, t_vec(1.0f));
+    }
+
+    FORCE_INLINE t_vec compare_eq_mask(const t_vec &b) const {
+        return _mm256_cmp_pd(data_v, b.data_v, _CMP_EQ_OQ);
     }
 
     FORCE_INLINE t_vec compare_neq(const t_vec &b) const {
@@ -1368,14 +1388,39 @@ struct vec<double, 4, true> {
         return _mm256_and_pd(cmp_mask, t_vec(1.0f));
     }
 
+    FORCE_INLINE t_vec compare_neq_mask(const t_vec &b) const {
+        return _mm256_cmp_pd(data_v, b.data_v, _CMP_NEQ_OQ);
+    }
+
     FORCE_INLINE t_vec compare_le(const t_vec &b) const {
         const t_vec cmp_mask = _mm256_cmp_pd(data_v, b.data_v, _CMP_LE_OQ);
         return _mm256_and_pd(cmp_mask, t_vec(1.0f));
     }
 
+    FORCE_INLINE t_vec compare_le_mask(const t_vec &b) const {
+        return _mm256_cmp_pd(data_v, b.data_v, _CMP_LE_OQ);
+    }
+
     FORCE_INLINE t_vec compare_ge(const t_vec &b) const {
         const t_vec cmp_mask = _mm256_cmp_pd(data_v, b.data_v, _CMP_GE_OQ);
         return _mm256_and_pd(cmp_mask, t_vec(1.0f));
+    }
+
+    FORCE_INLINE t_vec compare_ge_mask(const t_vec &b) const {
+        return _mm256_cmp_pd(data_v, b.data_v, _CMP_GE_OQ);
+    }
+
+    FORCE_INLINE t_vec select(const t_vec &b, const t_vec &mask) const {
+        return _mm256_or_pd(_mm256_and_pd(data_v, mask),
+                            _mm256_andnot_pd(mask, b));
+    }
+
+    FORCE_INLINE t_vec bitwise_and(const t_vec &b) const {
+        return _mm256_and_pd(data_v, b);
+    }
+
+    FORCE_INLINE t_vec bitwise_or(const t_vec &b) const {
+        return _mm256_or_pd(data_v, b);
     }
 
     FORCE_INLINE bool operator==(const t_vec &b) const {
@@ -1506,6 +1551,175 @@ struct vec<double, 4, true> {
     FORCE_INLINE void extract(double *data) {
         memcpy(data, this->data, sizeof(double) * t_size);
     }
+
+    FORCE_INLINE t_vec exp() const { return _mm256_exp_pd(data_v); }
+    FORCE_INLINE t_vec log() const { return _mm256_log_pd(data_v); }
+    FORCE_INLINE t_vec pow(const t_vec &p) const { return (p * log()).exp(); }
+};
+
+template<>
+struct vec<double, 8, true> {
+    using t_scalar = double;
+    static constexpr unsigned int t_size = 8;
+    static constexpr bool t_simd = true;
+    typedef vec<double, 8, true> t_vec;
+
+    FORCE_INLINE vec() : data0(double(0)), data1(double(0)) {}
+    FORCE_INLINE vec(const vec<double, 4, true> &v0,
+                     const vec<double, 4, true> &v1)
+        : data0(v0.data_v), data1(v1.data_v) {}
+    FORCE_INLINE vec(t_scalar s) : data0(s), data1(s) {}
+
+    vec<double, 4, true> data0, data1;
+
+    FORCE_INLINE explicit operator double() const { return double(data0); }
+    FORCE_INLINE double operator[](size_t index) const {
+        return index <= 3 ? data0.data[index] : data1.data[index - 4];
+    }
+
+    FORCE_INLINE t_vec operator-() const { return {-data0, -data1}; }
+    FORCE_INLINE t_vec operator+() const { return *this; }
+
+    FORCE_INLINE t_vec operator+(const t_vec &b) const {
+        return {data0 + b.data0, data1 + b.data1};
+    }
+
+    FORCE_INLINE t_vec operator-(const t_vec &b) const {
+        return {data0 - b.data0, data1 - b.data1};
+    }
+
+    FORCE_INLINE t_vec operator*(const t_vec &b) const {
+        return {data0 * b.data0, data1 * b.data1};
+    }
+
+    FORCE_INLINE t_vec operator/(const t_vec &b) const {
+        return {data0 / b.data0, data1 / b.data1};
+    }
+
+    FORCE_INLINE t_vec madd(const t_vec &m, const t_vec &a) const {
+        return {data0.madd(m.data0, a.data0),
+                data1.madd(m.data1, a.data1)};
+    }
+
+    FORCE_INLINE t_vec compare_eq(const t_vec &b) const {
+        return {data0.compare_eq(b.data0), data1.compare_eq(b.data1)};
+    }
+
+    FORCE_INLINE t_vec compare_eq_mask(const t_vec &b) const {
+        return {data0.compare_eq_mask(b.data0),
+                data1.compare_eq_mask(b.data1)};
+    }
+
+    FORCE_INLINE t_vec compare_neq(const t_vec &b) const {
+        return {data0.compare_neq(b.data0), data1.compare_neq(b.data1)};
+    }
+
+    FORCE_INLINE t_vec compare_neq_mask(const t_vec &b) const {
+        return {data0.compare_neq_mask(b.data0),
+                data1.compare_neq_mask(b.data1)};
+    }
+
+    FORCE_INLINE t_vec compare_le(const t_vec &b) const {
+        return {data0.compare_le(b.data0), data1.compare_le(b.data1)};
+    }
+
+    FORCE_INLINE t_vec compare_le_mask(const t_vec &b) const {
+        return {data0.compare_le_mask(b.data0),
+                data1.compare_le_mask(b.data1)};
+    }
+
+    FORCE_INLINE t_vec compare_ge(const t_vec &b) const {
+        return {data0.compare_ge(b.data0), data1.compare_ge(b.data1)};
+    }
+
+    FORCE_INLINE t_vec compare_ge_mask(const t_vec &b) const {
+        return {data0.compare_ge_mask(b.data0),
+                data1.compare_ge_mask(b.data1)};
+    }
+
+    FORCE_INLINE t_vec select(const t_vec &b, const t_vec &mask) const {
+        return {data0.select(b.data0, mask.data0),
+                data1.select(b.data1, mask.data1)};
+    }
+
+    FORCE_INLINE bool operator==(const t_vec &b) const {
+        return data0 == b.data0 && data1 == b.data1;
+    }
+
+    FORCE_INLINE bool operator<=(const t_vec &b) const {
+        return data0 <= b.data0 && data1 <= b.data1;
+    }
+
+    FORCE_INLINE bool operator>=(const t_vec &b) const {
+        return data0 >= b.data0 && data1 >= b.data1;
+    }
+
+    FORCE_INLINE bool operator!=(const t_vec &b) const {
+        return data0 != b.data0 || data1 != b.data1;
+    }
+
+    FORCE_INLINE t_vec operator+=(const t_vec &b) {
+        return {data0 += b.data0, data1 += b.data1};
+    }
+
+    FORCE_INLINE t_vec operator-=(const t_vec &b) {
+        return {data0 -= b.data0, data1 -= b.data1};
+    }
+
+    FORCE_INLINE t_vec operator*=(const t_vec &b) {
+        return {data0 *= b.data0, data1 *= b.data1};
+    }
+
+    FORCE_INLINE t_vec operator/=(const t_vec &b) {
+        return {data0 /= b.data0, data1 /= b.data1};
+    }
+
+    FORCE_INLINE t_vec bitwise_and(const t_vec &b) const {
+        return {data0.bitwise_and(b.data0), data1.bitwise_and(b.data1)};
+    }
+
+    FORCE_INLINE t_vec bitwise_or(const t_vec &b) const {
+        return {data0.bitwise_or(b.data0), data1.bitwise_or(b.data1)};
+    }
+
+    FORCE_INLINE t_vec sum() const {
+        const auto s = data0.sum() + data1.sum();
+        return {s, s};
+    }
+
+    FORCE_INLINE t_vec dot(const t_vec &b) const {
+        const auto d = data0.dot(b.data0) + data1.dot(b.data1);
+        return {d, d};
+    }
+
+    FORCE_INLINE t_vec min(const t_vec &b) const {
+        return {data0.min(b.data0), data1.min(b.data1)};
+    }
+
+    FORCE_INLINE t_vec max(const t_vec &b) const {
+        return {data0.max(b.data0), data1.max(b.data1)};
+    }
+
+    FORCE_INLINE t_vec abs() const { return {data0.abs(), data1.abs()}; }
+    FORCE_INLINE t_vec sign() const { return {data0.sign(), data1.sign()}; }
+    FORCE_INLINE t_vec magnitude_squared() const { return dot(*this); }
+    FORCE_INLINE t_vec sqrt() const { return {data0.sqrt(), data1.sqrt()}; }
+    FORCE_INLINE t_vec magnitude() const { return magnitude_squared().sqrt(); }
+    FORCE_INLINE void load(double *data) {
+        this->data0.load(data);
+        this->data1.load(data + 4);
+    }
+
+    FORCE_INLINE void extract(double *data) {
+        this->data0.extract(data);
+        this->data1.extract(data + 4);
+    }
+
+    FORCE_INLINE t_vec exp() const { return {data0.exp(), data1.exp()}; }
+    FORCE_INLINE t_vec log() const { return {data0.log(), data1.log()}; }
+    FORCE_INLINE t_vec pow(const t_vec &p) const {
+        return {data0.pow(p.data0), data1.pow(p.data1)};
+    }
 };
 
 ATG_MATH_DEFINE_LEFT_SCALAR_OPERATOR(*);
@@ -1528,6 +1742,7 @@ typedef vec<float, 4, true> vec4_v, quat_v;
 typedef vec<float, 8, true> vec8_v;
 typedef vec<double, 2, true> dvec2_v;
 typedef vec<double, 4, true> dvec4_v;
+typedef vec<double, 8, true> dvec8_v;
 
 template<unsigned int t_size>
 using vec_s = vec<float, t_size, false>;
