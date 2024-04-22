@@ -1,6 +1,8 @@
 #ifndef ATG_MATH_VECTOR_H
 #define ATG_MATH_VECTOR_H
 
+#include "definitions.h"
+
 #include <cmath>
 #include <cstdint>
 
@@ -8,15 +10,13 @@
 #include <immintrin.h>
 #include <xmmintrin.h>
 
-#define FORCE_INLINE __forceinline
-
 namespace atg_math {
 template<typename t_scalar_, unsigned int t_size, bool t_enable_simd>
 struct vec {};
 
 #define ATG_MATH_ALIAS(name, index)                                            \
-    FORCE_INLINE t_scalar &name() { return data[index]; }                      \
-    FORCE_INLINE t_scalar name() const { return data[index]; }
+    FORCE_INLINE constexpr t_scalar &name() { return data[index]; }            \
+    FORCE_INLINE constexpr t_scalar name() const { return data[index]; }
 
 #define ATG_MATH_DEFINE_T_VEC typedef vec<t_scalar_, t_size, false> t_vec
 #define ATG_MATH_DEFINE_T_SCALAR typedef t_scalar_ t_scalar
@@ -418,7 +418,7 @@ template<typename t_scalar_>
 struct vec<t_scalar_, 2, false> {
     ATG_MATH_VEC_DEFINES(2, false)
 
-    vec(t_scalar x, t_scalar y) {
+    inline constexpr vec(t_scalar x, t_scalar y) {
         data[0] = x;
         data[1] = y;
     }
@@ -489,7 +489,7 @@ template<typename t_scalar_>
 struct vec<t_scalar_, 3, false> {
     ATG_MATH_VEC_DEFINES(3, false)
 
-    vec(t_scalar x, t_scalar y, t_scalar z = 0) {
+    inline constexpr vec(t_scalar x, t_scalar y, t_scalar z = 0) {
         data[0] = x;
         data[1] = y;
         data[2] = z;
@@ -571,20 +571,20 @@ template<typename t_scalar_>
 struct vec<t_scalar_, 4, false> {
     ATG_MATH_VEC_DEFINES(4, false)
 
-    vec(t_scalar x, t_scalar y, t_scalar z, t_scalar w) {
+    inline constexpr vec(t_scalar x, t_scalar y, t_scalar z, t_scalar w) {
         data[0] = x;
         data[1] = y;
         data[2] = z;
         data[3] = w;
     }
 
-    vec(t_scalar x, t_scalar y) {
+    inline constexpr vec(t_scalar x, t_scalar y) {
         data[0] = x;
         data[1] = y;
         data[2] = data[3] = 0;
     }
 
-    vec(t_scalar x, t_scalar y, t_scalar z) {
+    inline constexpr vec(t_scalar x, t_scalar y, t_scalar z) {
         data[0] = x;
         data[1] = y;
         data[2] = z;
@@ -738,14 +738,14 @@ struct vec<float, 4, true> {
     static constexpr bool t_simd = true;
     typedef vec<float, 4, true> t_vec;
 
-    FORCE_INLINE vec() { data[0] = data[1] = data[2] = data[3] = 0; }
-    FORCE_INLINE vec(const __m128 &v) : data_v(v) {}
-    FORCE_INLINE vec(float x, float y, float z = 0, float w = 0) {
-        data_v = _mm_set_ps(w, z, y, x);
+    FORCE_INLINE constexpr vec() { data_v = {0.0f, 0.0f, 0.0f, 0.0f}; }
+    FORCE_INLINE constexpr vec(const __m128 &v) : data_v(v) {}
+    FORCE_INLINE constexpr vec(float x, float y, float z = 0, float w = 0) {
+        data_v = {x, y, z, w};
     }
-    FORCE_INLINE vec(float s) { data_v = _mm_set_ps1(s); }
-    FORCE_INLINE vec(const vec<float, 4, false> &v) {
-        data_v = _mm_set_ps(v.w(), v.z(), v.y(), v.x());
+    FORCE_INLINE constexpr vec(float s) { data_v = {s, s, s, s}; }
+    FORCE_INLINE constexpr vec(const vec<float, 4, false> &v) {
+        data_v = {v.x(), v.y(), v.z(), v.w()};
     }
 
     ATG_MATH_ALIAS(x, 0)
@@ -963,9 +963,13 @@ struct vec<float, 8, true> {
     static constexpr bool t_simd = true;
     typedef vec<float, 8, true> t_vec;
 
-    FORCE_INLINE vec() { data_v = _mm256_set1_ps(0.0f); }
-    FORCE_INLINE vec(const __m256 &v) : data_v(v) {}
-    FORCE_INLINE vec(float s) { data_v = _mm256_set1_ps(s); }
+    FORCE_INLINE constexpr vec() { data_v = {0, 0, 0, 0, 0, 0, 0, 0}; }
+    FORCE_INLINE constexpr vec(const __m256 &v) : data_v(v) {}
+    FORCE_INLINE constexpr vec(float s) { data_v = {s, s, s, s, s, s, s, s}; }
+    FORCE_INLINE constexpr vec(float s0, float s1, float s2, float s3, float s4,
+                               float s5, float s6, float s7) {
+        data_v = {s0, s1, s2, s3, s4, s5, s6, s7};
+    }
 
     union {
         __m256 data_v;
@@ -1149,9 +1153,9 @@ struct vec<double, 2, true> {
     static constexpr bool t_simd = true;
     typedef vec<double, 2, true> t_vec;
 
-    FORCE_INLINE vec() { data[0] = data[1] = 0; }
-    FORCE_INLINE vec(const __m128d &v) : data_v(v) {}
-    FORCE_INLINE vec(double x, double y) { data_v = _mm_set_pd(y, x); }
+    FORCE_INLINE constexpr vec() { data[0] = data[1] = 0; }
+    FORCE_INLINE constexpr vec(const __m128d &v) : data_v(v) {}
+    FORCE_INLINE constexpr vec(double x, double y) { data_v = {x, y}; }
     FORCE_INLINE vec(double s) { data_v = _mm_set_pd1(s); }
 
     ATG_MATH_ALIAS(x, 0)
@@ -1311,12 +1315,12 @@ struct vec<double, 4, true> {
     static constexpr bool t_simd = true;
     typedef vec<double, 4, true> t_vec;
 
-    FORCE_INLINE vec() { data[0] = data[1] = data[2] = data[3] = 0; }
-    FORCE_INLINE vec(const __m256d &v) : data_v(v) {}
-    FORCE_INLINE vec(double x, double y, double z = 0, double w = 0) {
-        data_v = _mm256_set_pd(w, z, y, x);
+    FORCE_INLINE constexpr vec() { data_v = {0, 0, 0, 0}; }
+    FORCE_INLINE constexpr vec(const __m256d &v) : data_v(v) {}
+    FORCE_INLINE constexpr vec(double x, double y, double z = 0, double w = 0) {
+        data_v = {x, y, z, w};
     }
-    FORCE_INLINE vec(double s) { data_v = _mm256_set1_pd(s); }
+    FORCE_INLINE constexpr vec(double s) { data_v = {s, s, s, s}; }
 
     ATG_MATH_ALIAS(x, 0)
     ATG_MATH_ALIAS(y, 1)
@@ -1564,11 +1568,11 @@ struct vec<double, 8, true> {
     static constexpr bool t_simd = true;
     typedef vec<double, 8, true> t_vec;
 
-    FORCE_INLINE vec() : data0(double(0)), data1(double(0)) {}
-    FORCE_INLINE vec(const vec<double, 4, true> &v0,
-                     const vec<double, 4, true> &v1)
+    FORCE_INLINE constexpr vec() : data0(double(0)), data1(double(0)) {}
+    FORCE_INLINE constexpr vec(const vec<double, 4, true> &v0,
+                               const vec<double, 4, true> &v1)
         : data0(v0.data_v), data1(v1.data_v) {}
-    FORCE_INLINE vec(t_scalar s) : data0(s), data1(s) {}
+    FORCE_INLINE constexpr vec(t_scalar s) : data0(s), data1(s) {}
 
     vec<double, 4, true> data0, data1;
 
@@ -1597,8 +1601,7 @@ struct vec<double, 8, true> {
     }
 
     FORCE_INLINE t_vec madd(const t_vec &m, const t_vec &a) const {
-        return {data0.madd(m.data0, a.data0),
-                data1.madd(m.data1, a.data1)};
+        return {data0.madd(m.data0, a.data0), data1.madd(m.data1, a.data1)};
     }
 
     FORCE_INLINE t_vec compare_eq(const t_vec &b) const {
@@ -1606,8 +1609,7 @@ struct vec<double, 8, true> {
     }
 
     FORCE_INLINE t_vec compare_eq_mask(const t_vec &b) const {
-        return {data0.compare_eq_mask(b.data0),
-                data1.compare_eq_mask(b.data1)};
+        return {data0.compare_eq_mask(b.data0), data1.compare_eq_mask(b.data1)};
     }
 
     FORCE_INLINE t_vec compare_neq(const t_vec &b) const {
@@ -1624,8 +1626,7 @@ struct vec<double, 8, true> {
     }
 
     FORCE_INLINE t_vec compare_le_mask(const t_vec &b) const {
-        return {data0.compare_le_mask(b.data0),
-                data1.compare_le_mask(b.data1)};
+        return {data0.compare_le_mask(b.data0), data1.compare_le_mask(b.data1)};
     }
 
     FORCE_INLINE t_vec compare_ge(const t_vec &b) const {
@@ -1633,8 +1634,7 @@ struct vec<double, 8, true> {
     }
 
     FORCE_INLINE t_vec compare_ge_mask(const t_vec &b) const {
-        return {data0.compare_ge_mask(b.data0),
-                data1.compare_ge_mask(b.data1)};
+        return {data0.compare_ge_mask(b.data0), data1.compare_ge_mask(b.data1)};
     }
 
     FORCE_INLINE t_vec select(const t_vec &b, const t_vec &mask) const {

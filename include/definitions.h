@@ -1,0 +1,6 @@
+#ifndef ATG_MATH_DEFINITIONS_H
+#define ATG_MATH_DEFINITIONS_H
+
+#define FORCE_INLINE __forceinline
+
+#endif /* ATG_MATH_DEFINITIONS_H */

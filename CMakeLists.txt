@@ -39,7 +39,10 @@ add_library(atg-math STATIC
 
     # Header files
     include/public/atg_math.h
+    include/aabb.h
     include/constants.h
+    include/definitions.h
+    include/functions.h
     include/information.h
     include/library.h
     include/matrix.h
