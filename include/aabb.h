@@ -182,6 +182,31 @@ struct aabb<t_scalar_, 2, t_enable_simd> {
     }
 };
 
+struct Grid {
+    inline Grid() { h_cells = v_cells = 0; }
+    inline Grid(int h, int v) : h_cells(h), v_cells(v) {}
+
+    int h_cells;
+    int v_cells;
+
+    template<typename t_scalar, unsigned int t_size, bool t_enable_simd>
+    aabb<t_scalar, t_size, t_enable_simd>
+    get(const aabb<t_scalar, t_size, t_enable_simd> &a, int x, int y, int w = 1,
+        int h = 1) const {
+        using t_aabb = aabb<t_scalar, t_size, t_enable_simd>;
+
+        const t_scalar cellWidth = a.width() / h_cells;
+        const t_scalar cellHeight = a.height() / v_cells;
+
+        const t_scalar width = cellWidth * w;
+        const t_scalar height = cellHeight * h;
+
+        const t_aabb::vec p0 = a.position(t_aabb::tl) +
+                               t_aabb::vec(x * cellWidth, -y * cellHeight);
+        return t_aabb(width, height, p0, t_aabb::tl);
+    }
+};
+
 using aabb2 = aabb<float, 2, false>;
 
 }// namespace atg_math
