@@ -113,6 +113,11 @@ struct vec {};
         return result;                                                         \
     }
 
+#define ATG_MATH_DEFINE_INDEX_OPERATOR()                                       \
+    FORCE_INLINE t_scalar operator[](unsigned int i) const { return data[i]; }
+#define ATG_MATH_DEFINE_INDEX_OPERATOR_MODIFIABLE()                            \
+    FORCE_INLINE t_scalar &operator[](unsigned int i) { return data[i]; }
+
 #define ATG_MATH_DEFINE_POSITIVE_OPERATOR                                      \
     FORCE_INLINE t_vec operator+() const { return *this; }
 
@@ -705,6 +710,9 @@ struct vec<t_scalar_, t_size_, false> {
     ATG_MATH_DEFINE_NEGATED_BOOLEAN_COMPARISON_OPERATOR(!=)
     ATG_MATH_DEFINE_MADD()
 
+    ATG_MATH_DEFINE_INDEX_OPERATOR()
+    ATG_MATH_DEFINE_INDEX_OPERATOR_MODIFIABLE()
+
     ATG_MATH_DEFINE_NEGATE_OPERATOR
     ATG_MATH_DEFINE_POSITIVE_OPERATOR
 
@@ -976,6 +984,9 @@ struct vec<float, 8, true> {
         float data[8];
         int mask[8];
     };
+
+    FORCE_INLINE float operator[](unsigned int i) const { return data[i]; }
+    FORCE_INLINE float &operator[](unsigned int i) { return data[i]; }
 
     FORCE_INLINE explicit operator float() const {
         return _mm256_cvtss_f32(data_v);
@@ -1580,6 +1591,9 @@ struct vec<double, 8, true> {
     FORCE_INLINE double operator[](size_t index) const {
         return index <= 3 ? data0.data[index] : data1.data[index - 4];
     }
+    FORCE_INLINE double &operator[](size_t index) {
+        return index <= 3 ? data0.data[index] : data1.data[index - 4];
+    }
 
     FORCE_INLINE t_vec operator-() const { return {-data0, -data1}; }
     FORCE_INLINE t_vec operator+() const { return *this; }
@@ -1719,6 +1733,16 @@ struct vec<double, 8, true> {
     FORCE_INLINE t_vec log() const { return {data0.log(), data1.log()}; }
     FORCE_INLINE t_vec pow(const t_vec &p) const {
         return {data0.pow(p.data0), data1.pow(p.data1)};
+    }
+
+    FORCE_INLINE t_vec and_mask(const t_vec &mask) const {
+        return {_mm256_and_pd(data0, mask.data0),
+                _mm256_and_pd(data1, mask.data1)};
+    }
+
+    FORCE_INLINE t_vec and_not_mask(const t_vec &mask) const {
+        return {_mm256_andnot_pd(data0, mask.data0),
+                _mm256_andnot_pd(data1, mask.data1)};
     }
 };
 
