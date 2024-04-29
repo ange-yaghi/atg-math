@@ -27,6 +27,11 @@ inline constexpr t_scalar clamp(t_scalar x, t_scalar x0 = t_scalar(0.0),
 }
 
 template<typename t_scalar>
+inline constexpr t_scalar ramp(t_scalar x, t_scalar x0, t_scalar x1) {
+    return clamp((x - x0) / (x1 - x0));
+}
+
+template<typename t_scalar>
 inline constexpr bool in_range(t_scalar x, t_scalar x0, t_scalar x1) {
     return (x >= x0) && (x <= x1);
 }
