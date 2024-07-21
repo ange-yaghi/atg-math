@@ -1147,7 +1147,7 @@ struct vec<float, 8, true> {
 
     FORCE_INLINE t_vec sqrt() const { return _mm256_sqrt_ps(data_v); }
 
-    FORCE_INLINE void load(float *data) { data_v = _mm256_load_ps(data); }
+    FORCE_INLINE void load(const float *data) { data_v = _mm256_load_ps(data); }
     FORCE_INLINE void extract(float *data) {
         memcpy(data, this->data, sizeof(float) * t_size);
     }
