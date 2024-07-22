@@ -288,14 +288,10 @@ inline T_Data fp_fill_zeroes() {
     }
 
 #define ATG_MATH_DEFINE_MAGNITUDE_SQUARED                                      \
-    FORCE_INLINE t_scalar magnitude_squared() const {                          \
-        return t_scalar(dot(*this));                                           \
-    }
+    FORCE_INLINE t_vec magnitude_squared() const { return dot(*this); }
 
 #define ATG_MATH_DEFINE_MAGNITUDE                                              \
-    FORCE_INLINE t_scalar magnitude() const {                                  \
-        return std::sqrt(magnitude_squared());                                 \
-    }
+    FORCE_INLINE t_vec magnitude() const { return magnitude_squared().sqrt(); }
 
 #define ATG_MATH_DEFINE_NORMALIZE                                              \
     FORCE_INLINE t_vec normalize() const { return (*this) / magnitude(); }
