@@ -1353,6 +1353,9 @@ struct vec<double, 4, true> {
         return _mm256_cvtsd_f64(data_v);
     }
 
+    FORCE_INLINE double operator[](size_t index) const { return data[index]; }
+    FORCE_INLINE double &operator[](size_t index) { return data[index]; }
+
     FORCE_INLINE operator __m256d() const { return data_v; }
 
     FORCE_INLINE t_vec operator-() const {
