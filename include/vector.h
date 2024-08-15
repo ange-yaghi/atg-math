@@ -5,6 +5,7 @@
 
 #include <cmath>
 #include <cstdint>
+#include <algorithm>
 
 #include <emmintrin.h>
 #include <immintrin.h>
@@ -97,7 +98,7 @@ struct vec {};
     }
 
 #define ATG_MATH_DEFINE_ASSIGNMENT_OPERATOR(full_op, op)                       \
-    FORCE_INLINE t_vec &operator full_op(const t_vec &b) {                     \
+    FORCE_INLINE t_vec &operator full_op(const t_vec & b) {                    \
         for (unsigned int i = 0; i < t_size; ++i) {                            \
             data[i] = data[i] op b.data[i];                                    \
         }                                                                      \
@@ -951,9 +952,7 @@ struct vec<float, 4, true> {
     }
 
     FORCE_INLINE void load(float *data) { data_v = _mm_load_ps(data); }
-    FORCE_INLINE void extract(float *data) const {
-        memcpy(data, this->data, sizeof(float) * t_size);
-    }
+    FORCE_INLINE void extract(float *data) const { _mm_store_ps(data, data_v); }
 
     FORCE_INLINE t_vec exp() const { return _mm_exp_ps(data_v); }
     FORCE_INLINE t_vec log() const { return _mm_log_ps(data_v); }
@@ -1304,9 +1303,7 @@ struct vec<double, 2, true> {
     }
 
     FORCE_INLINE void load(double *data) { data_v = _mm_load_pd(data); }
-    FORCE_INLINE void extract(double *data) {
-        memcpy(data, this->data, sizeof(double) * t_size);
-    }
+    FORCE_INLINE void extract(double *data) { _mm_store_pd(data, data_v); }
 
     FORCE_INLINE t_vec exp() const { return _mm_exp_pd(data_v); }
     FORCE_INLINE t_vec log() const { return _mm_log_pd(data_v); }
@@ -1560,9 +1557,7 @@ struct vec<double, 4, true> {
     }
 
     FORCE_INLINE void load(double *data) { data_v = _mm256_load_pd(data); }
-    FORCE_INLINE void extract(double *data) {
-        memcpy(data, this->data, sizeof(double) * t_size);
-    }
+    FORCE_INLINE void extract(double *data) { _mm256_store_pd(data, data_v); }
 
     FORCE_INLINE t_vec exp() const { return _mm256_exp_pd(data_v); }
     FORCE_INLINE t_vec log() const { return _mm256_log_pd(data_v); }

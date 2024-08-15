@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.10)
+cmake_minimum_required(VERSION 3.30)
 
 set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 set_property(GLOBAL PROPERTY PREDEFINED_TARGETS_FOLDER "cmake")
@@ -18,6 +18,7 @@ FetchContent_Declare(
     googletest
     URL
     https://github.com/google/googletest/archive/609281088cfefc76f9d0ce82e1ff6c30cc3591e5.zip
+    DOWNLOAD_EXTRACT_TIMESTAMP false
 )
 
 set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
