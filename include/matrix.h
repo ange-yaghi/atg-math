@@ -29,7 +29,7 @@ NON_SIMD_TEMPLATE
 NON_SIMD_MATRIX &generic_set_transpose(const NON_SIMD_MATRIX &source,
                                        NON_SIMD_MATRIX *target) {
     for (unsigned int i = 0; i < t_size; ++i) {
-        for (unsigned int j = i + 1; j < t_size; ++j) {
+        for (unsigned int j = i; j < t_size; ++j) {
             const t_scalar temp = source.columns[i].data[j];
             target->columns[i].data[j] = source.columns[j].data[i];
             target->columns[j].data[i] = temp;
