@@ -38,7 +38,7 @@ inline constexpr bool in_range(t_scalar x, t_scalar x0, t_scalar x1) {
 
 template<typename t_scalar>
 inline constexpr t_scalar lerp(t_scalar s, t_scalar x0, t_scalar x1) {
-    return s * x1 + (1 - s) * x0;
+    return s * x1 + (t_scalar(1) - s) * x0;
 }
 
 }// namespace atg_math
