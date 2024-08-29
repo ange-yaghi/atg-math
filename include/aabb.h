@@ -99,6 +99,8 @@ struct aabb<t_scalar_, 2, t_enable_simd> {
         move(pos - position(ref));
     }
 
+    inline vec center() const { return position(c); }
+
     inline vec position(const vec &ref = tl) const {
         const vec offset = ref * size();
         return m0 + offset;
