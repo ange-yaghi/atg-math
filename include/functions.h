@@ -3,6 +3,8 @@
 
 #include "definitions.h"
 
+#include <cmath>
+
 namespace atg_math {
 
 template<typename t_scalar>
@@ -24,6 +26,12 @@ template<typename t_scalar>
 inline constexpr t_scalar clamp(t_scalar x, t_scalar x0 = t_scalar(0.0),
                                 t_scalar x1 = t_scalar(1.0)) {
     return (x > x0) ? ((x < x1) ? x : x1) : x0;
+}
+
+template<typename t_scalar>
+inline t_scalar clearNanInf(t_scalar x) {
+    if (std::isinf(x) || std::isnan(x)) { return t_scalar(0); }
+    return x;
 }
 
 template<typename t_scalar>
