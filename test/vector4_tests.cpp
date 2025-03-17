@@ -1,6 +1,6 @@
 #include <gtest/gtest.h>
 
-#include "../include/vector.h"
+#include "../include/atg-math/vector.h"
 
 template<typename t_vec>
 void scalarMultiplicationTest() {

@@ -39,20 +39,19 @@ add_library(atg-math STATIC
     src/information.cpp
 
     # Header files
-    include/public/atg_math.h
-    include/aabb.h
-    include/constants.h
-    include/definitions.h
-    include/functions.h
-    include/information.h
-    include/library.h
-    include/matrix.h
-    include/scalar.h
-    include/vector.h
+    include/atg-math/aabb.h
+    include/atg-math/constants.h
+    include/atg-math/definitions.h
+    include/atg-math/functions.h
+    include/atg-math/information.h
+    include/atg-math/library.h
+    include/atg-math/matrix.h
+    include/atg-math/scalar.h
+    include/atg-math/vector.h
 )
 
 target_include_directories(atg-math INTERFACE
-    include/public
+    include/
 )
 
 target_compile_definitions(atg-math PRIVATE PROJECT_NAMESPACE=${ProjectNamespace})

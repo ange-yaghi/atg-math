@@ -1,7 +1,7 @@
 #include <gtest/gtest.h>
 
-#include "../include/constants.h"
-#include "../include/library.h"
+#include "../include/atg-math/constants.h"
+#include "../include/atg-math/library.h"
 
 #include <chrono>
 #include <fstream>
