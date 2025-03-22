@@ -3,9 +3,9 @@
 
 #include "definitions.h"
 
+#include <algorithm>
 #include <cmath>
 #include <cstdint>
-#include <algorithm>
 
 #include <emmintrin.h>
 #include <immintrin.h>
@@ -98,7 +98,7 @@ struct vec {};
     }
 
 #define ATG_MATH_DEFINE_ASSIGNMENT_OPERATOR(full_op, op)                       \
-    FORCE_INLINE t_vec &operator full_op(const t_vec & b) {                    \
+    FORCE_INLINE t_vec &operator full_op(const t_vec &b) {                     \
         for (unsigned int i = 0; i < t_size; ++i) {                            \
             data[i] = data[i] op b.data[i];                                    \
         }                                                                      \
@@ -751,6 +751,9 @@ struct vec<float, 4, true> {
     FORCE_INLINE constexpr vec(float s) { data_v = {s, s, s, s}; }
     FORCE_INLINE constexpr vec(const vec<float, 4, false> &v) {
         data_v = {v.x(), v.y(), v.z(), v.w()};
+    }
+    FORCE_INLINE constexpr vec(const vec<float, 2, false> &v) {
+        data_v = {v.x(), v.y(), 0.0f, 0.0f};
     }
 
     ATG_MATH_ALIAS(x, 0)

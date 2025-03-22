@@ -40,8 +40,18 @@ inline constexpr t_scalar ramp(t_scalar x, t_scalar x0, t_scalar x1) {
 }
 
 template<typename t_scalar>
+inline constexpr t_scalar line(t_scalar x, t_scalar x0, t_scalar x1) {
+    return (x - x0) / (x1 - x0);
+}
+
+template<typename t_scalar>
 inline constexpr bool in_range(t_scalar x, t_scalar x0, t_scalar x1) {
     return (x >= x0) && (x <= x1);
+}
+
+template<typename t_scalar>
+inline constexpr bool near(t_scalar x0, t_scalar x1, t_scalar distance) {
+    return std::abs(x0 - x1) <= distance;
 }
 
 template<typename t_scalar>
