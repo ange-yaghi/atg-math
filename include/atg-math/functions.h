@@ -59,6 +59,18 @@ inline constexpr t_scalar lerp(t_scalar s, t_scalar x0, t_scalar x1) {
     return s * x1 + (t_scalar(1) - s) * x0;
 }
 
+template<typename t_scalar>
+inline constexpr t_scalar smoothstep(t_scalar s_, t_scalar x0, t_scalar x1) {
+    const t_scalar s = ramp(s_, x0, x1);
+    if (s <= 0) {
+        return 0;
+    } else if (s > 0 && s < 1) {
+        return 3 * s * s - 2 * s * s * s;
+    } else {
+        return 1;
+    }
+}
+
 }// namespace atg_math
 
 #endif /* ATG_MATH_FUNCTIONS_H */

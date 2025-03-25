@@ -30,18 +30,17 @@ struct aabb<t_scalar_, 2, t_enable_simd> {
     vec m1;
 
     inline constexpr aabb() {}
-    inline constexpr aabb(const vec &a, const vec &b) : m0(a), m1(b) {}
+    inline constexpr aabb(const vec &m0, const vec &m1) : m0(m0), m1(m1) {}
     inline constexpr aabb(t_scalar x0, t_scalar x1, t_scalar y0, t_scalar y1) {
         const vec p0 = {x0, y0};
-        const vec p1 = {y1, y1};
+        const vec p1 = {x1, y1};
         m0 = p0.min(p1);
-        m1 = p0.max(p0);
+        m1 = p0.max(p1);
     }
 
-    inline constexpr aabb(t_scalar width, t_scalar height, const vec &pos,
-                          const vec &ref = tl) {
-        m0 = {t_scalar(0), t_scalar(0)};
-        m1 = {width, height};
+    inline constexpr aabb(const vec &pos, const vec &size, const vec &ref) {
+        m0 = z;
+        m1 = size;
         setPosition(pos, ref);
     }
 
@@ -113,6 +112,11 @@ struct aabb<t_scalar_, 2, t_enable_simd> {
     inline t_scalar center_h() const { return (m0.x() + m1.x()) / 2; }
     inline t_scalar center_v() const { return (m0.y() + m1.y()) / 2; }
 
+    inline vec bottomLeft() const { return {left(), bottom()}; }
+    inline vec bottomRight() const { return {right(), bottom()}; }
+    inline vec topLeft() const { return {left(), top()}; }
+    inline vec topRight() const { return {right(), top()}; }
+
     inline t_scalar width() const { return m1.x() - m0.x(); }
     inline t_scalar height() const { return m1.y() - m0.y(); }
     inline vec size() const { return vec(width(), height()); }
@@ -147,7 +151,7 @@ struct aabb<t_scalar_, 2, t_enable_simd> {
 
     inline aabb grow(t_scalar amount) const { return inset(-amount); }
 
-    inline aabb verticalSplit(t_scalar s0, t_scalar s1) const {
+    inline aabb verticalSegment(t_scalar s0, t_scalar s1 = z) const {
         const t_scalar s_min = std::fmin(s0, s1);
         const t_scalar s_max = std::fmax(s0, s1);
 
@@ -155,12 +159,22 @@ struct aabb<t_scalar_, 2, t_enable_simd> {
                 m0 + vec(z, height() * s_max) + vec(width(), z)};
     }
 
-    inline aabb horizontalSplit(t_scalar s0, t_scalar s1) const {
+    inline aabb horizontalSegment(t_scalar s0, t_scalar s1 = z) const {
         const t_scalar s_min = std::fmin(s0, s1);
         const t_scalar s_max = std::fmax(s0, s1);
 
         return {m0 + vec(width() * s_min, z),
                 m0 + vec(width() * s_max, z) + vec(z, height())};
+    }
+
+    inline void verticalSplit(t_scalar s, aabb *bottom, aabb *top) const {
+        *top = {m0 + vec(z, s * height()), m1};
+        *bottom = {m0, top->bottomRight()};
+    }
+
+    inline void horizontalSplit(t_scalar s, aabb *left, aabb *right) const {
+        *left = {m0, m1 - vec((t_scalar(1) - s) * width(), z)};
+        *right = {left->bottomRight(), m1};
     }
 
     inline aabb scale(t_scalar s, const vec &origin = c) const {
