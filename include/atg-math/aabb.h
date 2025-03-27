@@ -45,6 +45,7 @@ struct aabb<t_scalar_, 2, t_enable_simd> {
     }
 
     inline bool overlaps(const vec &p) const { return (p >= m0 && p <= m1); }
+    inline vec normalize(const vec &g) const { return (g - m0) / size(); }
 
     inline aabb add(const aabb &b) const {
         return {m0.min(b.m0), m1.max(b.m1)};
