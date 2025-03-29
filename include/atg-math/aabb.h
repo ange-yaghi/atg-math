@@ -220,7 +220,7 @@ struct Grid {
 
         const t_aabb::vec p0 = a.position(t_aabb::tl) +
                                t_aabb::vec(x * cellWidth, -y * cellHeight);
-        return t_aabb(width, height, p0, t_aabb::tl);
+        return t_aabb(p0, {width, height}, t_aabb::tl);
     }
 };
 

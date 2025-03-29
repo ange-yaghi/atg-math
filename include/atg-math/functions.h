@@ -71,6 +71,40 @@ inline constexpr t_scalar smoothstep(t_scalar s_, t_scalar x0, t_scalar x1) {
     }
 }
 
+template<typename t_scalar>
+inline constexpr t_scalar smoothstep(t_scalar s_) {
+    const t_scalar s = clamp(s_);
+    if (s <= 0) {
+        return 0;
+    } else if (s > 0 && s < 1) {
+        return 3 * s * s - 2 * s * s * s;
+    } else {
+        return 1;
+    }
+}
+
+template<typename t_scalar>
+inline constexpr t_scalar heaviside(t_scalar x, t_scalar x0) {
+    return (x >= x0) ? t_scalar(1) : t_scalar(0);
+}
+
+template<typename t_scalar>
+inline constexpr t_scalar rect(t_scalar x, t_scalar x0, t_scalar x1) {
+    return heaviside(x, x0) - heaviside(x, x1);
+}
+
+template<typename t_scalar>
+inline constexpr t_scalar ramp_rect(t_scalar x, t_scalar x0, t_scalar x1,
+                                    t_scalar w) {
+    return ramp(x, x0 - w, x0) - ramp(x, x1, x1 + w);
+}
+
+template<typename t_scalar>
+inline constexpr t_scalar smooth_ramp_rect(t_scalar x, t_scalar x0, t_scalar x1,
+                                           t_scalar w) {
+    return smoothstep(ramp(x, x0 - w, x0) - ramp(x, x1, x1 + w));
+}
+
 }// namespace atg_math
 
 #endif /* ATG_MATH_FUNCTIONS_H */
