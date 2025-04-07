@@ -1428,11 +1428,11 @@ struct vec<double, 4, true> {
     }
 
     FORCE_INLINE t_vec bitwise_and(const t_vec &b) const {
-        return _mm256_and_pd(data_v, b);
+        return _mm256_and_pd(data_v, b.data_v);
     }
 
     FORCE_INLINE t_vec bitwise_or(const t_vec &b) const {
-        return _mm256_or_pd(data_v, b);
+        return _mm256_or_pd(data_v, b.data_v);
     }
 
     FORCE_INLINE bool operator==(const t_vec &b) const {
@@ -1557,6 +1557,14 @@ struct vec<double, 4, true> {
                 _mm256_and_pd(data_v, _mm256_castsi256_pd(_mm256_set_epi64x(
                                               0, -1, -1, -1))),
                 {0.0, 0.0, 0.0, 1.0});
+    }
+
+    FORCE_INLINE t_vec and_mask(const t_vec &mask) const {
+        return _mm256_and_pd(mask, data_v);
+    }
+
+    FORCE_INLINE t_vec and_not_mask(const t_vec &mask) const {
+        return _mm256_andnot_pd(mask, data_v);
     }
 
     FORCE_INLINE void load(double *data) { data_v = _mm256_load_pd(data); }
@@ -1736,8 +1744,8 @@ struct vec<double, 8, true> {
     }
 
     FORCE_INLINE t_vec and_not_mask(const t_vec &mask) const {
-        return {_mm256_andnot_pd(data0, mask.data0),
-                _mm256_andnot_pd(data1, mask.data1)};
+        return {_mm256_andnot_pd(mask.data0, data0),
+                _mm256_andnot_pd(mask.data1, data1)};
     }
 };
 
