@@ -8,6 +8,16 @@
 namespace atg_math {
 
 template<typename t_scalar>
+FORCE_INLINE constexpr t_scalar squared(t_scalar s) {
+    return s * s;
+}
+
+template<typename t_scalar>
+FORCE_INLINE constexpr t_scalar cubed(t_scalar s) {
+    return s * s * s;
+}
+
+template<typename t_scalar>
 FORCE_INLINE constexpr t_scalar min(t_scalar data0, t_scalar data1) {
     return data0 < data1 ? data0 : data1;
 }

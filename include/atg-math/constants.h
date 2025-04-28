@@ -12,7 +12,7 @@
         return static_cast<T_Return>((value));                                 \
     }                                                                          \
     constexpr double name##_d = name();                                        \
-    constexpr float name##_f = name<float>();
+    constexpr float name##_f = name<float>()
 
 namespace atg_math {
 namespace constants {
