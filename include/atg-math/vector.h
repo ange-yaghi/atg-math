@@ -1749,7 +1749,53 @@ struct vec<double, 8, true> {
     }
 };
 
+template<typename t_scalar_, unsigned int t_size, bool t_enable_simd>
+FORCE_INLINE vec<t_scalar_, t_size, t_enable_simd>
+sqrt(const vec<t_scalar_, t_size, t_enable_simd> &v) {
+    return v.sqrt();
+}
+
+template<typename t_scalar_, unsigned int t_size, bool t_enable_simd>
+FORCE_INLINE vec<t_scalar_, t_size, t_enable_simd>
+abs(const vec<t_scalar_, t_size, t_enable_simd> &v) {
+    return v.abs();
+}
+
+template<typename t_scalar_, unsigned int t_size, bool t_enable_simd>
+FORCE_INLINE vec<t_scalar_, t_size, t_enable_simd>
+min(const vec<t_scalar_, t_size, t_enable_simd> &a,
+    const vec<t_scalar_, t_size, t_enable_simd> &b) {
+    return a.min(b);
+}
+
+template<typename t_scalar_, unsigned int t_size, bool t_enable_simd>
+FORCE_INLINE vec<t_scalar_, t_size, t_enable_simd>
+max(const vec<t_scalar_, t_size, t_enable_simd> &a,
+    const vec<t_scalar_, t_size, t_enable_simd> &b) {
+    return a.max(b);
+}
+
 ATG_MATH_DEFINE_LEFT_SCALAR_OPERATOR(*);
+
+template<typename T_Type>
+struct base_type {
+    using type = T_Type::t_scalar;
+};
+
+template<>
+struct base_type<double> {
+    using type = double;
+};
+
+template<>
+struct base_type<float> {
+    using type = float;
+};
+
+template<>
+struct base_type<int> {
+    using type = int;
+};
 
 typedef vec<float, 2, false> vec2_s;
 typedef vec<int, 2, false> ivec2_s;

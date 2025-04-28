@@ -33,6 +33,11 @@ FORCE_INLINE constexpr t_scalar abs(t_scalar data0) {
 }
 
 template<typename t_scalar>
+FORCE_INLINE t_scalar sqrt(t_scalar s) {
+    return std::sqrt(s);
+}
+
+template<typename t_scalar>
 inline constexpr t_scalar clamp(t_scalar x, t_scalar x0 = t_scalar(0.0),
                                 t_scalar x1 = t_scalar(1.0)) {
     return (x > x0) ? ((x < x1) ? x : x1) : x0;
