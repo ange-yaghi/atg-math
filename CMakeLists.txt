@@ -35,11 +35,9 @@ set_property(TARGET gtest_main PROPERTY FOLDER "gtest")
 # Compile definitions
 # -----------------------------------------------------------------------------
 add_library(atg-math STATIC
-    # Source files
-    src/information.cpp
-
     # Header files
     include/atg-math/aabb.h
+    include/atg-math/base_type.hpp
     include/atg-math/constants.h
     include/atg-math/definitions.h
     include/atg-math/functions.h
@@ -48,6 +46,9 @@ add_library(atg-math STATIC
     include/atg-math/matrix.h
     include/atg-math/scalar.h
     include/atg-math/vector.h
+
+    # Source files
+    src/information.cpp
 )
 
 target_include_directories(atg-math INTERFACE

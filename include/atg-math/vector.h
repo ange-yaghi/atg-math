@@ -2,6 +2,7 @@
 #define ATG_MATH_VECTOR_H
 
 #include "definitions.h"
+#include "base_type.hpp"
 
 #include <algorithm>
 #include <cmath>
@@ -1776,11 +1777,6 @@ max(const vec<t_scalar_, t_size, t_enable_simd> &a,
 }
 
 ATG_MATH_DEFINE_LEFT_SCALAR_OPERATOR(*);
-
-template<typename T_Type>
-struct base_type {
-    using type = T_Type::t_scalar;
-};
 
 template<>
 struct base_type<double> {
