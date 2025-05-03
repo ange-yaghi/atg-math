@@ -75,6 +75,11 @@ inline constexpr t_scalar lerp(t_scalar s, t_scalar x0, t_scalar x1) {
 }
 
 template<typename t_scalar>
+inline constexpr t_scalar lerp_fast(t_scalar s, t_scalar x0, t_scalar x1) {
+    return x0 + s * (x1 - x0);
+}
+
+template<typename t_scalar>
 inline constexpr t_scalar smoothstep(t_scalar s_, t_scalar x0, t_scalar x1) {
     const t_scalar s = ramp(s_, x0, x1);
     if (s <= 0) {
