@@ -1,8 +1,8 @@
 #ifndef ATG_MATH_VECTOR_H
 #define ATG_MATH_VECTOR_H
 
-#include "definitions.h"
 #include "base_type.hpp"
+#include "definitions.h"
 
 #include <algorithm>
 #include <cmath>
@@ -1774,6 +1774,13 @@ FORCE_INLINE vec<t_scalar_, t_size, t_enable_simd>
 max(const vec<t_scalar_, t_size, t_enable_simd> &a,
     const vec<t_scalar_, t_size, t_enable_simd> &b) {
     return a.max(b);
+}
+
+template<typename t_scalar_, unsigned int t_size, bool t_enable_simd>
+FORCE_INLINE vec<t_scalar_, t_size, t_enable_simd>
+pow(const vec<t_scalar_, t_size, t_enable_simd> &a,
+    const vec<t_scalar_, t_size, t_enable_simd> &b) {
+    return a.pow(b);
 }
 
 ATG_MATH_DEFINE_LEFT_SCALAR_OPERATOR(*);

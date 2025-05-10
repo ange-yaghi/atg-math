@@ -18,6 +18,11 @@ FORCE_INLINE constexpr t_scalar cubed(t_scalar s) {
 }
 
 template<typename t_scalar>
+FORCE_INLINE constexpr t_scalar pow(t_scalar s, t_scalar p) {
+    return std::pow(s, p);
+}
+
+template<typename t_scalar>
 FORCE_INLINE constexpr t_scalar min(t_scalar data0, t_scalar data1) {
     return data0 < data1 ? data0 : data1;
 }
