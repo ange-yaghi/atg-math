@@ -99,7 +99,7 @@ struct vec {};
     }
 
 #define ATG_MATH_DEFINE_ASSIGNMENT_OPERATOR(full_op, op)                       \
-    FORCE_INLINE t_vec &operator full_op(const t_vec &b) {                     \
+    FORCE_INLINE t_vec &operator full_op(const t_vec & b) {                    \
         for (unsigned int i = 0; i < t_size; ++i) {                            \
             data[i] = data[i] op b.data[i];                                    \
         }                                                                      \
@@ -486,6 +486,8 @@ struct vec<t_scalar_, 2, false> {
     ATG_MATH_AND_MASK
     ATG_MATH_AND_NOT_MASK
     ATG_MATH_BITWISE_OR
+
+    FORCE_INLINE t_vec orthogonal() const { return {-y(), x()}; }
 };
 
 template<typename t_scalar_>
