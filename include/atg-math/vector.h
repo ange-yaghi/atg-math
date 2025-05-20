@@ -787,6 +787,9 @@ struct vec<float, 4, true> {
 
     FORCE_INLINE operator __m128() const { return data_v; }
 
+    FORCE_INLINE float operator[](unsigned int i) const { return data[i]; }
+    FORCE_INLINE float &operator[](unsigned int i) { return data[i]; }
+
     FORCE_INLINE t_vec operator-() const {
         const __m128 mask = _mm_castsi128_ps(_mm_set1_epi32(~0x7FFFFFFF));
         return _mm_xor_ps(data_v, mask);
@@ -808,6 +811,10 @@ struct vec<float, 4, true> {
 
     FORCE_INLINE t_vec operator/(const t_vec &b) const {
         return _mm_div_ps(data_v, b.data_v);
+    }
+
+    FORCE_INLINE t_vec madd(const t_vec &m, const t_vec &a) const {
+        return _mm_fmadd_ps(data_v, m, a);
     }
 
     FORCE_INLINE t_vec compare_eq(const t_vec &b) const {
@@ -1756,6 +1763,14 @@ template<typename t_scalar_, unsigned int t_size, bool t_enable_simd>
 FORCE_INLINE vec<t_scalar_, t_size, t_enable_simd>
 sqrt(const vec<t_scalar_, t_size, t_enable_simd> &v) {
     return v.sqrt();
+}
+
+template<typename t_scalar_, unsigned int t_size, bool t_enable_simd>
+FORCE_INLINE vec<t_scalar_, t_size, t_enable_simd>
+fmadd(const vec<t_scalar_, t_size, t_enable_simd> &a,
+      const vec<t_scalar_, t_size, t_enable_simd> &b,
+      const vec<t_scalar_, t_size, t_enable_simd> &c_add) {
+    return a.madd(b, c_add);
 }
 
 template<typename t_scalar_, unsigned int t_size, bool t_enable_simd>

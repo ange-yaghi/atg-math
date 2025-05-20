@@ -43,6 +43,11 @@ FORCE_INLINE t_scalar sqrt(t_scalar s) {
 }
 
 template<typename t_scalar>
+FORCE_INLINE t_scalar fmadd(t_scalar a, t_scalar b, t_scalar c_add) {
+    return a * b + c_add;
+}
+
+template<typename t_scalar>
 inline constexpr t_scalar clamp(t_scalar x, t_scalar x0 = t_scalar(0.0),
                                 t_scalar x1 = t_scalar(1.0)) {
     return (x > x0) ? ((x < x1) ? x : x1) : x0;
