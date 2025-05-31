@@ -488,6 +488,7 @@ struct vec<t_scalar_, 2, false> {
     ATG_MATH_BITWISE_OR
 
     FORCE_INLINE t_vec orthogonal() const { return {-y(), x()}; }
+    FORCE_INLINE t_vec yx() const { return {y(), x()}; }
 };
 
 template<typename t_scalar_>
