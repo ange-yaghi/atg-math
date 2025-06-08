@@ -18,6 +18,13 @@ FORCE_INLINE constexpr t_scalar cubed(t_scalar s) {
 }
 
 template<typename t_scalar>
+FORCE_INLINE constexpr t_scalar pow7(t_scalar s) {
+    const t_scalar pow_2 = squared(s);
+    const t_scalar pow_4 = pow_2 * pow_2;
+    return pow_4 * pow_2 * s;
+}
+
+template<typename t_scalar>
 FORCE_INLINE constexpr t_scalar pow(t_scalar s, t_scalar p) {
     return std::pow(s, p);
 }
