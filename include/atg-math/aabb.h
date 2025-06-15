@@ -198,6 +198,9 @@ struct aabb<t_scalar_, 2, t_enable_simd> {
         return aabb({std::round(m0.x()), std::round(m0.y())},
                     {std::round(m1.x()), std::round(m1.y())});
     }
+
+    inline vec x_range() const { return {m0[0], m1[0]}; }
+    inline vec y_range() const { return {m0[1], m1[1]}; }
 };
 
 struct Grid {

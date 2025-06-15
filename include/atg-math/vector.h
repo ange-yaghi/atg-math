@@ -99,7 +99,7 @@ struct vec {};
     }
 
 #define ATG_MATH_DEFINE_ASSIGNMENT_OPERATOR(full_op, op)                       \
-    FORCE_INLINE t_vec &operator full_op(const t_vec & b) {                    \
+    FORCE_INLINE t_vec &operator full_op(const t_vec &b) {                     \
         for (unsigned int i = 0; i < t_size; ++i) {                            \
             data[i] = data[i] op b.data[i];                                    \
         }                                                                      \
@@ -449,6 +449,9 @@ struct vec<t_scalar_, 2, false> {
 
     ATG_MATH_DEFINE_EXPLICIT_SCALAR_CONVERSION
 
+    ATG_MATH_DEFINE_INDEX_OPERATOR()
+    ATG_MATH_DEFINE_INDEX_OPERATOR_MODIFIABLE()
+
     ATG_MATH_DEFINE_COMPONENT_WISE_OPERATOR(+)
     ATG_MATH_DEFINE_COMPONENT_WISE_OPERATOR(-)
     ATG_MATH_DEFINE_COMPONENT_WISE_OPERATOR(*)
@@ -531,6 +534,9 @@ struct vec<t_scalar_, 3, false> {
     ATG_MATH_DEFINE_DEFAULT_CONSTRUCTOR
     ATG_MATH_DEFINE_LOAD
     ATG_MATH_DEFINE_EXTRACT
+
+    ATG_MATH_DEFINE_INDEX_OPERATOR()
+    ATG_MATH_DEFINE_INDEX_OPERATOR_MODIFIABLE()
 
     ATG_MATH_DEFINE_EXPLICIT_SCALAR_CONVERSION
 
