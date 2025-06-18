@@ -99,7 +99,7 @@ struct vec {};
     }
 
 #define ATG_MATH_DEFINE_ASSIGNMENT_OPERATOR(full_op, op)                       \
-    FORCE_INLINE t_vec &operator full_op(const t_vec &b) {                     \
+    FORCE_INLINE t_vec &operator full_op(const t_vec & b) {                    \
         for (unsigned int i = 0; i < t_size; ++i) {                            \
             data[i] = data[i] op b.data[i];                                    \
         }                                                                      \
@@ -844,24 +844,32 @@ struct vec<float, 4, true> {
         return _mm_and_ps(cmp_mask, t_vec(1.0f));
     }
 
-    FORCE_INLINE bool operator==(const t_vec &b) const {
-        const t_vec cmp = _mm_cmpeq_ps(data_v, b.data_v);
-        return !(cmp.x() == 0 || cmp.y() == 0 || cmp.z() == 0 || cmp.w() == 0);
+    FORCE_INLINE explicit operator bool() const {
+        return mask[0] != 0 && mask[1] != 0 && mask[2] != 0 && mask[3] != 0;
     }
 
-    FORCE_INLINE bool operator<=(const t_vec &b) const {
-        const t_vec cmp = _mm_cmple_ps(data_v, b.data_v);
-        return !(cmp.x() == 0 || cmp.y() == 0 || cmp.z() == 0 || cmp.w() == 0);
+    FORCE_INLINE t_vec operator==(const t_vec &b) const {
+        return _mm_cmpeq_ps(data_v, b.data_v);
     }
 
-    FORCE_INLINE bool operator>=(const t_vec &b) const {
-        const t_vec cmp = _mm_cmpge_ps(data_v, b.data_v);
-        return !(cmp.x() == 0 || cmp.y() == 0 || cmp.z() == 0 || cmp.w() == 0);
+    FORCE_INLINE t_vec operator<=(const t_vec &b) const {
+        return _mm_cmple_ps(data_v, b.data_v);
     }
 
-    FORCE_INLINE bool operator!=(const t_vec &b) const {
-        const t_vec cmp = _mm_cmpeq_ps(data_v, b.data_v);
-        return cmp.x() == 0 && cmp.y() == 0 && cmp.z() == 0 && cmp.w() == 0;
+    FORCE_INLINE t_vec operator>=(const t_vec &b) const {
+        return _mm_cmpge_ps(data_v, b.data_v);
+    }
+
+    FORCE_INLINE t_vec operator<(const t_vec &b) const {
+        return _mm_cmplt_ps(data_v, b.data_v);
+    }
+
+    FORCE_INLINE t_vec operator>(const t_vec &b) const {
+        return _mm_cmpgt_ps(data_v, b.data_v);
+    }
+
+    FORCE_INLINE t_vec operator!=(const t_vec &b) const {
+        return _mm_cmpeq_ps(data_v, b.data_v);
     }
 
     FORCE_INLINE t_vec operator+=(const t_vec &b) {
@@ -977,6 +985,18 @@ struct vec<float, 4, true> {
     FORCE_INLINE t_vec exp() const { return _mm_exp_ps(data_v); }
     FORCE_INLINE t_vec log() const { return _mm_log_ps(data_v); }
     FORCE_INLINE t_vec pow(const t_vec &p) const { return (p * log()).exp(); }
+
+    FORCE_INLINE t_vec and_mask(const t_vec &mask) const {
+        return _mm_and_ps(data_v, mask);
+    }
+
+    FORCE_INLINE t_vec bitwise_or(const t_vec &b) const {
+        return _mm_or_ps(data_v, b);
+    }
+
+    FORCE_INLINE t_vec and_not_mask(const t_vec &mask) const {
+        return _mm_andnot_ps(mask, data_v);
+    }
 };
 
 template<>
@@ -1071,40 +1091,36 @@ struct vec<float, 8, true> {
         return _mm256_andnot_ps(mask, data_v);
     }
 
-    FORCE_INLINE bool operator==(const t_vec &b) const {
-        const t_vec cmp = _mm256_cmp_ps(data_v, b.data_v, _CMP_EQ_OQ);
+    FORCE_INLINE explicit operator bool() const {
         for (int i = 0; i < 8; ++i) {
-            if (cmp.data[i] == 0) { return false; }
+            if (mask[i] == 0) { return false; }
         }
 
         return true;
     }
 
-    FORCE_INLINE bool operator<=(const t_vec &b) const {
-        const t_vec cmp = _mm256_cmp_ps(data_v, b.data_v, _CMP_LE_OQ);
-        for (int i = 0; i < 8; ++i) {
-            if (cmp.data[i] == 0) { return false; }
-        }
-
-        return true;
+    FORCE_INLINE t_vec operator==(const t_vec &b) const {
+        return _mm256_cmp_ps(data_v, b.data_v, _CMP_EQ_OQ);
     }
 
-    FORCE_INLINE bool operator>=(const t_vec &b) const {
-        const t_vec cmp = _mm256_cmp_ps(data_v, b.data_v, _CMP_GE_OQ);
-        for (int i = 0; i < 8; ++i) {
-            if (cmp.data[i] == 0) { return false; }
-        }
-
-        return true;
+    FORCE_INLINE t_vec operator<=(const t_vec &b) const {
+        return _mm256_cmp_ps(data_v, b.data_v, _CMP_LE_OQ);
     }
 
-    FORCE_INLINE bool operator!=(const t_vec &b) const {
-        const t_vec cmp = _mm256_cmp_ps(data_v, b.data_v, _CMP_NEQ_OQ);
-        for (int i = 0; i < 8; ++i) {
-            if (cmp.data[i] != 0) { return true; }
-        }
+    FORCE_INLINE t_vec operator<(const t_vec &b) const {
+        return _mm256_cmp_ps(data_v, b.data_v, _CMP_LT_OQ);
+    }
 
-        return false;
+    FORCE_INLINE t_vec operator>(const t_vec &b) const {
+        return _mm256_cmp_ps(data_v, b.data_v, _CMP_GT_OQ);
+    }
+
+    FORCE_INLINE t_vec operator>=(const t_vec &b) const {
+        return _mm256_cmp_ps(data_v, b.data_v, _CMP_GE_OQ);
+    }
+
+    FORCE_INLINE t_vec operator!=(const t_vec &b) const {
+        return _mm256_cmp_ps(data_v, b.data_v, _CMP_NEQ_OQ);
     }
 
     FORCE_INLINE t_vec operator+=(const t_vec &b) {
@@ -1452,24 +1468,32 @@ struct vec<double, 4, true> {
         return _mm256_or_pd(data_v, b.data_v);
     }
 
-    FORCE_INLINE bool operator==(const t_vec &b) const {
-        const t_vec cmp = _mm256_cmp_pd(data_v, b.data_v, _CMP_EQ_OQ);
-        return !(cmp.x() == 0 || cmp.y() == 0 || cmp.z() == 0 || cmp.w() == 0);
+    FORCE_INLINE explicit operator bool() const {
+        return x() != 0 && y() != 0 && z() != 0 && w() != 0;
     }
 
-    FORCE_INLINE bool operator<=(const t_vec &b) const {
-        const t_vec cmp = _mm256_cmp_pd(data_v, b.data_v, _CMP_LE_OQ);
-        return !(cmp.x() == 0 || cmp.y() == 0 || cmp.z() == 0 || cmp.w() == 0);
+    FORCE_INLINE t_vec operator==(const t_vec &b) const {
+        return _mm256_cmp_pd(data_v, b.data_v, _CMP_EQ_OQ);
     }
 
-    FORCE_INLINE bool operator>=(const t_vec &b) const {
-        const t_vec cmp = _mm256_cmp_pd(data_v, b.data_v, _CMP_GE_OQ);
-        return !(cmp.x() == 0 || cmp.y() == 0 || cmp.z() == 0 || cmp.w() == 0);
+    FORCE_INLINE t_vec operator<=(const t_vec &b) const {
+        return _mm256_cmp_pd(data_v, b.data_v, _CMP_LE_OQ);
     }
 
-    FORCE_INLINE bool operator!=(const t_vec &b) const {
-        const t_vec cmp = _mm256_cmp_pd(data_v, b.data_v, _CMP_NEQ_OQ);
-        return !(cmp.x() == 0 && cmp.y() == 0 && cmp.z() == 0 && cmp.w() == 0);
+    FORCE_INLINE t_vec operator>=(const t_vec &b) const {
+        return _mm256_cmp_pd(data_v, b.data_v, _CMP_GE_OQ);
+    }
+
+    FORCE_INLINE t_vec operator<(const t_vec &b) const {
+        return _mm256_cmp_pd(data_v, b.data_v, _CMP_LT_OQ);
+    }
+
+    FORCE_INLINE t_vec operator>(const t_vec &b) const {
+        return _mm256_cmp_pd(data_v, b.data_v, _CMP_GT_OQ);
+    }
+
+    FORCE_INLINE t_vec operator!=(const t_vec &b) const {
+        return _mm256_cmp_pd(data_v, b.data_v, _CMP_NEQ_OQ);
     }
 
     FORCE_INLINE t_vec operator+=(const t_vec &b) {
@@ -1756,8 +1780,8 @@ struct vec<double, 8, true> {
     }
 
     FORCE_INLINE t_vec and_mask(const t_vec &mask) const {
-        return {_mm256_and_pd(data0, mask.data0),
-                _mm256_and_pd(data1, mask.data1)};
+        return {_mm256_and_pd(mask.data0, data0),
+                _mm256_and_pd(mask.data1, data1)};
     }
 
     FORCE_INLINE t_vec and_not_mask(const t_vec &mask) const {
@@ -1807,6 +1831,14 @@ pow(const vec<t_scalar_, t_size, t_enable_simd> &a,
     return a.pow(b);
 }
 
+template<typename t_scalar_, unsigned int t_size, bool t_enable_simd>
+FORCE_INLINE vec<t_scalar_, t_size, t_enable_simd>
+ternary(const vec<t_scalar_, t_size, t_enable_simd> &condition,
+        const vec<t_scalar_, t_size, t_enable_simd> &a,
+        const vec<t_scalar_, t_size, t_enable_simd> &b) {
+    return a.and_mask(condition).bitwise_or(b.and_not_mask(condition));
+}
+
 ATG_MATH_DEFINE_LEFT_SCALAR_OPERATOR(*);
 
 template<>
@@ -1823,6 +1855,21 @@ template<>
 struct base_type<int> {
     using type = int;
 };
+
+template<>
+FORCE_INLINE unsigned int type_width<float>() {
+    return 1;
+}
+
+template<>
+FORCE_INLINE unsigned int type_width<double>() {
+    return 1;
+}
+
+template<>
+FORCE_INLINE unsigned int type_width<int>() {
+    return 1;
+}
 
 typedef vec<float, 2, false> vec2_s;
 typedef vec<int, 2, false> ivec2_s;

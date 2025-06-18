@@ -55,6 +55,16 @@ FORCE_INLINE t_scalar fmadd(t_scalar a, t_scalar b, t_scalar c_add) {
 }
 
 template<typename t_scalar>
+FORCE_INLINE t_scalar ternary(bool condition, t_scalar a, t_scalar b) {
+    return condition ? a : b;
+}
+
+template<typename t_scalar>
+FORCE_INLINE t_scalar ternary(t_scalar condition, t_scalar a, t_scalar b) {
+    return (condition != 0) ? a : b;
+}
+
+template<typename t_scalar>
 inline constexpr t_scalar clamp(t_scalar x, t_scalar x0 = t_scalar(0.0),
                                 t_scalar x1 = t_scalar(1.0)) {
     return (x > x0) ? ((x < x1) ? x : x1) : x0;
