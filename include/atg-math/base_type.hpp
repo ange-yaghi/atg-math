@@ -9,7 +9,7 @@ struct base_type {
 };
 
 template<typename T_Type>
-unsigned int type_width() {
+constexpr unsigned int type_width() {
     return T_Type::t_size;
 }
 

@@ -99,7 +99,7 @@ struct vec {};
     }
 
 #define ATG_MATH_DEFINE_ASSIGNMENT_OPERATOR(full_op, op)                       \
-    FORCE_INLINE t_vec &operator full_op(const t_vec & b) {                    \
+    FORCE_INLINE t_vec &operator full_op(const t_vec &b) {                     \
         for (unsigned int i = 0; i < t_size; ++i) {                            \
             data[i] = data[i] op b.data[i];                                    \
         }                                                                      \
@@ -1857,17 +1857,17 @@ struct base_type<int> {
 };
 
 template<>
-FORCE_INLINE unsigned int type_width<float>() {
+FORCE_INLINE constexpr unsigned int type_width<float>() {
     return 1;
 }
 
 template<>
-FORCE_INLINE unsigned int type_width<double>() {
+FORCE_INLINE constexpr unsigned int type_width<double>() {
     return 1;
 }
 
 template<>
-FORCE_INLINE unsigned int type_width<int>() {
+FORCE_INLINE constexpr unsigned int type_width<int>() {
     return 1;
 }
 
