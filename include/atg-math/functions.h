@@ -25,8 +25,21 @@ FORCE_INLINE constexpr t_scalar pow7(t_scalar s) {
 }
 
 template<typename t_scalar>
-FORCE_INLINE constexpr t_scalar pow(t_scalar s, t_scalar p) {
+FORCE_INLINE constexpr t_scalar pow10(t_scalar s) {
+    const t_scalar pow_2 = squared(s);
+    const t_scalar pow_4 = pow_2 * pow_2;
+    return pow_4 * pow_4 * pow_2;
+}
+
+template<typename t_scalar>
+FORCE_INLINE t_scalar pow(t_scalar s, t_scalar p) {
     return std::pow(s, p);
+}
+
+template<>
+FORCE_INLINE double pow<double>(double s, double p) {
+    return _mm_cvtsd_f64(
+            _mm_exp_pd(_mm_mul_pd(_mm_set1_pd(p), _mm_log_pd(_mm_set1_pd(s)))));
 }
 
 template<typename t_scalar>
