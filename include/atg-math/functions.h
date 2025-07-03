@@ -180,6 +180,16 @@ inline constexpr t_scalar smooth_ramp_rect(t_scalar x, t_scalar x0, t_scalar x1,
     return smoothstep(ramp(x, x0 - w, x0) - ramp(x, x1, x1 + w));
 }
 
+template<typename t_scalar>
+inline constexpr t_scalar avg(t_scalar a, t_scalar b) {
+    return t_scalar(0.5) * (a + b);
+}
+
+template<typename t_scalar>
+inline constexpr t_scalar inv(t_scalar a) {
+    return t_scalar(1) / a;
+}
+
 }// namespace atg_math
 
 #endif /* ATG_MATH_FUNCTIONS_H */
