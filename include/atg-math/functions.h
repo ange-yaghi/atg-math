@@ -13,6 +13,11 @@ FORCE_INLINE constexpr t_scalar squared(t_scalar s) {
 }
 
 template<typename t_scalar>
+FORCE_INLINE constexpr t_scalar sign(t_scalar s) {
+    return (s > 0) ? t_scalar(1) : t_scalar(-1);
+}
+
+template<typename t_scalar>
 FORCE_INLINE constexpr t_scalar cubed(t_scalar s) {
     return s * s * s;
 }
@@ -44,12 +49,12 @@ FORCE_INLINE double pow<double>(double s, double p) {
 
 template<typename t_scalar>
 FORCE_INLINE constexpr t_scalar min(t_scalar data0, t_scalar data1) {
-    return data0 < data1 ? data0 : data1;
+    return data0 > data1 ? data1 : data0;
 }
 
 template<typename t_scalar>
 FORCE_INLINE constexpr t_scalar max(t_scalar data0, t_scalar data1) {
-    return data0 > data1 ? data0 : data1;
+    return data0 < data1 ? data1 : data0;
 }
 
 template<typename t_scalar>
