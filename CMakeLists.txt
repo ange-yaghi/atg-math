@@ -38,6 +38,7 @@ add_library(atg-math STATIC
     # Header files
     include/atg-math/aabb.h
     include/atg-math/base_type.hpp
+    include/atg-math/complex.hpp
     include/atg-math/constants.h
     include/atg-math/definitions.h
     include/atg-math/functions.h
