@@ -4,6 +4,9 @@
 #include "definitions.h"
 
 #include <cmath>
+#include <emmintrin.h>
+#include <xmmintrin.h>
+#include <immintrin.h>
 
 namespace atg_math {
 
