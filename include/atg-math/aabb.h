@@ -80,13 +80,13 @@ struct aabb<t_scalar_, 2, t_enable_simd> {
                             const vec &origin = c) {
         const t_scalar newHeight =
                 atg_math::clamp(height(), minHeight, maxHeight);
-        return aabb(width(), newHeight, position(origin), origin);
+        return aabb(position(origin), {width(), newHeight}, origin);
     }
 
     inline aabb clampWidth(t_scalar minWidth, t_scalar maxWidth,
                            const vec &origin = c) {
         const t_scalar newWidth = atg_math::clamp(width(), minWidth, maxWidth);
-        return aabb(newWidth, height(), position(origin), origin);
+        return aabb(position(origin), {newWidth, height()}, origin);
     }
 
     inline aabb move(const vec &delta) {
@@ -225,6 +225,28 @@ struct Grid {
         const t_aabb::vec p0 = a.position(t_aabb::tl) +
                                t_aabb::vec(x * cellWidth, -y * cellHeight);
         return t_aabb(p0, {width, height}, t_aabb::tl);
+    }
+
+    template<typename t_scalar, unsigned int t_size, bool t_enable_simd>
+    aabb<t_scalar, t_size, t_enable_simd>
+    getInset(const aabb<t_scalar, t_size, t_enable_simd> &a, int x, int y,
+             t_scalar inset = 0.0f, int w = 1, int h = 1) const {
+        using t_aabb = aabb<t_scalar, t_size, t_enable_simd>;
+
+        const t_scalar cellWidth = a.width() / h_cells;
+        const t_scalar cellHeight = a.height() / v_cells;
+
+        const t_scalar width = cellWidth * w;
+        const t_scalar height = cellHeight * h;
+
+        const t_aabb::vec p0 = a.position(t_aabb::tl) +
+                               t_aabb::vec(x * cellWidth, -y * cellHeight);
+        t_aabb result = t_aabb(p0, {width, height}, t_aabb::tl);
+        if (x > 0) { result = result.leftInset(inset); }
+        if (x < h_cells - 1) { result = result.rightInset(inset); }
+        if (y > 0) { result = result.topInset(inset); }
+        if (y < v_cells - 1) { result = result.bottomInset(inset); }
+        return result;
     }
 };
 
