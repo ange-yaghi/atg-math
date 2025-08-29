@@ -47,6 +47,7 @@ add_library(atg-math STATIC
     include/atg-math/matrix.h
     include/atg-math/scalar.h
     include/atg-math/vector.h
+    include/atg-math/geometry.hpp
 
     # Source files
     src/information.cpp

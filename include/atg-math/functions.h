@@ -5,8 +5,8 @@
 
 #include <cmath>
 #include <emmintrin.h>
-#include <xmmintrin.h>
 #include <immintrin.h>
+#include <xmmintrin.h>
 
 namespace atg_math {
 
@@ -197,6 +197,12 @@ template<typename t_scalar>
 inline constexpr t_scalar inv(t_scalar a) {
     return t_scalar(1) / a;
 }
+
+template<typename t_scalar>
+inline constexpr t_scalar half(t_scalar a) {
+    return t_scalar(0.5) * a;
+}
+
 
 }// namespace atg_math
 
