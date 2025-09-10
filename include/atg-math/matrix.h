@@ -81,7 +81,7 @@ struct matrix<t_scalar_, t_size, false> {
         return generic_set_transpose(*this, target);
     }
     inline t_matrix &set_transpose() { return set_transpose(this); }
-    inline t_matrix transpose() {
+    inline t_matrix transpose() const {
         t_matrix result;
         return set_transpose(&result);
     }
@@ -102,7 +102,25 @@ struct matrix<t_scalar_, t_size, false> {
     inline t_matrix operator*=(const t_matrix &v) {
         return *this = (*this) * v;
     }
-};
+
+    // temp
+    // Only works for 4x4 matrices
+    inline t_matrix orthogonal_inverse() const {
+        const t_matrix r = {
+                columns[0],
+                columns[1],
+                columns[2],
+                {t_scalar(0), t_scalar(0), t_scalar(0), t_scalar(1)}};
+        const t_matrix r_inv = r.transpose();
+
+        t_matrix t_inv;
+        t_inv.set_identity();
+        t_inv.columns[3] = (-columns[3]).position();
+
+        return r_inv * t_inv;
+    }
+    // end-temp
+};// namespace atg_math
 
 template<typename t_scalar_>
 struct matrix<t_scalar_, 4, true> {
@@ -127,10 +145,10 @@ struct matrix<t_scalar_, 4, true> {
     }
 
     inline t_matrix &set_identity() {
-        columns[0] = {1.0f, 0.0f, 0.0f, 0.0f};
-        columns[1] = {0.0f, 1.0f, 0.0f, 0.0f};
-        columns[2] = {0.0f, 0.0f, 1.0f, 0.0f};
-        columns[3] = {0.0f, 0.0f, 0.0f, 1.0f};
+        columns[0] = {t_scalar(1), t_scalar(0), t_scalar(0), t_scalar(0)};
+        columns[1] = {t_scalar(0), t_scalar(1), t_scalar(0), t_scalar(0)};
+        columns[2] = {t_scalar(0), t_scalar(0), t_scalar(1), t_scalar(0)};
+        columns[3] = {t_scalar(0), t_scalar(0), t_scalar(0), t_scalar(1)};
 
         return *this;
     }
@@ -156,14 +174,22 @@ struct matrix<t_scalar_, 4, true> {
     }
 
     inline t_vec operator*(const t_vec &v) const {
-        const t_vec v_x = _mm_shuffle_ps(v.data_v, v.data_v,
-                                         ATG_MATH_M128_SHUFFLE(ATG_MATH_S_X, ATG_MATH_S_X, ATG_MATH_S_X, ATG_MATH_S_X));
-        const t_vec v_y = _mm_shuffle_ps(v.data_v, v.data_v,
-                                         ATG_MATH_M128_SHUFFLE(ATG_MATH_S_Y, ATG_MATH_S_Y, ATG_MATH_S_Y, ATG_MATH_S_Y));
-        const t_vec v_z = _mm_shuffle_ps(v.data_v, v.data_v,
-                                         ATG_MATH_M128_SHUFFLE(ATG_MATH_S_Z, ATG_MATH_S_Z, ATG_MATH_S_Z, ATG_MATH_S_Z));
-        const t_vec v_w = _mm_shuffle_ps(v.data_v, v.data_v,
-                                         ATG_MATH_M128_SHUFFLE(ATG_MATH_S_W, ATG_MATH_S_W, ATG_MATH_S_W, ATG_MATH_S_W));
+        const t_vec v_x = _mm_shuffle_ps(
+                v.data_v, v.data_v,
+                ATG_MATH_M128_SHUFFLE(ATG_MATH_S_X, ATG_MATH_S_X, ATG_MATH_S_X,
+                                      ATG_MATH_S_X));
+        const t_vec v_y = _mm_shuffle_ps(
+                v.data_v, v.data_v,
+                ATG_MATH_M128_SHUFFLE(ATG_MATH_S_Y, ATG_MATH_S_Y, ATG_MATH_S_Y,
+                                      ATG_MATH_S_Y));
+        const t_vec v_z = _mm_shuffle_ps(
+                v.data_v, v.data_v,
+                ATG_MATH_M128_SHUFFLE(ATG_MATH_S_Z, ATG_MATH_S_Z, ATG_MATH_S_Z,
+                                      ATG_MATH_S_Z));
+        const t_vec v_w = _mm_shuffle_ps(
+                v.data_v, v.data_v,
+                ATG_MATH_M128_SHUFFLE(ATG_MATH_S_W, ATG_MATH_S_W, ATG_MATH_S_W,
+                                      ATG_MATH_S_W));
 
         return v_x * columns[0] + v_y * columns[1] + v_z * columns[2] +
                v_w * columns[3];
