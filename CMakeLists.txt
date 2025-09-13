@@ -44,11 +44,9 @@ set_property(TARGET gtest PROPERTY FOLDER "gtest")
 set_property(TARGET gtest_main PROPERTY FOLDER "gtest")
 
 # =========================================================
+# library target
 
-# -----------------------------------------------------------------------------
-# Compile definitions
-# -----------------------------------------------------------------------------
-add_library(atg-math STATIC
+add_library(atg-math INTERFACE
     # Header files
     include/atg-math/aabb.h
     include/atg-math/base_type.hpp
@@ -56,22 +54,20 @@ add_library(atg-math STATIC
     include/atg-math/constants.h
     include/atg-math/definitions.h
     include/atg-math/functions.h
-    include/atg-math/information.h
     include/atg-math/library.h
     include/atg-math/matrix.h
     include/atg-math/scalar.h
     include/atg-math/vector.h
     include/atg-math/geometry.hpp
-
-    # Source files
-    src/information.cpp
 )
 
-target_include_directories(atg-math INTERFACE
-    include/
-)
+target_sources(atg-math INTERFACE $<TARGET_OBJECTS:${PROJECT_NAME}-info>)
 
-target_compile_definitions(atg-math PRIVATE PROJECT_NAMESPACE=${ProjectNamespace})
+target_include_directories(atg-math
+    INTERFACE
+        include
+        $<TARGET_PROPERTY:${PROJECT_NAME}-info,INTERFACE_INCLUDE_DIRECTORIES>
+)
 
 # gtest - unit tests
 add_executable(atg-math-test
