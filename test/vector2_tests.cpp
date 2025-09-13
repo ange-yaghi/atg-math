@@ -1,9 +1,7 @@
 #include <gtest/gtest.h>
 
-#include "../include/atg-math/vector.h"
+#include "atg-math/vector.h"
 
-#include <chrono>
-#include <fstream>
 TEST(VectorTests, SwizzleTest) {
     using vec_simd = atg_math::vec<float, 4, true>;
     using vec_s = atg_math::vec<float, 4, false>;
