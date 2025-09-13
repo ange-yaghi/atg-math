@@ -77,6 +77,7 @@ add_executable(atg-math-test
     test/vector2_tests.cpp
     test/vector4_tests.cpp
     test/vector8_tests.cpp
+    test/version_test.cpp
 )
 
 target_link_libraries(atg-math-test PRIVATE
