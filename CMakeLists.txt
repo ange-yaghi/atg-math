@@ -10,12 +10,21 @@ set(FETCHCONTENT_QUIET OFF)
 set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 set_property(GLOBAL PROPERTY PREDEFINED_TARGETS_FOLDER "cmake")
 
-set(ProjectName atg-math)
-set(ProjectNamespace "atg_math")
+list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
 
-project(atg-math)
+project(atg-math
+    VERSION 1.0.0
+    LANGUAGES
+        CXX
+)
 
 set(CMAKE_CXX_STANDARD 20)
+
+# =========================================================
+# version info generation
+
+include("GenInfo")
+gen_info(${PROJECT_NAME}-info)
 
 # =========================================================
 # gtest
