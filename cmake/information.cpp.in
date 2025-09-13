@@ -1,0 +1,3 @@
+#include "@PROJECT_NAME@/information.h"
+
+const char *@CXX_NAMESPACE@::getVersion() { return "@CMAKE_PROJECT_VERSION@"; }
