@@ -1,5 +1,12 @@
 cmake_minimum_required(VERSION 3.30)
 
+# =========================================================
+# Project setup
+include(FetchContent)
+enable_testing()
+
+set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
+set(FETCHCONTENT_QUIET OFF)
 set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 set_property(GLOBAL PROPERTY PREDEFINED_TARGETS_FOLDER "cmake")
 
@@ -13,7 +20,6 @@ set(CMAKE_CXX_STANDARD 20)
 # =========================================================
 # gtest
 
-include(FetchContent)
 FetchContent_Declare(
     googletest
     URL
@@ -60,8 +66,6 @@ target_include_directories(atg-math INTERFACE
 target_compile_definitions(atg-math PRIVATE PROJECT_NAMESPACE=${ProjectNamespace})
 
 # gtest - unit tests
-enable_testing()
-
 add_executable(atg-math-test
     # Source files
     test/library_test.cpp
