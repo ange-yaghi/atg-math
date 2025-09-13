@@ -31,9 +31,8 @@ gen_info(${PROJECT_NAME}-info)
 
 FetchContent_Declare(
     googletest
-    URL
-    https://github.com/google/googletest/archive/609281088cfefc76f9d0ce82e1ff6c30cc3591e5.zip
-    DOWNLOAD_EXTRACT_TIMESTAMP false
+    GIT_REPOSITORY https://github.com/google/googletest.git
+    GIT_TAG        v1.17.0
 )
 
 set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
