@@ -1,6 +1,7 @@
 #ifndef ATG_MATH_LIBRARY_H
 #define ATG_MATH_LIBRARY_H
 
+#include "functions.h"
 #include "matrix.h"
 
 namespace atg_math {
@@ -120,6 +121,35 @@ inline t_matrix frustumPerspective(typename t_matrix::t_scalar fov_y,
 }
 
 template<typename t_matrix>
+void inverseFrustumPerspective(typename t_matrix::t_scalar fov_y,
+                               typename t_matrix::t_scalar aspect,
+                               typename t_matrix::t_scalar near_,
+                               typename t_matrix::t_scalar far_,
+                               t_matrix *target) {
+    using t_scalar = typename t_matrix::t_scalar;
+
+    const t_scalar height =
+            t_scalar(2) * std::tan(fov_y * t_scalar(0.5)) * near_;
+    const t_scalar width = height / aspect;
+    const t_scalar near_2 = near_ * t_scalar(2);
+
+    target->columns[0] = {width / near_2, 0, 0, 0};
+    target->columns[1] = {0, height / near_2, 0, 0};
+    target->columns[2] = {0, 0, 0, -(far_ - near_) / (far_ * near_)};
+    target->columns[3] = {0, 0, t_scalar(1), inv(near_)};
+}
+
+template<typename t_matrix>
+inline t_matrix inverseFrustumPerspective(typename t_matrix::t_scalar fov_y,
+                                          typename t_matrix::t_scalar aspect,
+                                          typename t_matrix::t_scalar near_,
+                                          typename t_matrix::t_scalar far_) {
+    t_matrix result;
+    inverseFrustumPerspective(fov_y, aspect, near_, far_, &result);
+    return result;
+}
+
+template<typename t_matrix>
 void orthographicProjection(typename t_matrix::t_scalar width,
                             typename t_matrix::t_scalar height,
                             typename t_matrix::t_scalar near_,
@@ -139,6 +169,30 @@ inline t_matrix orthographicProjection(typename t_matrix::t_scalar width,
                                        typename t_matrix::t_scalar height,
                                        typename t_matrix::t_scalar near_,
                                        typename t_matrix::t_scalar far_) {
+    t_matrix result;
+    orthographicProjection(width, height, near_, far_, &result);
+    return result;
+}
+
+template<typename t_matrix>
+void inverseOrthographicProjection(typename t_matrix::t_scalar width,
+                                   typename t_matrix::t_scalar height,
+                                   typename t_matrix::t_scalar near_,
+                                   typename t_matrix::t_scalar far_,
+                                   t_matrix *transform) {
+    using t_scalar = typename t_matrix::t_scalar;
+
+    const t_scalar f_range = far_ - near_;
+    transform->columns[0] = {half(width), 0, 0, 0};
+    transform->columns[1] = {0, half(height), 0, 0};
+    transform->columns[2] = {0, 0, f_range, 0};
+    transform->columns[3] = {0, 0, near_, 1};
+}
+
+template<typename t_matrix>
+inline t_matrix inverseOrthographicProjection(
+        typename t_matrix::t_scalar width, typename t_matrix::t_scalar height,
+        typename t_matrix::t_scalar near_, typename t_matrix::t_scalar far_) {
     t_matrix result;
     orthographicProjection(width, height, near_, far_, &result);
     return result;
