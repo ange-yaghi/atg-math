@@ -1,24 +1,38 @@
 cmake_minimum_required(VERSION 3.30)
 
+# =========================================================
+# Project setup
+include(FetchContent)
+enable_testing()
+
+set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
+set(FETCHCONTENT_QUIET OFF)
 set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 set_property(GLOBAL PROPERTY PREDEFINED_TARGETS_FOLDER "cmake")
 
-set(ProjectName atg-math)
-set(ProjectNamespace "atg_math")
+list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
 
-project(atg-math)
+project(atg-math
+    VERSION 1.0.0
+    LANGUAGES
+        CXX
+)
 
 set(CMAKE_CXX_STANDARD 20)
 
 # =========================================================
+# version info generation
+
+include("GenInfo")
+gen_info(${PROJECT_NAME}-info)
+
+# =========================================================
 # gtest
 
-include(FetchContent)
 FetchContent_Declare(
     googletest
-    URL
-    https://github.com/google/googletest/archive/609281088cfefc76f9d0ce82e1ff6c30cc3591e5.zip
-    DOWNLOAD_EXTRACT_TIMESTAMP false
+    GIT_REPOSITORY https://github.com/google/googletest.git
+    GIT_TAG        v1.17.0
 )
 
 set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
@@ -30,11 +44,9 @@ set_property(TARGET gtest PROPERTY FOLDER "gtest")
 set_property(TARGET gtest_main PROPERTY FOLDER "gtest")
 
 # =========================================================
+# library target
 
-# -----------------------------------------------------------------------------
-# Compile definitions
-# -----------------------------------------------------------------------------
-add_library(atg-math STATIC
+add_library(atg-math INTERFACE
     # Header files
     include/atg-math/aabb.h
     include/atg-math/base_type.hpp
@@ -42,26 +54,22 @@ add_library(atg-math STATIC
     include/atg-math/constants.h
     include/atg-math/definitions.h
     include/atg-math/functions.h
-    include/atg-math/information.h
     include/atg-math/library.h
     include/atg-math/matrix.h
     include/atg-math/scalar.h
     include/atg-math/vector.h
     include/atg-math/geometry.hpp
-
-    # Source files
-    src/information.cpp
 )
 
-target_include_directories(atg-math INTERFACE
-    include/
-)
+target_sources(atg-math INTERFACE $<TARGET_OBJECTS:${PROJECT_NAME}-info>)
 
-target_compile_definitions(atg-math PRIVATE PROJECT_NAMESPACE=${ProjectNamespace})
+target_include_directories(atg-math
+    INTERFACE
+        include
+        $<TARGET_PROPERTY:${PROJECT_NAME}-info,INTERFACE_INCLUDE_DIRECTORIES>
+)
 
 # gtest - unit tests
-enable_testing()
-
 add_executable(atg-math-test
     # Source files
     test/library_test.cpp
@@ -69,6 +77,7 @@ add_executable(atg-math-test
     test/vector2_tests.cpp
     test/vector4_tests.cpp
     test/vector8_tests.cpp
+    test/version_test.cpp
 )
 
 target_link_libraries(atg-math-test PRIVATE

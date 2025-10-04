@@ -1,10 +1,7 @@
 #include <gtest/gtest.h>
 
-#include "../include/atg-math/constants.h"
-#include "../include/atg-math/library.h"
-
-#include <chrono>
-#include <fstream>
+#include "atg-math/constants.h"
+#include "atg-math/library.h"
 
 TEST(LibraryTest, RotationMatrixTest) {
     atg_math::mat44_s m;

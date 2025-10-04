@@ -1,0 +1,7 @@
+{
+    "cmake.buildDirectory": "${workspaceFolder}/build/vscode",
+    "cmake.buildArgs": [ "--parallel" ],
+    "cmake.ctestArgs": [ "--parallel" ],
+    "files.trimTrailingWhitespace": true,
+    "C_Cpp.autoAddFileAssociations": false
+}
