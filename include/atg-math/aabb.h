@@ -123,6 +123,13 @@ struct aabb<t_scalar_, 2, t_enable_simd> {
     inline t_scalar height() const { return m1.y() - m0.y(); }
     inline vec size() const { return vec(width(), height()); }
 
+    inline aabb clampAspectRatio(t_scalar ratio, const vec &ref = c) const {
+        return aabb(position(c),
+                    {min(height() * ratio, width()),
+                     min(width() / ratio, height())},
+                    c);
+    }
+
     inline aabb inset(t_scalar amount) const {
         return {m0 + amount, m1 - amount};
     }
@@ -154,16 +161,16 @@ struct aabb<t_scalar_, 2, t_enable_simd> {
     inline aabb grow(t_scalar amount) const { return inset(-amount); }
 
     inline aabb verticalSegment(t_scalar s0, t_scalar s1 = z) const {
-        const t_scalar s_min = std::fmin(s0, s1);
-        const t_scalar s_max = std::fmax(s0, s1);
+        const t_scalar s_min = min(s0, s1);
+        const t_scalar s_max = max(s0, s1);
 
         return {m0 + vec(z, height() * s_min),
                 m0 + vec(z, height() * s_max) + vec(width(), z)};
     }
 
     inline aabb horizontalSegment(t_scalar s0, t_scalar s1 = z) const {
-        const t_scalar s_min = std::fmin(s0, s1);
-        const t_scalar s_max = std::fmax(s0, s1);
+        const t_scalar s_min = min(s0, s1);
+        const t_scalar s_max = max(s0, s1);
 
         return {m0 + vec(width() * s_min, z),
                 m0 + vec(width() * s_max, z) + vec(z, height())};
@@ -181,17 +188,17 @@ struct aabb<t_scalar_, 2, t_enable_simd> {
 
     inline aabb scale(t_scalar s, const vec &origin = c) const {
         const vec o = position(origin);
-        return aabb(width() * s, height() * s, o, origin);
+        return aabb(o, size() * s, origin);
     }
 
     inline aabb scale_x(t_scalar s, const vec &origin = c) const {
         const vec o = position(origin);
-        return aabb(width() * s, height(), o, origin);
+        return aabb(o, size() * vec{s, t_scalar(1)}, origin);
     }
 
     inline aabb scale_y(t_scalar s, const vec &origin = c) const {
         const vec o = position(origin);
-        return aabb(width(), height() * s, o, origin);
+        return aabb(o, size() * vec{t_scalar(1), s}, origin);
     }
 
     inline aabb pixelPerfect() const {
@@ -202,6 +209,14 @@ struct aabb<t_scalar_, 2, t_enable_simd> {
     inline vec x_range() const { return {m0[0], m1[0]}; }
     inline vec y_range() const { return {m0[1], m1[1]}; }
 };
+
+template<typename t_scalar_, unsigned int t_size, bool t_enable_simd>
+inline aabb<t_scalar_, t_size, t_enable_simd>
+lerp(t_scalar_ s, const aabb<t_scalar_, t_size, t_enable_simd> &a,
+     const aabb<t_scalar_, t_size, t_enable_simd> &b) {
+    using aabb = aabb<t_scalar_, t_size, t_enable_simd>;
+    return {lerp(aabb::vec(s), a.m0, b.m0), lerp(aabb::vec(s), a.m1, b.m1)};
+}
 
 struct Grid {
     inline Grid() { h_cells = v_cells = 0; }

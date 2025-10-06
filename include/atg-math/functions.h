@@ -167,6 +167,21 @@ inline constexpr t_scalar smootherstep(t_scalar s_) {
 }
 
 template<typename t_scalar>
+inline constexpr t_scalar smootherstep(t_scalar s_, t_scalar x0, t_scalar x1) {
+    const t_scalar s = ramp(s_, x0, x1);
+    if (s <= 0) {
+        return 0;
+    } else if (s > 0 && s < 1) {
+        const t_scalar s_2 = squared(s);
+        const t_scalar s_4 = squared(s_2);
+        return t_scalar(6) * s_4 * s - t_scalar(15) * s_4 +
+               t_scalar(10) * s_2 * s;
+    } else {
+        return 1;
+    }
+}
+
+template<typename t_scalar>
 inline constexpr t_scalar heaviside(t_scalar x, t_scalar x0) {
     return (x >= x0) ? t_scalar(1) : t_scalar(0);
 }

@@ -18,7 +18,12 @@ struct vec {};
 
 #define ATG_MATH_ALIAS(name, index)                                            \
     FORCE_INLINE constexpr t_scalar &name() { return data[index]; }            \
-    FORCE_INLINE constexpr t_scalar name() const { return data[index]; }
+    FORCE_INLINE constexpr t_scalar name() const { return data[index]; }       \
+    FORCE_INLINE constexpr t_vec with_##name(const t_scalar &v) const {        \
+        t_vec result = *this;                                                  \
+        result.name() = v;                                                     \
+        return result;                                                         \
+    }
 
 #define ATG_MATH_DEFINE_T_VEC typedef vec<t_scalar_, t_size, false> t_vec
 #define ATG_MATH_DEFINE_T_SCALAR typedef t_scalar_ t_scalar
@@ -99,7 +104,7 @@ struct vec {};
     }
 
 #define ATG_MATH_DEFINE_ASSIGNMENT_OPERATOR(full_op, op)                       \
-    FORCE_INLINE t_vec &operator full_op(const t_vec &b) {                     \
+    FORCE_INLINE t_vec &operator full_op(const t_vec & b) {                    \
         for (unsigned int i = 0; i < t_size; ++i) {                            \
             data[i] = data[i] op b.data[i];                                    \
         }                                                                      \
