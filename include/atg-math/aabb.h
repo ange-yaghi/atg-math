@@ -220,15 +220,16 @@ lerp(t_scalar_ s, const aabb<t_scalar_, t_size, t_enable_simd> &a,
 
 struct Grid {
     inline Grid() { h_cells = v_cells = 0; }
-    inline Grid(int h, int v) : h_cells(h), v_cells(v) {}
+    inline Grid(int h, int v) : h_cells(float(h)), v_cells(float(v)) {}
+    inline Grid(float h, float v) : h_cells(h), v_cells(v) {}
 
-    int h_cells;
-    int v_cells;
+    float h_cells;
+    float v_cells;
 
     template<typename t_scalar, unsigned int t_size, bool t_enable_simd>
     aabb<t_scalar, t_size, t_enable_simd>
-    get(const aabb<t_scalar, t_size, t_enable_simd> &a, int x, int y, int w = 1,
-        int h = 1) const {
+    get(const aabb<t_scalar, t_size, t_enable_simd> &a, float x, float y,
+        float w = 1, float h = 1) const {
         using t_aabb = aabb<t_scalar, t_size, t_enable_simd>;
 
         const t_scalar cellWidth = a.width() / h_cells;
@@ -244,8 +245,15 @@ struct Grid {
 
     template<typename t_scalar, unsigned int t_size, bool t_enable_simd>
     aabb<t_scalar, t_size, t_enable_simd>
-    getInset(const aabb<t_scalar, t_size, t_enable_simd> &a, int x, int y,
-             t_scalar inset = 0.0f, int w = 1, int h = 1) const {
+    get(const aabb<t_scalar, t_size, t_enable_simd> &a, int x, int y, int w = 1,
+        int h = 1) const {
+        return get(a, float(x), float(y), float(w), float(h));
+    }
+
+    template<typename t_scalar, unsigned int t_size, bool t_enable_simd>
+    aabb<t_scalar, t_size, t_enable_simd>
+    getInset(const aabb<t_scalar, t_size, t_enable_simd> &a, float x, float y,
+             t_scalar inset = 0.0f, float w = 1, float h = 1) const {
         using t_aabb = aabb<t_scalar, t_size, t_enable_simd>;
 
         const t_scalar cellWidth = a.width() / h_cells;
@@ -262,6 +270,13 @@ struct Grid {
         if (y > 0) { result = result.topInset(inset); }
         if (y < v_cells - 1) { result = result.bottomInset(inset); }
         return result;
+    }
+
+    template<typename t_scalar, unsigned int t_size, bool t_enable_simd>
+    aabb<t_scalar, t_size, t_enable_simd>
+    getInset(const aabb<t_scalar, t_size, t_enable_simd> &a, int x, int y,
+             t_scalar inset = 0.0f, int w = 1, int h = 1) const {
+        return getInset(a, float(x), float(y), inset, float(w), float(h));
     }
 };
 

@@ -263,6 +263,30 @@ inline T_Data fp_fill_zeroes() {
         return result;                                                         \
     }
 
+#define ATG_MATH_COMPARE_LE_MASK                                               \
+    FORCE_INLINE t_vec compare_le_mask(const t_vec &b) const {                 \
+        t_vec result;                                                          \
+        for (unsigned int i = 0; i < t_size; ++i) {                            \
+            result.data[i] = (data[i] <= b.data[i])                            \
+                                     ? fp_fill_ones<t_scalar>()                \
+                                     : fp_fill_zeroes<t_scalar>();             \
+        }                                                                      \
+                                                                               \
+        return result;                                                         \
+    }
+
+#define ATG_MATH_COMPARE_EQ_MASK                                               \
+    FORCE_INLINE t_vec compare_eq_mask(const t_vec &b) const {                 \
+        t_vec result;                                                          \
+        for (unsigned int i = 0; i < t_size; ++i) {                            \
+            result.data[i] = (data[i] == b.data[i])                            \
+                                     ? fp_fill_ones<t_scalar>()                \
+                                     : fp_fill_zeroes<t_scalar>();             \
+        }                                                                      \
+                                                                               \
+        return result;                                                         \
+    }
+
 #define ATG_MATH_AND_MASK                                                      \
     FORCE_INLINE t_vec and_mask(const t_vec &b) const {                        \
         t_vec result;                                                          \
@@ -289,6 +313,16 @@ inline T_Data fp_fill_zeroes() {
         t_vec result;                                                          \
         for (unsigned int i = 0; i < t_size; ++i) {                            \
             result.data[i] = fp_bitwise_or(data[i], b.data[i]);                \
+        }                                                                      \
+                                                                               \
+        return result;                                                         \
+    }
+
+#define ATG_MATH_BITWISE_AND                                                   \
+    FORCE_INLINE t_vec bitwise_and(const t_vec &b) const {                     \
+        t_vec result;                                                          \
+        for (unsigned int i = 0; i < t_size; ++i) {                            \
+            result.data[i] = fp_bitwise_and(data[i], b.data[i]);               \
         }                                                                      \
                                                                                \
         return result;                                                         \
@@ -417,9 +451,12 @@ struct vec<t_scalar_, 1, false> {
     ATG_MATH_DEFINE_SUM
 
     ATG_MATH_COMPARE_GE_MASK
+    ATG_MATH_COMPARE_LE_MASK
+    ATG_MATH_COMPARE_EQ_MASK
     ATG_MATH_AND_MASK
     ATG_MATH_AND_NOT_MASK
     ATG_MATH_BITWISE_OR
+    ATG_MATH_BITWISE_AND
 };
 
 template<typename t_scalar_>
@@ -491,9 +528,12 @@ struct vec<t_scalar_, 2, false> {
     ATG_MATH_DEFINE_SQRT
 
     ATG_MATH_COMPARE_GE_MASK
+    ATG_MATH_COMPARE_LE_MASK
+    ATG_MATH_COMPARE_EQ_MASK
     ATG_MATH_AND_MASK
     ATG_MATH_AND_NOT_MASK
     ATG_MATH_BITWISE_OR
+    ATG_MATH_BITWISE_AND
 
     FORCE_INLINE t_vec orthogonal() const { return {-y(), x()}; }
     FORCE_INLINE t_vec yx() const { return {y(), x()}; }
@@ -579,9 +619,12 @@ struct vec<t_scalar_, 3, false> {
     ATG_MATH_DEFINE_SQRT
 
     ATG_MATH_COMPARE_GE_MASK
+    ATG_MATH_COMPARE_LE_MASK
+    ATG_MATH_COMPARE_EQ_MASK
     ATG_MATH_AND_MASK
     ATG_MATH_AND_NOT_MASK
     ATG_MATH_BITWISE_OR
+    ATG_MATH_BITWISE_AND
 };
 
 template<typename t_scalar_>
@@ -673,9 +716,12 @@ struct vec<t_scalar_, 4, false> {
     ATG_MATH_DEFINE_SQRT
 
     ATG_MATH_COMPARE_GE_MASK
+    ATG_MATH_COMPARE_LE_MASK
+    ATG_MATH_COMPARE_EQ_MASK
     ATG_MATH_AND_MASK
     ATG_MATH_AND_NOT_MASK
     ATG_MATH_BITWISE_OR
+    ATG_MATH_BITWISE_AND
 
     FORCE_INLINE t_vec xy() const {
         return {x(), y(), t_scalar(0), t_scalar(0)};
@@ -746,9 +792,12 @@ struct vec<t_scalar_, t_size_, false> {
     ATG_MATH_DEFINE_SIGN
 
     ATG_MATH_COMPARE_GE_MASK
+    ATG_MATH_COMPARE_LE_MASK
+    ATG_MATH_COMPARE_EQ_MASK
     ATG_MATH_AND_MASK
     ATG_MATH_AND_NOT_MASK
     ATG_MATH_BITWISE_OR
+    ATG_MATH_BITWISE_AND
 };
 
 template<>
