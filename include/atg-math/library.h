@@ -102,7 +102,7 @@ void frustumPerspective(typename t_matrix::t_scalar fov_y,
 
     const t_scalar height =
             t_scalar(2) * std::tan(fov_y * t_scalar(0.5)) * near_;
-    const t_scalar width = height / aspect;
+    const t_scalar width = height * aspect;
 
     target->columns[0] = {2 * near_ / width, 0, 0, 0};
     target->columns[1] = {0, 2 * near_ / height, 0, 0};
@@ -130,7 +130,7 @@ void inverseFrustumPerspective(typename t_matrix::t_scalar fov_y,
 
     const t_scalar height =
             t_scalar(2) * std::tan(fov_y * t_scalar(0.5)) * near_;
-    const t_scalar width = height / aspect;
+    const t_scalar width = height * aspect;
     const t_scalar near_2 = near_ * t_scalar(2);
 
     target->columns[0] = {width / near_2, 0, 0, 0};
