@@ -124,10 +124,10 @@ struct aabb<t_scalar_, 2, t_enable_simd> {
     inline vec size() const { return vec(width(), height()); }
 
     inline aabb clampAspectRatio(t_scalar ratio, const vec &ref = c) const {
-        return aabb(position(c),
+        return aabb(position(ref),
                     {min(height() * ratio, width()),
                      min(width() / ratio, height())},
-                    c);
+                    ref);
     }
 
     inline aabb inset(t_scalar amount) const {
