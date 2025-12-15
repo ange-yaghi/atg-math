@@ -96,6 +96,10 @@ struct aabb<t_scalar_, 2, t_enable_simd> {
         return *this;
     }
 
+    inline aabb moved(const vec &delta) const {
+        return {m0 + delta, m1 + delta};
+    }
+
     inline void setPosition(const vec &pos, const vec &ref = tl) {
         move(pos - position(ref));
     }
@@ -189,6 +193,10 @@ struct aabb<t_scalar_, 2, t_enable_simd> {
     inline aabb scale(t_scalar s, const vec &origin = c) const {
         const vec o = position(origin);
         return aabb(o, size() * s, origin);
+    }
+
+    inline aabb scaleAbsolute(t_scalar s) const {
+        return aabb(m0 * s, m1 * s);
     }
 
     inline aabb scale_x(t_scalar s, const vec &origin = c) const {
