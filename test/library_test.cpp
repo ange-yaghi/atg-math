@@ -54,6 +54,21 @@ TEST(LibraryTest, FrustumProjectionTest) {
             m * atg_math::vec4_s(0.0f, 0.0f, -9.0f, 1.0f);
 }
 
+TEST(LibraryTest, ClippingTransformTest) {
+    atg_math::mat44_s m, c;
+    atg_math::frustumPerspective(0.5f, 1.0f, 1.0f, 50.0f, &m);
+    atg_math::clippingTransform(256.0f, 512.0f, 256.0f, 512.0f, 512.0f, 512.0f,
+                                &c);
+
+    const atg_math::vec4_s projected =
+            m * atg_math::vec4_s(0.0f, 0.0f, -9.0f, 1.0f);
+
+    atg_math::vec4_s clipped =
+            c * (m * atg_math::vec4_s(0.0f, 0.0f, -9.0f, 1.0f));
+    clipped = clipped / clipped.w();
+    int a = 0;
+}
+
 TEST(LibraryTest, FrustumProjectionInverseTest) {
     atg_math::mat44_s m, m_inv;
     atg_math::frustumPerspective(0.5f, 0.5f, 1.0f, 50.0f, &m);

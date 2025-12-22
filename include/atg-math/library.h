@@ -199,6 +199,41 @@ inline t_matrix inverseOrthographicProjection(
 }
 
 template<typename t_matrix>
+void clippingTransform(typename t_matrix::t_scalar l,
+                       typename t_matrix::t_scalar r,
+                       typename t_matrix::t_scalar b,
+                       typename t_matrix::t_scalar t,
+                       typename t_matrix::t_scalar w0,
+                       typename t_matrix::t_scalar h0, t_matrix *target) {
+    using t_scalar = typename t_matrix::t_scalar;
+
+    const t_scalar w1 = r - l;
+    const t_scalar h1 = t - b;
+
+    const t_scalar o_x = ((r + l) / w0) - 1;
+    const t_scalar o_y = 1 - ((t + b) / h0);
+
+    const t_scalar s_x = w0 / w1;
+    const t_scalar s_y = h0 / h1;
+
+    target->columns[0] = {s_x, 0, 0, 0};
+    target->columns[1] = {0, s_y, 0, 0};
+    target->columns[2] = {0, 0, 1, 0};
+    target->columns[3] = {-s_x * o_x, -s_y * o_y, 0, 1};
+}
+
+template<typename t_matrix>
+inline t_matrix
+clippingTransform(typename t_matrix::t_scalar l, typename t_matrix::t_scalar r,
+                  typename t_matrix::t_scalar b, typename t_matrix::t_scalar t,
+                  typename t_matrix::t_scalar w0,
+                  typename t_matrix::t_scalar h0) {
+    t_matrix result;
+    frustumPerspective(l, r, b, t, w0, h0, &result);
+    return result;
+}
+
+template<typename t_matrix>
 void cameraTarget(const typename t_matrix::t_vec &eye,
                   const typename t_matrix::t_vec &target,
                   const typename t_matrix::t_vec &up, t_matrix *transform) {
