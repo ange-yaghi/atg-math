@@ -103,7 +103,7 @@ TEST(LibraryTest, CameraTests) {
     atg_math::cameraTarget({0.0f, 0.0f, 10.0f, 1.0f},
                            atg_math::vec4(0.0f).position(),
                            {0.0f, 1.0f, 0.0f, 1.0f}, &c);
-    atg_math::frustumPerspective(atg_math::constants_f::pi / 4, 1.0f, 1.0f,
+    atg_math::frustumPerspective(atg_math::constants_f::pi / 2, 1.0f, 1.0f,
                                  50.0f, &m);
     t = m * c;
 

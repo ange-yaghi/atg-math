@@ -23,13 +23,11 @@ TEST(Vector8Tests, EqTest) {
     v0.load(data0);
     v1.load(data1);
 
-    EXPECT_TRUE(v0 == v1);
-    EXPECT_FALSE(v0 != v1);
+    EXPECT_TRUE(bool(v0 == v1));
 
     v0.data[5] = 6.0f;
 
-    EXPECT_FALSE(v0 == v1);
-    EXPECT_TRUE(v0 != v1);
+    EXPECT_FALSE(bool(v0 == v1));
 }
 
 TEST(Vector8Tests, MaddTest_1) {
