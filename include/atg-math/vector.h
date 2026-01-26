@@ -166,6 +166,26 @@ struct vec {};
         return result;                                                         \
     }
 
+#define ATG_MATH_DEFINE_MIN_COMPONENT                                          \
+    FORCE_INLINE t_scalar min() const {                                        \
+        t_scalar result = data[0];                                             \
+        for (unsigned int i = 1; i < t_size; ++i) {                            \
+            result = std::min(data[i], result);                                \
+        }                                                                      \
+                                                                               \
+        return result;                                                         \
+    }
+
+#define ATG_MATH_DEFINE_MAX_COMPONENT                                          \
+    FORCE_INLINE t_scalar max() const {                                        \
+        t_scalar result = data[0];                                             \
+        for (unsigned int i = 1; i < t_size; ++i) {                            \
+            result = std::max(data[i], result);                                \
+        }                                                                      \
+                                                                               \
+        return result;                                                         \
+    }
+
 #define ATG_MATH_DEFINE_ABS                                                    \
     FORCE_INLINE t_vec abs() const {                                           \
         t_vec result;                                                          \
@@ -182,6 +202,28 @@ struct vec {};
         for (unsigned int i = 0; i < t_size; ++i) {                            \
             result.data[i] = std::sqrt(data[i]);                               \
         }                                                                      \
+                                                                               \
+        return result;                                                         \
+    }
+
+#define ATG_MATH_DEFINE_LEFT_SHIFT                                             \
+    FORCE_INLINE t_vec l_shift() const {                                       \
+        t_vec result;                                                          \
+        for (unsigned int i = 0; i < t_size - 1; ++i) {                        \
+            result.data[i] = data[i + 1];                                      \
+        }                                                                      \
+        data[t_size - 1] = result.data[t_size - 1];                            \
+                                                                               \
+        return result;                                                         \
+    }
+
+#define ATG_MATH_DEFINE_RIGHT_SHIFT                                            \
+    FORCE_INLINE t_vec r_shift() const {                                       \
+        t_vec result;                                                          \
+        for (unsigned int i = t_size - 1; i > 0; --i) {                        \
+            result.data[i] = data[i - 1];                                      \
+        }                                                                      \
+        data[0] = result.data[0];                                              \
                                                                                \
         return result;                                                         \
     }
@@ -438,6 +480,8 @@ struct vec<t_scalar_, 1, false> {
     ATG_MATH_DEFINE_NEGATE_OPERATOR
     ATG_MATH_DEFINE_POSITIVE_OPERATOR
     ATG_MATH_DEFINE_SQRT
+    ATG_MATH_DEFINE_LEFT_SHIFT
+    ATG_MATH_DEFINE_RIGHT_SHIFT
     ATG_MATH_DEFINE_SIGN
 
     ATG_MATH_DEFINE_ASSIGNMENT_OPERATOR(+=, +)
@@ -447,6 +491,8 @@ struct vec<t_scalar_, 1, false> {
 
     ATG_MATH_DEFINE_COMPONENT_MAX
     ATG_MATH_DEFINE_COMPONENT_MIN
+    ATG_MATH_DEFINE_MIN_COMPONENT
+    ATG_MATH_DEFINE_MAX_COMPONENT
     ATG_MATH_DEFINE_ABS
     ATG_MATH_DEFINE_SUM
 
@@ -519,6 +565,8 @@ struct vec<t_scalar_, 2, false> {
 
     ATG_MATH_DEFINE_COMPONENT_MIN
     ATG_MATH_DEFINE_COMPONENT_MAX
+    ATG_MATH_DEFINE_MIN_COMPONENT
+    ATG_MATH_DEFINE_MAX_COMPONENT
 
     ATG_MATH_DEFINE_ABS
     ATG_MATH_DEFINE_MAGNITUDE
@@ -526,6 +574,8 @@ struct vec<t_scalar_, 2, false> {
     ATG_MATH_DEFINE_NORMALIZE
     ATG_MATH_DEFINE_SIGN
     ATG_MATH_DEFINE_SQRT
+    ATG_MATH_DEFINE_LEFT_SHIFT
+    ATG_MATH_DEFINE_RIGHT_SHIFT
 
     ATG_MATH_COMPARE_GE_MASK
     ATG_MATH_COMPARE_LE_MASK
@@ -610,6 +660,8 @@ struct vec<t_scalar_, 3, false> {
     ATG_MATH_DEFINE_DOT_PRODUCT
     ATG_MATH_DEFINE_COMPONENT_MIN
     ATG_MATH_DEFINE_COMPONENT_MAX
+    ATG_MATH_DEFINE_MIN_COMPONENT
+    ATG_MATH_DEFINE_MAX_COMPONENT
 
     ATG_MATH_DEFINE_ABS
     ATG_MATH_DEFINE_MAGNITUDE_SQUARED
@@ -617,6 +669,8 @@ struct vec<t_scalar_, 3, false> {
     ATG_MATH_DEFINE_NORMALIZE
     ATG_MATH_DEFINE_SIGN
     ATG_MATH_DEFINE_SQRT
+    ATG_MATH_DEFINE_LEFT_SHIFT
+    ATG_MATH_DEFINE_RIGHT_SHIFT
 
     ATG_MATH_COMPARE_GE_MASK
     ATG_MATH_COMPARE_LE_MASK
@@ -707,6 +761,8 @@ struct vec<t_scalar_, 4, false> {
     ATG_MATH_DEFINE_DOT_PRODUCT
     ATG_MATH_DEFINE_COMPONENT_MIN
     ATG_MATH_DEFINE_COMPONENT_MAX
+    ATG_MATH_DEFINE_MIN_COMPONENT
+    ATG_MATH_DEFINE_MAX_COMPONENT
 
     ATG_MATH_DEFINE_ABS
     ATG_MATH_DEFINE_MAGNITUDE_SQUARED
@@ -714,6 +770,8 @@ struct vec<t_scalar_, 4, false> {
     ATG_MATH_DEFINE_NORMALIZE
     ATG_MATH_DEFINE_SIGN
     ATG_MATH_DEFINE_SQRT
+    ATG_MATH_DEFINE_LEFT_SHIFT
+    ATG_MATH_DEFINE_RIGHT_SHIFT
 
     ATG_MATH_COMPARE_GE_MASK
     ATG_MATH_COMPARE_LE_MASK
@@ -783,6 +841,8 @@ struct vec<t_scalar_, t_size_, false> {
     ATG_MATH_DEFINE_DOT_PRODUCT
     ATG_MATH_DEFINE_COMPONENT_MIN
     ATG_MATH_DEFINE_COMPONENT_MAX
+    ATG_MATH_DEFINE_MIN_COMPONENT
+    ATG_MATH_DEFINE_MAX_COMPONENT
 
     ATG_MATH_DEFINE_ABS
     ATG_MATH_DEFINE_MAGNITUDE_SQUARED
@@ -790,6 +850,8 @@ struct vec<t_scalar_, t_size_, false> {
     ATG_MATH_DEFINE_NORMALIZE
     ATG_MATH_DEFINE_SQRT
     ATG_MATH_DEFINE_SIGN
+    ATG_MATH_DEFINE_LEFT_SHIFT
+    ATG_MATH_DEFINE_RIGHT_SHIFT
 
     ATG_MATH_COMPARE_GE_MASK
     ATG_MATH_COMPARE_LE_MASK
@@ -813,6 +875,12 @@ struct vec<float, 4, true> {
         data_v = {x, y, z, w};
     }
     FORCE_INLINE constexpr vec(float s) { data_v = {s, s, s, s}; }
+    FORCE_INLINE constexpr vec(double s) {
+        data_v = {float(s), float(s), float(s), float(s)};
+    }
+    FORCE_INLINE constexpr vec(int s) {
+        data_v = {float(s), float(s), float(s), float(s)};
+    }
     FORCE_INLINE constexpr vec(const vec<float, 4, false> &v) {
         data_v = {v.x(), v.y(), v.z(), v.w()};
     }
@@ -838,6 +906,7 @@ struct vec<float, 4, true> {
 
     union {
         __m128 data_v;
+        __m128i mask_v;
         float data[4];
         int mask[4];
     };
@@ -899,7 +968,7 @@ struct vec<float, 4, true> {
     }
 
     FORCE_INLINE explicit operator bool() const {
-        return mask[0] != 0 && mask[1] != 0 && mask[2] != 0 && mask[3] != 0;
+        return _mm_test_all_ones(mask_v);
     }
 
     FORCE_INLINE t_vec operator==(const t_vec &b) const {
@@ -955,6 +1024,20 @@ struct vec<float, 4, true> {
         return _mm_add_ps(t3, t2);
     }
 
+    FORCE_INLINE t_vec l_shift() const {
+        return _mm_shuffle_ps(data_v, data_v,
+                              ATG_MATH_M128_SHUFFLE(ATG_MATH_S_Y, ATG_MATH_S_Z,
+                                                    ATG_MATH_S_W,
+                                                    ATG_MATH_S_W));
+    }
+
+    FORCE_INLINE t_vec r_shift() const {
+        return _mm_shuffle_ps(data_v, data_v,
+                              ATG_MATH_M128_SHUFFLE(ATG_MATH_S_X, ATG_MATH_S_X,
+                                                    ATG_MATH_S_Y,
+                                                    ATG_MATH_S_Z));
+    }
+
     FORCE_INLINE t_vec dot(const t_vec &b) const {
         const __m128 t0 = _mm_mul_ps(data_v, b.data_v);
         return t_vec(t0).sum();
@@ -992,6 +1075,44 @@ struct vec<float, 4, true> {
     FORCE_INLINE t_vec abs() const {
         const __m128 mask = _mm_castsi128_ps(_mm_set1_epi32(0x7FFFFFFF));
         return _mm_and_ps(data_v, mask);
+    }
+
+    FORCE_INLINE t_scalar min() const {
+        const __m128 a = _mm_min_ps(
+                data_v, _mm_shuffle_ps(data_v, data_v,
+                                       ATG_MATH_M128_SHUFFLE(
+                                               ATG_MATH_S_Y, ATG_MATH_S_Z,
+                                               ATG_MATH_S_W, ATG_MATH_S_X)));
+        const __m128 b = _mm_min_ps(
+                a, _mm_shuffle_ps(
+                           data_v, data_v,
+                           ATG_MATH_M128_SHUFFLE(ATG_MATH_S_Z, ATG_MATH_S_W,
+                                                 ATG_MATH_S_X, ATG_MATH_S_Y)));
+        const __m128 c = _mm_min_ps(
+                b, _mm_shuffle_ps(
+                           data_v, data_v,
+                           ATG_MATH_M128_SHUFFLE(ATG_MATH_S_W, ATG_MATH_S_X,
+                                                 ATG_MATH_S_Y, ATG_MATH_S_Y)));
+        return _mm_cvtss_f32(c);
+    }
+
+    FORCE_INLINE t_scalar max() const {
+        const __m128 a = _mm_max_ps(
+                data_v, _mm_shuffle_ps(data_v, data_v,
+                                       ATG_MATH_M128_SHUFFLE(
+                                               ATG_MATH_S_Y, ATG_MATH_S_Z,
+                                               ATG_MATH_S_W, ATG_MATH_S_X)));
+        const __m128 b = _mm_max_ps(
+                a, _mm_shuffle_ps(
+                           data_v, data_v,
+                           ATG_MATH_M128_SHUFFLE(ATG_MATH_S_Z, ATG_MATH_S_W,
+                                                 ATG_MATH_S_X, ATG_MATH_S_Y)));
+        const __m128 c = _mm_max_ps(
+                b, _mm_shuffle_ps(
+                           data_v, data_v,
+                           ATG_MATH_M128_SHUFFLE(ATG_MATH_S_W, ATG_MATH_S_X,
+                                                 ATG_MATH_S_Y, ATG_MATH_S_Y)));
+        return _mm_cvtss_f32(c);
     }
 
     FORCE_INLINE t_vec magnitude_squared() const { return dot(*this); }
@@ -1063,6 +1184,14 @@ struct vec<float, 8, true> {
     FORCE_INLINE constexpr vec() { data_v = {0, 0, 0, 0, 0, 0, 0, 0}; }
     FORCE_INLINE constexpr vec(const __m256 &v) : data_v(v) {}
     FORCE_INLINE constexpr vec(float s) { data_v = {s, s, s, s, s, s, s, s}; }
+    FORCE_INLINE constexpr vec(double s) {
+        data_v = {float(s), float(s), float(s), float(s),
+                  float(s), float(s), float(s), float(s)};
+    }
+    FORCE_INLINE constexpr vec(int s) {
+        data_v = {float(s), float(s), float(s), float(s),
+                  float(s), float(s), float(s), float(s)};
+    }
     FORCE_INLINE constexpr vec(float s0, float s1, float s2, float s3, float s4,
                                float s5, float s6, float s7) {
         data_v = {s0, s1, s2, s3, s4, s5, s6, s7};
@@ -1070,6 +1199,7 @@ struct vec<float, 8, true> {
 
     union {
         __m256 data_v;
+        __m256i mask_v;
         float data[8];
         int mask[8];
     };
@@ -1146,11 +1276,7 @@ struct vec<float, 8, true> {
     }
 
     FORCE_INLINE explicit operator bool() const {
-        for (int i = 0; i < 8; ++i) {
-            if (mask[i] == 0) { return false; }
-        }
-
-        return true;
+        return _mm256_test_all_ones(mask_v);
     }
 
     FORCE_INLINE t_vec operator==(const t_vec &b) const {
@@ -1238,6 +1364,100 @@ struct vec<float, 8, true> {
     FORCE_INLINE t_vec exp() const { return _mm256_exp_ps(data_v); }
     FORCE_INLINE t_vec log() const { return _mm256_log_ps(data_v); }
     FORCE_INLINE t_vec pow(const t_vec &p) const { return (p * log()).exp(); }
+
+    FORCE_INLINE t_vec l_shift() const {
+        const __m256i idx = _mm256_setr_epi32(1, 2, 3, 4, 5, 6, 7, 7);
+        return _mm256_permutevar8x32_ps(data_v, idx);
+    }
+
+    template<int k>
+    FORCE_INLINE t_vec l_shift(const t_vec &right) const {
+        return data_v;
+    }
+
+    template<>
+    FORCE_INLINE t_vec l_shift<1>(const t_vec &right) const {
+        const __m256 lo = _mm256_permutevar8x32_ps(
+                data_v, _mm256_setr_epi32(1, 2, 3, 4, 5, 6, 7, 0));
+        const __m256 hi = _mm256_permutevar8x32_ps(
+                right.data_v, _mm256_setr_epi32(0, 0, 0, 0, 0, 0, 0, 0));
+        return _mm256_blend_ps(lo, hi, 0b10000000);
+    }
+
+    template<>
+    FORCE_INLINE t_vec l_shift<2>(const t_vec &right) const {
+        const __m256 lo = _mm256_permutevar8x32_ps(
+                data_v, _mm256_setr_epi32(2, 3, 4, 5, 6, 7, 0, 0));
+        const __m256 hi = _mm256_permutevar8x32_ps(
+                right.data_v, _mm256_setr_epi32(0, 0, 0, 0, 0, 0, 0, 1));
+        return _mm256_blend_ps(lo, hi, 0b11000000);
+    }
+
+    FORCE_INLINE t_vec r_shift() const {
+        const __m256i idx = _mm256_setr_epi32(0, 0, 1, 2, 3, 4, 5, 6);
+        return _mm256_permutevar8x32_ps(data_v, idx);
+    }
+
+    template<int k>
+    FORCE_INLINE t_vec r_shift(const t_vec &left) const {
+        return data_v;
+    }
+
+    template<>
+    FORCE_INLINE t_vec r_shift<1>(const t_vec &left) const {
+        const __m256 lo = _mm256_permutevar8x32_ps(
+                data_v, _mm256_setr_epi32(0, 0, 1, 2, 3, 4, 5, 6));
+        const __m256 hi = _mm256_permutevar8x32_ps(
+                left.data_v, _mm256_setr_epi32(7, 0, 0, 0, 0, 0, 0, 0));
+        return _mm256_blend_ps(lo, hi, 0b00000001);
+    }
+
+    template<>
+    FORCE_INLINE t_vec r_shift<2>(const t_vec &left) const {
+        const __m256 lo = _mm256_permutevar8x32_ps(
+                data_v, _mm256_setr_epi32(0, 0, 0, 1, 2, 3, 4, 5));
+        const __m256 hi = _mm256_permutevar8x32_ps(
+                left.data_v, _mm256_setr_epi32(6, 7, 0, 0, 0, 0, 0, 0));
+        return _mm256_blend_ps(lo, hi, 0b00000011);
+    }
+
+    FORCE_INLINE t_vec min() const {
+        __m256 result = data_v;
+        const __m256 s0 = _mm256_shuffle_ps(
+                data_v, data_v,
+                ATG_MATH_M128_SHUFFLE(ATG_MATH_S_Y, ATG_MATH_S_Z, ATG_MATH_S_W,
+                                      ATG_MATH_S_X));
+        result = _mm256_min_ps(result, s0);
+
+        const __m256 s1 = _mm256_shuffle_ps(
+                result, result,
+                ATG_MATH_M128_SHUFFLE(ATG_MATH_S_Z, ATG_MATH_S_W, ATG_MATH_S_X,
+                                      ATG_MATH_S_Y));
+
+        result = _mm256_min_ps(result, s1);
+
+        const __m256 s2 = _mm256_permute2f128_ps(result, result, 0x01);
+        return _mm256_min_ps(s2, result);
+    }
+
+    FORCE_INLINE t_vec max() const {
+        __m256 result = data_v;
+        const __m256 s0 = _mm256_shuffle_ps(
+                data_v, data_v,
+                ATG_MATH_M128_SHUFFLE(ATG_MATH_S_Y, ATG_MATH_S_Z, ATG_MATH_S_W,
+                                      ATG_MATH_S_X));
+        result = _mm256_max_ps(result, s0);
+
+        const __m256 s1 = _mm256_shuffle_ps(
+                result, result,
+                ATG_MATH_M128_SHUFFLE(ATG_MATH_S_Z, ATG_MATH_S_W, ATG_MATH_S_X,
+                                      ATG_MATH_S_Y));
+
+        result = _mm256_max_ps(result, s1);
+
+        const __m256 s2 = _mm256_permute2f128_ps(result, result, 0x01);
+        return _mm256_max_ps(s2, result);
+    }
 };
 
 template<>
@@ -1392,12 +1612,29 @@ struct vec<double, 2, true> {
         return _mm_div_pd(data_v, magnitude());
     }
 
+    FORCE_INLINE t_vec l_shift() const { return shuffle<1, 1>(); }
+    FORCE_INLINE t_vec r_shift() const { return shuffle<0, 0>(); }
+
     FORCE_INLINE void load(double *data) { data_v = _mm_load_pd(data); }
     FORCE_INLINE void extract(double *data) { _mm_store_pd(data, data_v); }
 
     FORCE_INLINE t_vec exp() const { return _mm_exp_pd(data_v); }
     FORCE_INLINE t_vec log() const { return _mm_log_pd(data_v); }
     FORCE_INLINE t_vec pow(const t_vec &p) const { return (p * log()).exp(); }
+
+    FORCE_INLINE t_vec min() const {
+        const __m128d t1 = _mm_shuffle_pd(
+                data_v, data_v,
+                ATG_MATH_M128_SHUFFLE(ATG_MATH_S_Y, ATG_MATH_S_X, 0, 0));
+        return _mm_min_pd(data_v, t1);
+    }
+
+    FORCE_INLINE t_vec max() const {
+        const __m128d t1 = _mm_shuffle_pd(
+                data_v, data_v,
+                ATG_MATH_M128_SHUFFLE(ATG_MATH_S_Y, ATG_MATH_S_X, 0, 0));
+        return _mm_max_pd(data_v, t1);
+    }
 };
 
 template<>
@@ -1432,6 +1669,7 @@ struct vec<double, 4, true> {
 
     union {
         __m256d data_v;
+        __m256i mask_v;
         double data[4];
         int64_t mask[4];
     };
@@ -1523,7 +1761,7 @@ struct vec<double, 4, true> {
     }
 
     FORCE_INLINE explicit operator bool() const {
-        return x() != 0 && y() != 0 && z() != 0 && w() != 0;
+        return _mm256_test_all_ones(mask_v);
     }
 
     FORCE_INLINE t_vec operator==(const t_vec &b) const {
@@ -1567,10 +1805,11 @@ struct vec<double, 4, true> {
     }
 
     FORCE_INLINE t_vec sum() const {
-        const __m256d t1 = _mm256_shuffle_pd(data_v, data_v, 0b11);
-        const __m256d t2 = _mm256_add_pd(data_v, t1);
-        const __m256d t3 = _mm256_permute2f128_pd(t2, t2, 0x01);
-        return _mm256_add_pd(t3, t2);
+        const __m128d s23 = _mm256_extractf128_pd(data_v, 1);
+        const __m128d s01 = _mm256_castpd256_pd128(data_v);
+        const __m128d sum0 = _mm_add_pd(s01, s23);
+        const __m128d sum1 = _mm_hadd_pd(sum0, sum0);
+        return _mm256_broadcastsd_pd(sum1);
     }
 
     FORCE_INLINE t_vec dot(const t_vec &b) const {
@@ -1668,6 +1907,34 @@ struct vec<double, 4, true> {
     FORCE_INLINE t_vec exp() const { return _mm256_exp_pd(data_v); }
     FORCE_INLINE t_vec log() const { return _mm256_log_pd(data_v); }
     FORCE_INLINE t_vec pow(const t_vec &p) const { return (p * log()).exp(); }
+
+    FORCE_INLINE t_vec l_shift() const {
+        return _mm256_permute4x64_pd(
+                data_v, ATG_MATH_M128_SHUFFLE(ATG_MATH_S_Y, ATG_MATH_S_Z,
+                                              ATG_MATH_S_W, ATG_MATH_S_W));
+    }
+
+    FORCE_INLINE t_vec r_shift() const {
+        return _mm256_permute4x64_pd(
+                data_v, ATG_MATH_M128_SHUFFLE(ATG_MATH_S_X, ATG_MATH_S_X,
+                                              ATG_MATH_S_Y, ATG_MATH_S_Z));
+    }
+
+    FORCE_INLINE double min() const {
+        const __m128d s23 = _mm256_extractf128_pd(data_v, 1);
+        const __m128d s01 = _mm256_castpd256_pd128(data_v);
+        const __m128d m0 = _mm_min_pd(s23, s01);
+        const __m128d m1 = _mm_min_sd(m0, _mm_unpackhi_pd(m0, m0));
+        return _mm_cvtsd_f64(m1);
+    }
+
+    FORCE_INLINE double max() const {
+        const __m128d s23 = _mm256_extractf128_pd(data_v, 1);
+        const __m128d s01 = _mm256_castpd256_pd128(data_v);
+        const __m128d m0 = _mm_max_pd(s23, s01);
+        const __m128d m1 = _mm_max_sd(m0, _mm_unpackhi_pd(m0, m0));
+        return _mm_cvtsd_f64(m1);
+    }
 };
 
 template<>
@@ -1879,6 +2146,18 @@ max(const vec<t_scalar_, t_size, t_enable_simd> &a,
 }
 
 template<typename t_scalar_, unsigned int t_size, bool t_enable_simd>
+FORCE_INLINE t_scalar_
+min_component(const vec<t_scalar_, t_size, t_enable_simd> &a) {
+    return a.min();
+}
+
+template<typename t_scalar_, unsigned int t_size, bool t_enable_simd>
+FORCE_INLINE t_scalar_
+max_component(const vec<t_scalar_, t_size, t_enable_simd> &a) {
+    return a.max();
+}
+
+template<typename t_scalar_, unsigned int t_size, bool t_enable_simd>
 FORCE_INLINE vec<t_scalar_, t_size, t_enable_simd>
 pow(const vec<t_scalar_, t_size, t_enable_simd> &a,
     const vec<t_scalar_, t_size, t_enable_simd> &b) {
@@ -1891,6 +2170,14 @@ ternary(const vec<t_scalar_, t_size, t_enable_simd> &condition,
         const vec<t_scalar_, t_size, t_enable_simd> &a,
         const vec<t_scalar_, t_size, t_enable_simd> &b) {
     return a.and_mask(condition).bitwise_or(b.and_not_mask(condition));
+}
+
+template<typename t_scalar_, unsigned int t_size, bool t_enable_simd>
+FORCE_INLINE vec<t_scalar_, t_size, t_enable_simd>
+clamp(const vec<t_scalar_, t_size, t_enable_simd> &x,
+      const vec<t_scalar_, t_size, t_enable_simd> &x0 = t_scalar_(0),
+      const vec<t_scalar_, t_size, t_enable_simd> &x1 = t_scalar_(1)) {
+    return x.max(x0).min(x1);
 }
 
 ATG_MATH_DEFINE_LEFT_SCALAR_OPERATOR(*);

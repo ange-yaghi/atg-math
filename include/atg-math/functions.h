@@ -1,6 +1,7 @@
 #ifndef ATG_MATH_FUNCTIONS_H
 #define ATG_MATH_FUNCTIONS_H
 
+#include "conditional.h"
 #include "definitions.h"
 
 #include <cmath>
@@ -72,11 +73,13 @@ FORCE_INLINE t_scalar sqrt(t_scalar s) {
 
 template<typename t_scalar>
 FORCE_INLINE t_scalar fmadd(t_scalar a, t_scalar b, t_scalar c_add) {
-    return a * b + c_add;
+    return std::fma(a, b, c_add);
 }
 
 template<typename t_scalar>
-FORCE_INLINE t_scalar ternary(bool condition, t_scalar a, t_scalar b) {
+FORCE_INLINE t_scalar
+ternary(typename conditional_type<t_scalar>::type condition, t_scalar a,
+        t_scalar b) {
     return condition ? a : b;
 }
 
@@ -130,55 +133,29 @@ inline constexpr t_scalar lerp_fast(t_scalar s, t_scalar x0, t_scalar x1) {
 template<typename t_scalar>
 inline constexpr t_scalar smoothstep(t_scalar s_, t_scalar x0, t_scalar x1) {
     const t_scalar s = ramp(s_, x0, x1);
-    if (s <= 0) {
-        return 0;
-    } else if (s > 0 && s < 1) {
-        return 3 * s * s - 2 * s * s * s;
-    } else {
-        return 1;
-    }
+    return 3 * s * s - 2 * s * s * s;
 }
 
 template<typename t_scalar>
 inline constexpr t_scalar smoothstep(t_scalar s_) {
     const t_scalar s = clamp(s_);
-    if (s <= 0) {
-        return 0;
-    } else if (s > 0 && s < 1) {
-        return 3 * s * s - 2 * s * s * s;
-    } else {
-        return 1;
-    }
+    return 3 * s * s - 2 * s * s * s;
 }
 
 template<typename t_scalar>
 inline constexpr t_scalar smootherstep(t_scalar s_) {
     const t_scalar s = clamp(s_);
-    if (s <= 0) {
-        return 0;
-    } else if (s > 0 && s < 1) {
-        const t_scalar s_2 = squared(s);
-        const t_scalar s_4 = squared(s_2);
-        return t_scalar(6) * s_4 * s - t_scalar(15) * s_4 +
-               t_scalar(10) * s_2 * s;
-    } else {
-        return 1;
-    }
+    const t_scalar s_2 = squared(s);
+    const t_scalar s_4 = squared(s_2);
+    return t_scalar(6) * s_4 * s - t_scalar(15) * s_4 + t_scalar(10) * s_2 * s;
 }
 
 template<typename t_scalar>
 inline constexpr t_scalar smootherstep(t_scalar s_, t_scalar x0, t_scalar x1) {
     const t_scalar s = ramp(s_, x0, x1);
-    if (s <= 0) {
-        return 0;
-    } else if (s > 0 && s < 1) {
-        const t_scalar s_2 = squared(s);
-        const t_scalar s_4 = squared(s_2);
-        return t_scalar(6) * s_4 * s - t_scalar(15) * s_4 +
-               t_scalar(10) * s_2 * s;
-    } else {
-        return 1;
-    }
+    const t_scalar s_2 = squared(s);
+    const t_scalar s_4 = squared(s_2);
+    return t_scalar(6) * s_4 * s - t_scalar(15) * s_4 + t_scalar(10) * s_2 * s;
 }
 
 template<typename t_scalar>
@@ -218,6 +195,15 @@ inline constexpr t_scalar half(t_scalar a) {
     return t_scalar(0.5) * a;
 }
 
+template<typename t_scalar>
+inline constexpr t_scalar minComponent(t_scalar a) {
+    return a;
+}
+
+template<typename t_scalar>
+inline constexpr t_scalar maxComponent(t_scalar a) {
+    return a;
+}
 
 }// namespace atg_math
 

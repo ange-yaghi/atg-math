@@ -38,15 +38,16 @@ add_library(atg-math STATIC
     include/atg-math/aabb.h
     include/atg-math/base_type.hpp
     include/atg-math/complex.hpp
+    include/atg-math/conditional.h
     include/atg-math/constants.h
     include/atg-math/definitions.h
     include/atg-math/functions.h
+    include/atg-math/geometry.hpp
     include/atg-math/information.h
     include/atg-math/library.h
     include/atg-math/matrix.h
     include/atg-math/scalar.h
     include/atg-math/vector.h
-    include/atg-math/geometry.hpp
 
     # Source files
     src/information.cpp
