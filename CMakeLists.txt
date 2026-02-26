@@ -44,6 +44,7 @@ add_library(atg-math STATIC
     include/atg-math/functions.h
     include/atg-math/geometry.hpp
     include/atg-math/information.h
+    include/atg-math/intersection.hpp
     include/atg-math/library.h
     include/atg-math/matrix.h
     include/atg-math/scalar.h
@@ -51,6 +52,7 @@ add_library(atg-math STATIC
 
     # Source files
     src/information.cpp
+    src/intersection.cpp
 )
 
 target_include_directories(atg-math INTERFACE
