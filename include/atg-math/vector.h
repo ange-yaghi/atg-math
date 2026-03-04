@@ -1470,6 +1470,9 @@ struct vec<double, 2, true> {
     FORCE_INLINE constexpr vec() { data[0] = data[1] = 0; }
     FORCE_INLINE constexpr vec(const __m128d &v) : data_v(v) {}
     FORCE_INLINE constexpr vec(double x, double y) { data_v = {x, y}; }
+    FORCE_INLINE constexpr vec(const vec<double, 3, false> &v) {
+        data_v = {v.x(), v.y()};
+    }
     FORCE_INLINE vec(double s) { data_v = _mm_set_pd1(s); }
 
     ATG_MATH_ALIAS(x, 0)

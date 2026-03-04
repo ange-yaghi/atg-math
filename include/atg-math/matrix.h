@@ -26,6 +26,15 @@ NON_SIMD_MATRIX &generic_set_identity(NON_SIMD_MATRIX *target) {
 }
 
 NON_SIMD_TEMPLATE
+NON_SIMD_MATRIX &generic_set_zero(NON_SIMD_MATRIX *target) {
+    for (unsigned int i = 0; i < t_size; ++i) {
+        target->columns[i] = t_scalar(0);
+    }
+
+    return *target;
+}
+
+NON_SIMD_TEMPLATE
 NON_SIMD_MATRIX &generic_set_transpose(const NON_SIMD_MATRIX &source,
                                        NON_SIMD_MATRIX *target) {
     for (unsigned int i = 0; i < t_size; ++i) {
@@ -77,6 +86,7 @@ struct matrix<t_scalar_, t_size, false> {
     t_vec columns[t_size];
 
     inline t_matrix &set_identity() { return generic_set_identity(this); }
+    inline t_matrix &set_zero() { return generic_set_zero(this); }
     inline t_matrix &set_transpose(t_matrix *target) const {
         return generic_set_transpose(*this, target);
     }
