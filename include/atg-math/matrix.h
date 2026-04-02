@@ -85,6 +85,12 @@ struct matrix<t_scalar_, t_size, false> {
 
     t_vec columns[t_size];
 
+    inline static t_matrix identity() {
+        t_matrix result;
+        generic_set_identity(&result);
+        return result;
+    }
+
     inline t_matrix &set_identity() { return generic_set_identity(this); }
     inline t_matrix &set_zero() { return generic_set_zero(this); }
     inline t_matrix &set_transpose(t_matrix *target) const {
@@ -111,6 +117,12 @@ struct matrix<t_scalar_, t_size, false> {
     }
     inline t_matrix operator*=(const t_matrix &v) {
         return *this = (*this) * v;
+    }
+
+    inline void operator+=(const t_matrix &v) {
+        for (unsigned int i = 0; i < t_size; ++i) {
+            columns[i] += v.columns[i];
+        }
     }
 
     // temp
@@ -140,7 +152,7 @@ struct matrix<t_scalar_, 4, true> {
 
     t_vec columns[4];
 
-    inline matrix() {}
+    inline matrix() { set_identity(); }
     inline matrix(const t_vec &c0, const t_vec &c1, const t_vec &c2,
                   const t_vec &c3) {
         set(c0, c1, c2, c3);

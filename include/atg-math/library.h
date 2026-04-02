@@ -42,6 +42,17 @@ inline t_matrix rotationMatrix(const typename t_matrix::t_vec &axis,
 }
 
 template<typename t_matrix>
+inline void
+rotationTranslationMatrix(const typename t_matrix::t_vec &axis,
+                          const typename t_matrix::t_vec &translation,
+                          typename t_matrix::t_scalar angle, t_matrix *target) {
+    rotationMatrix(axis, angle, target);
+    target->columns[3] = translation;
+    target->columns[3].data[3] = 1;
+}
+
+
+template<typename t_matrix>
 void rotationMatrixReference(const typename t_matrix::t_vec &axis,
                              typename t_matrix::t_scalar angle,
                              t_matrix *target) {

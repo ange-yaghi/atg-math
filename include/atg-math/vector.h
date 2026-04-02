@@ -384,7 +384,7 @@ inline T_Data fp_fill_zeroes() {
     vec(const t_b_type &b) {                                                   \
         constexpr unsigned int l =                                             \
                 (t_size < t_b_type::t_size) ? t_size : t_b_type::t_size;       \
-        for (unsigned int i = 0; i < t_size; ++i) {                            \
+        for (unsigned int i = 0; i < l; ++i) {                                 \
             data[i] = t_scalar(b.data[i]);                                     \
         }                                                                      \
                                                                                \
@@ -396,7 +396,7 @@ inline T_Data fp_fill_zeroes() {
     FORCE_INLINE t_vec operator=(const t_b_type &b) {                          \
         constexpr unsigned int l =                                             \
                 (t_size < t_b_type::t_size) ? t_size : t_b_type::t_size;       \
-        for (unsigned int i = 0; i < t_size; ++i) {                            \
+        for (unsigned int i = 0; i < l; ++i) {                                 \
             data[i] = t_scalar(b.data[i]);                                     \
         }                                                                      \
                                                                                \
