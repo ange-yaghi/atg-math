@@ -1655,6 +1655,12 @@ struct vec<double, 4, true> {
         data_v = {x, y, z, w};
     }
     FORCE_INLINE constexpr vec(double s) { data_v = {s, s, s, s}; }
+    FORCE_INLINE vec(const vec<double, 3, false> &vec) {
+        data_v = {vec.x(), vec.y(), vec.z(), 0.0};
+    }
+    FORCE_INLINE vec(const vec<double, 4, false> &vec) {
+        data_v = {vec.x(), vec.y(), vec.z(), vec.w()};
+    }
 
     ATG_MATH_ALIAS(x, 0)
     ATG_MATH_ALIAS(y, 1)
@@ -1668,7 +1674,7 @@ struct vec<double, 4, true> {
 
     template<int i0 = 0, int i1 = 1, int i2 = 2, int i3 = 3>
     FORCE_INLINE t_vec shuffle() const {
-        return _mm_shuffle_ps(data_v, data_v,
+        return _mm256_permute4x64_pd(data_v,
                               ATG_MATH_M128_SHUFFLE(i0, i1, i2, i3));
     }
 

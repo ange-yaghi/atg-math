@@ -67,6 +67,7 @@ enable_testing()
 add_executable(atg-math-test
     # Source files
     test/library_test.cpp
+    test/matrix_tests.cpp
     test/sanity_test.cpp
     test/vector2_tests.cpp
     test/vector4_tests.cpp

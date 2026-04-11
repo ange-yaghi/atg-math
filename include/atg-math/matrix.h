@@ -141,6 +141,16 @@ struct matrix<t_scalar_, t_size, false> {
 
         return r_inv * t_inv;
     }
+
+    inline t_vec orthogonal_inverse_mul(const t_vec &v) const {
+        const t_matrix r = {
+                columns[0],
+                columns[1],
+                columns[2],
+                {t_scalar(0), t_scalar(0), t_scalar(0), t_scalar(1)}};
+        const t_matrix r_inv = r.transpose();
+        return r_inv * (v - columns[3].with_w(0));
+    }
     // end-temp
 };// namespace atg_math
 
@@ -245,6 +255,7 @@ typedef matrix<double, 3, false> dmat33_s;
 typedef matrix<double, 4, false> dmat44_s, dmat_s;
 
 typedef matrix<float, 4, true> mat44_v;
+typedef matrix<double, 4, true> dmat44_v;
 
 typedef mat33_s mat3;
 typedef mat44_s mat4;
