@@ -77,14 +77,14 @@ struct aabb<t_scalar_, 2, t_enable_simd> {
     }
 
     inline aabb clampHeight(t_scalar minHeight, t_scalar maxHeight,
-                            const vec &origin = c) {
+                            const vec &origin = c) const {
         const t_scalar newHeight =
                 atg_math::clamp(height(), minHeight, maxHeight);
         return aabb(position(origin), {width(), newHeight}, origin);
     }
 
     inline aabb clampWidth(t_scalar minWidth, t_scalar maxWidth,
-                           const vec &origin = c) {
+                           const vec &origin = c) const {
         const t_scalar newWidth = atg_math::clamp(width(), minWidth, maxWidth);
         return aabb(position(origin), {newWidth, height()}, origin);
     }
@@ -195,9 +195,7 @@ struct aabb<t_scalar_, 2, t_enable_simd> {
         return aabb(o, size() * s, origin);
     }
 
-    inline aabb scaleAbsolute(t_scalar s) const {
-        return aabb(m0 * s, m1 * s);
-    }
+    inline aabb scaleAbsolute(t_scalar s) const { return aabb(m0 * s, m1 * s); }
 
     inline aabb scale_x(t_scalar s, const vec &origin = c) const {
         const vec o = position(origin);
