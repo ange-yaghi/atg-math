@@ -284,6 +284,23 @@ struct Grid {
              t_scalar inset = 0.0f, int w = 1, int h = 1) const {
         return getInset(a, float(x), float(y), inset, float(w), float(h));
     }
+
+    template<typename t_scalar, unsigned int t_size, bool t_enable_simd>
+    aabb<t_scalar, t_size, t_enable_simd>
+    getInsetUniform(const aabb<t_scalar, t_size, t_enable_simd> &a, float x,
+                    float y, t_scalar inset = 0.0f, float w = 1,
+                    float h = 1) const {
+        using t_aabb = aabb<t_scalar, t_size, t_enable_simd>;
+        return get(a.inset(-inset), x, y, w, h).inset(inset);
+    }
+
+    template<typename t_scalar, unsigned int t_size, bool t_enable_simd>
+    aabb<t_scalar, t_size, t_enable_simd>
+    getInsetUniform(const aabb<t_scalar, t_size, t_enable_simd> &a, int x,
+                    int y, t_scalar space = 0.0f, int w = 1, int h = 1) const {
+        return getInsetUniform(a, float(x), float(y), space, float(w),
+                               float(h));
+    }
 };
 
 using aabb2 = aabb<float, 2, false>;
