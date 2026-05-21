@@ -102,3 +102,38 @@ TEST(Vector8Tests, BooleanReduce_vec8f) {
     EXPECT_TRUE(bool(v0 == v1));
     EXPECT_TRUE(bool(v0 == v2));
 }
+
+template<typename t_vec>
+void infTest() {
+    const t_vec v0 = {t_vec::t_scalar(INFINITY), t_vec::t_scalar(INFINITY),
+                      t_vec::t_scalar(INFINITY), t_vec::t_scalar(INFINITY),
+                      t_vec::t_scalar(INFINITY), t_vec::t_scalar(INFINITY),
+                      t_vec::t_scalar(INFINITY), t_vec::t_scalar(INFINITY)};
+    const t_vec v1 = {0, -t_vec::t_scalar(INFINITY), 0,
+                      t_vec::t_scalar(INFINITY), 0, -t_vec::t_scalar(INFINITY), 0,
+                      t_vec::t_scalar(INFINITY)};
+    const t_vec v2 = {0, 0, 0, 0, 0, 0, 0, 0};
+
+    EXPECT_TRUE(atg_math::any(atg_math::isinf(v0)));
+    EXPECT_TRUE(atg_math::any(atg_math::isinf(v1)));
+    EXPECT_FALSE(atg_math::any(atg_math::isinf(v2)));
+}
+
+TEST(Vector8Tests, InfTest) {
+    infTest<atg_math::vec<float, 8, true>>();
+}
+
+template<typename t_vec>
+void nanTest() {
+    const t_vec v0 = {1, 1, 1, 1, 1, 1, 1, 1};
+    const t_vec v1 = {0, 1, 0, 1, 0, 1, 0, 1};
+    const t_vec v2 = {0, 0, 0, 0, 0, 0, 0, 0};
+
+    EXPECT_TRUE(atg_math::any(atg_math::isnan(v2 * (v0 / v1))));
+    EXPECT_TRUE(atg_math::any(atg_math::isnan(v2 * (v0 / v2))));
+    EXPECT_FALSE(atg_math::any(atg_math::isnan(v2 * (v0 / v0))));
+}
+
+TEST(Vector8Tests, NanTest) {
+    nanTest<atg_math::vec<float, 8, true>>();
+}

@@ -95,9 +95,28 @@ inline constexpr t_scalar clamp(t_scalar x, t_scalar x0 = t_scalar(0.0),
 }
 
 template<typename t_scalar>
+inline t_scalar isnan(t_scalar x) {
+    return std::isnan(x);
+}
+
+template<typename t_scalar>
+inline t_scalar isinf(t_scalar x) {
+    return std::isinf(x);
+}
+
+template<typename t_scalar>
+inline t_scalar isNanOrInf(t_scalar x) {
+    return (isinf(x) || isnan(x)) ? t_scalar(1) : t_scalar(0);
+}
+
+template<typename t_scalar>
 inline t_scalar clearNanInf(t_scalar x) {
-    if (std::isinf(x) || std::isnan(x)) { return t_scalar(0); }
-    return x;
+    ternary(isNanOrInf(x), t_scalar(0), x);
+}
+
+template<typename t_scalar>
+inline bool any(t_scalar x) {
+    return x != t_scalar(0);
 }
 
 template<typename t_scalar>

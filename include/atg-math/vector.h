@@ -57,6 +57,16 @@ struct vec {};
         return result;                                                         \
     }
 
+#define ATG_MATH_DEFINE_BOOL_CONVERSION                                        \
+    FORCE_INLINE explicit operator bool() const {                              \
+        for (unsigned int i = 0; i < t_size; ++i) {                            \
+            if (!fp_bitwise_cmp(data[i], fp_fill_ones<t_scalar>())) {          \
+                return false;                                                  \
+            }                                                                  \
+        }                                                                      \
+        return true;                                                           \
+    }
+
 #define ATG_MATH_DEFINE_LEFT_SCALAR_OPERATOR(op)                               \
     template<typename t_scalar, unsigned int t_size, bool t_simd>              \
     FORCE_INLINE vec<t_scalar, t_size, t_simd> operator*(                      \
@@ -104,7 +114,7 @@ struct vec {};
     }
 
 #define ATG_MATH_DEFINE_ASSIGNMENT_OPERATOR(full_op, op)                       \
-    FORCE_INLINE t_vec &operator full_op(const t_vec & b) {                    \
+    FORCE_INLINE t_vec &operator full_op(const t_vec &b) {                     \
         for (unsigned int i = 0; i < t_size; ++i) {                            \
             data[i] = data[i] op b.data[i];                                    \
         }                                                                      \
@@ -228,6 +238,31 @@ struct vec {};
         return result;                                                         \
     }
 
+#define ATG_MATH_DEFINE_IS_NAN                                                 \
+    FORCE_INLINE t_vec isnan() const {                                         \
+        t_vec result = t_vec(0);                                               \
+        for (unsigned int i = 0; i < t_size; ++i) {                            \
+            result.data[i] = std::isnan(data[i]) ? fp_fill_ones<t_scalar>()    \
+                                                 : fp_fill_zeroes<t_scalar>(); \
+        }                                                                      \
+                                                                               \
+        return result;                                                         \
+    }
+
+#define ATG_MATH_DEFINE_IS_INF                                                 \
+    FORCE_INLINE t_vec isinf() const {                                         \
+        t_vec result = t_vec(0);                                               \
+        for (unsigned int i = 0; i < t_size; ++i) {                            \
+            result.data[i] = std::isinf(data[i]) ? fp_fill_ones<t_scalar>()    \
+                                                 : fp_fill_zeroes<t_scalar>(); \
+        }                                                                      \
+                                                                               \
+        return result;                                                         \
+    }
+
+#define ATG_MATH_DEFINE_IS_INF_OR_NAN                                          \
+    FORCE_INLINE t_vec isinfnan() const { isnan().bitwise_or(isinf()); }
+
 template<typename T_Data>
 inline T_Data fp_bitwise_not(T_Data a) {
     union U {
@@ -291,6 +326,22 @@ inline T_Data fp_fill_zeroes() {
     U result;
     result.bits = ((unsigned long long) (0));
     return result.data;
+}
+
+template<typename T_Data>
+inline bool fp_bitwise_cmp(T_Data v0, T_Data v1) {
+    union U {
+        T_Data data;
+        unsigned long long bits;
+    };
+
+    U u0, u1;
+    u0.bits = 0;
+    u1.bits = 0;
+
+    u0.data = v0;
+    u1.data = v1;
+    return u0.bits == u1.bits;
 }
 
 #define ATG_MATH_COMPARE_GE_MASK                                               \
@@ -365,6 +416,16 @@ inline T_Data fp_fill_zeroes() {
         t_vec result;                                                          \
         for (unsigned int i = 0; i < t_size; ++i) {                            \
             result.data[i] = fp_bitwise_and(data[i], b.data[i]);               \
+        }                                                                      \
+                                                                               \
+        return result;                                                         \
+    }
+
+#define ATG_MATH_BITWISE_NOT                                                   \
+    FORCE_INLINE t_vec bitwise_not() const {                                   \
+        t_vec result;                                                          \
+        for (unsigned int i = 0; i < t_size; ++i) {                            \
+            result.data[i] = fp_bitwise_not(data[i]);                          \
         }                                                                      \
                                                                                \
         return result;                                                         \
@@ -463,6 +524,7 @@ struct vec<t_scalar_, 1, false> {
     ATG_MATH_DEFINE_EXTRACT
 
     ATG_MATH_DEFINE_EXPLICIT_SCALAR_CONVERSION
+    ATG_MATH_DEFINE_BOOL_CONVERSION
 
     ATG_MATH_DEFINE_COMPONENT_WISE_OPERATOR(+)
     ATG_MATH_DEFINE_COMPONENT_WISE_OPERATOR(-)
@@ -503,6 +565,10 @@ struct vec<t_scalar_, 1, false> {
     ATG_MATH_AND_NOT_MASK
     ATG_MATH_BITWISE_OR
     ATG_MATH_BITWISE_AND
+    ATG_MATH_BITWISE_NOT
+    ATG_MATH_DEFINE_IS_NAN
+    ATG_MATH_DEFINE_IS_INF
+    ATG_MATH_DEFINE_IS_INF_OR_NAN
 };
 
 template<typename t_scalar_>
@@ -536,6 +602,7 @@ struct vec<t_scalar_, 2, false> {
     ATG_MATH_DEFINE_EXTRACT
 
     ATG_MATH_DEFINE_EXPLICIT_SCALAR_CONVERSION
+    ATG_MATH_DEFINE_BOOL_CONVERSION
 
     ATG_MATH_DEFINE_INDEX_OPERATOR()
     ATG_MATH_DEFINE_INDEX_OPERATOR_MODIFIABLE()
@@ -584,6 +651,10 @@ struct vec<t_scalar_, 2, false> {
     ATG_MATH_AND_NOT_MASK
     ATG_MATH_BITWISE_OR
     ATG_MATH_BITWISE_AND
+    ATG_MATH_BITWISE_NOT
+    ATG_MATH_DEFINE_IS_NAN
+    ATG_MATH_DEFINE_IS_INF
+    ATG_MATH_DEFINE_IS_INF_OR_NAN
 
     FORCE_INLINE t_vec orthogonal() const { return {-y(), x()}; }
     FORCE_INLINE t_vec yx() const { return {y(), x()}; }
@@ -634,6 +705,7 @@ struct vec<t_scalar_, 3, false> {
     ATG_MATH_DEFINE_INDEX_OPERATOR_MODIFIABLE()
 
     ATG_MATH_DEFINE_EXPLICIT_SCALAR_CONVERSION
+    ATG_MATH_DEFINE_BOOL_CONVERSION
 
     ATG_MATH_DEFINE_COMPONENT_WISE_OPERATOR(+)
     ATG_MATH_DEFINE_COMPONENT_WISE_OPERATOR(-)
@@ -679,6 +751,10 @@ struct vec<t_scalar_, 3, false> {
     ATG_MATH_AND_NOT_MASK
     ATG_MATH_BITWISE_OR
     ATG_MATH_BITWISE_AND
+    ATG_MATH_BITWISE_NOT
+    ATG_MATH_DEFINE_IS_NAN
+    ATG_MATH_DEFINE_IS_INF
+    ATG_MATH_DEFINE_IS_INF_OR_NAN
 };
 
 template<typename t_scalar_>
@@ -735,6 +811,7 @@ struct vec<t_scalar_, 4, false> {
     ATG_MATH_DEFINE_EXTRACT
 
     ATG_MATH_DEFINE_EXPLICIT_SCALAR_CONVERSION
+    ATG_MATH_DEFINE_BOOL_CONVERSION
 
     ATG_MATH_DEFINE_COMPONENT_WISE_OPERATOR(+)
     ATG_MATH_DEFINE_COMPONENT_WISE_OPERATOR(-)
@@ -782,6 +859,10 @@ struct vec<t_scalar_, 4, false> {
     ATG_MATH_AND_NOT_MASK
     ATG_MATH_BITWISE_OR
     ATG_MATH_BITWISE_AND
+    ATG_MATH_BITWISE_NOT
+    ATG_MATH_DEFINE_IS_NAN
+    ATG_MATH_DEFINE_IS_INF
+    ATG_MATH_DEFINE_IS_INF_OR_NAN
 
     FORCE_INLINE t_vec xy() const {
         return {x(), y(), t_scalar(0), t_scalar(0)};
@@ -814,6 +895,7 @@ struct vec<t_scalar_, t_size_, false> {
     ATG_MATH_DEFINE_EXTRACT
 
     ATG_MATH_DEFINE_EXPLICIT_SCALAR_CONVERSION
+    ATG_MATH_DEFINE_BOOL_CONVERSION
 
     ATG_MATH_DEFINE_COMPONENT_WISE_OPERATOR(+)
     ATG_MATH_DEFINE_COMPONENT_WISE_OPERATOR(-)
@@ -862,6 +944,10 @@ struct vec<t_scalar_, t_size_, false> {
     ATG_MATH_AND_NOT_MASK
     ATG_MATH_BITWISE_OR
     ATG_MATH_BITWISE_AND
+    ATG_MATH_BITWISE_NOT
+    ATG_MATH_DEFINE_IS_NAN
+    ATG_MATH_DEFINE_IS_INF
+    ATG_MATH_DEFINE_IS_INF_OR_NAN
 };
 
 template<>
@@ -1171,8 +1257,26 @@ struct vec<float, 4, true> {
         return _mm_or_ps(data_v, b);
     }
 
+    FORCE_INLINE t_vec bitwise_not() const {
+        t_vec result;
+        result.mask_v = _mm_xor_si128(mask_v, _mm_set1_epi32(-1));
+        return result;
+    }
+
     FORCE_INLINE t_vec and_not_mask(const t_vec &mask) const {
         return _mm_andnot_ps(mask, data_v);
+    }
+
+    FORCE_INLINE t_vec isnan() const {
+        return _mm_cmp_ps(data_v, data_v, _CMP_UNORD_Q);
+    }
+
+    FORCE_INLINE t_vec isinf() const {
+        return _mm_cmp_ps(abs(), _mm_set1_ps(INFINITY), _CMP_EQ_OQ);
+    }
+
+    FORCE_INLINE t_vec isinfnan() const {
+        return _mm_cmp_ps(abs(), _mm_set1_ps(INFINITY), _CMP_NLE_UQ);
     }
 };
 
@@ -1271,6 +1375,12 @@ struct vec<float, 8, true> {
 
     FORCE_INLINE t_vec bitwise_or(const t_vec &b) const {
         return _mm256_or_ps(data_v, b);
+    }
+
+    FORCE_INLINE t_vec bitwise_not() const {
+        t_vec result;
+        result.mask_v = _mm256_xor_si256(mask_v, _mm256_set1_epi32(-1));
+        return result;
     }
 
     FORCE_INLINE t_vec and_not_mask(const t_vec &mask) const {
@@ -1460,6 +1570,18 @@ struct vec<float, 8, true> {
         const __m256 s2 = _mm256_permute2f128_ps(result, result, 0x01);
         return _mm256_max_ps(s2, result);
     }
+
+    FORCE_INLINE t_vec isnan() const {
+        return _mm256_cmp_ps(data_v, data_v, _CMP_UNORD_Q);
+    }
+
+    FORCE_INLINE t_vec isinf() const {
+        return _mm256_cmp_ps(abs(), _mm256_set1_ps(INFINITY), _CMP_EQ_OQ);
+    }
+
+    FORCE_INLINE t_vec isinfnan() const {
+        return _mm256_cmp_ps(abs(), _mm256_set1_ps(INFINITY), _CMP_NLE_UQ);
+    }
 };
 
 template<>
@@ -1495,6 +1617,7 @@ struct vec<double, 2, true> {
     union {
         double data[2];
         __m128d data_v;
+        __m128i mask_v;
         int mask[2];
     };
 
@@ -1526,6 +1649,10 @@ struct vec<double, 2, true> {
 
     FORCE_INLINE t_vec operator/(const t_vec &b) const {
         return _mm_div_pd(data_v, b.data_v);
+    }
+
+    FORCE_INLINE explicit operator bool() const {
+        return _mm_test_all_ones(mask_v);
     }
 
     FORCE_INLINE t_vec compare_eq(const t_vec &b) const {
@@ -1640,6 +1767,24 @@ struct vec<double, 2, true> {
                 ATG_MATH_M128_SHUFFLE(ATG_MATH_S_Y, ATG_MATH_S_X, 0, 0));
         return _mm_max_pd(data_v, t1);
     }
+
+    FORCE_INLINE t_vec bitwise_not() const {
+        t_vec result;
+        result.mask_v = _mm_xor_si128(mask_v, _mm_set1_epi32(-1));
+        return result;
+    }
+
+    FORCE_INLINE t_vec isnan() const {
+        return _mm_cmp_pd(data_v, data_v, _CMP_UNORD_Q);
+    }
+
+    FORCE_INLINE t_vec isinf() const {
+        return _mm_cmp_pd(abs(), _mm_set1_pd(INFINITY), _CMP_EQ_OQ);
+    }
+
+    FORCE_INLINE t_vec isinfnan() const {
+        return _mm_cmp_pd(abs(), _mm_set1_pd(INFINITY), _CMP_NLE_UQ);
+    }
 };
 
 template<>
@@ -1675,7 +1820,7 @@ struct vec<double, 4, true> {
     template<int i0 = 0, int i1 = 1, int i2 = 2, int i3 = 3>
     FORCE_INLINE t_vec shuffle() const {
         return _mm256_permute4x64_pd(data_v,
-                              ATG_MATH_M128_SHUFFLE(i0, i1, i2, i3));
+                                     ATG_MATH_M128_SHUFFLE(i0, i1, i2, i3));
     }
 
     union {
@@ -1769,6 +1914,12 @@ struct vec<double, 4, true> {
 
     FORCE_INLINE t_vec bitwise_or(const t_vec &b) const {
         return _mm256_or_pd(data_v, b.data_v);
+    }
+
+    FORCE_INLINE t_vec bitwise_not() const {
+        t_vec result;
+        result.mask_v = _mm256_xor_si256(mask_v, _mm256_set1_epi32(-1));
+        return result;
     }
 
     FORCE_INLINE explicit operator bool() const {
@@ -1945,6 +2096,18 @@ struct vec<double, 4, true> {
         const __m128d m0 = _mm_max_pd(s23, s01);
         const __m128d m1 = _mm_max_sd(m0, _mm_unpackhi_pd(m0, m0));
         return _mm_cvtsd_f64(m1);
+    }
+
+    FORCE_INLINE t_vec isnan() const {
+        return _mm256_cmp_pd(data_v, data_v, _CMP_UNORD_Q);
+    }
+
+    FORCE_INLINE t_vec isinf() const {
+        return _mm256_cmp_pd(abs(), _mm256_set1_pd(INFINITY), _CMP_EQ_OQ);
+    }
+
+    FORCE_INLINE t_vec isinfnan() const {
+        return _mm256_cmp_pd(abs(), _mm256_set1_pd(INFINITY), _CMP_NLE_UQ);
     }
 };
 
@@ -2189,6 +2352,29 @@ clamp(const vec<t_scalar_, t_size, t_enable_simd> &x,
       const vec<t_scalar_, t_size, t_enable_simd> &x0 = t_scalar_(0),
       const vec<t_scalar_, t_size, t_enable_simd> &x1 = t_scalar_(1)) {
     return x.max(x0).min(x1);
+}
+
+template<typename t_scalar_, unsigned int t_size, bool t_enable_simd>
+FORCE_INLINE vec<t_scalar_, t_size, t_enable_simd>
+isnan(const vec<t_scalar_, t_size, t_enable_simd> &x) {
+    return x.isnan();
+}
+
+template<typename t_scalar_, unsigned int t_size, bool t_enable_simd>
+FORCE_INLINE vec<t_scalar_, t_size, t_enable_simd>
+isinf(const vec<t_scalar_, t_size, t_enable_simd> &x) {
+    return x.isinf();
+}
+
+template<typename t_scalar_, unsigned int t_size, bool t_enable_simd>
+FORCE_INLINE vec<t_scalar_, t_size, t_enable_simd>
+isNanOrInf(const vec<t_scalar_, t_size, t_enable_simd> &x) {
+    return x.isinfnan();
+}
+
+template<typename t_scalar_, unsigned int t_size, bool t_enable_simd>
+FORCE_INLINE bool any(const vec<t_scalar_, t_size, t_enable_simd> &x) {
+    return !bool(x.bitwise_not());
 }
 
 ATG_MATH_DEFINE_LEFT_SCALAR_OPERATOR(*);
