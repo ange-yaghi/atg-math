@@ -441,10 +441,9 @@ inline bool fp_bitwise_cmp(T_Data v0, T_Data v1) {
     FORCE_INLINE t_vec normalize() const { return (*this) / magnitude(); }
 
 #define ATG_MATH_DEFINE_CONVERSION_CONSTRUCTOR                                 \
-    template<typename t_b_type>                                                \
-    vec(const t_b_type &b) {                                                   \
-        constexpr unsigned int l =                                             \
-                (t_size < t_b_type::t_size) ? t_size : t_b_type::t_size;       \
+    template<typename t_b_type, int t_b_size, bool t_simd>                     \
+    vec(const vec<t_b_type, t_b_size, t_simd> &b) {                            \
+        constexpr unsigned int l = (t_size < t_b_size) ? t_size : t_b_size;    \
         for (unsigned int i = 0; i < l; ++i) {                                 \
             data[i] = t_scalar(b.data[i]);                                     \
         }                                                                      \
@@ -453,10 +452,9 @@ inline bool fp_bitwise_cmp(T_Data v0, T_Data v1) {
     }
 
 #define ATG_MATH_DEFINE_CONVERSION                                             \
-    template<typename t_b_type>                                                \
-    FORCE_INLINE t_vec operator=(const t_b_type &b) {                          \
-        constexpr unsigned int l =                                             \
-                (t_size < t_b_type::t_size) ? t_size : t_b_type::t_size;       \
+    template<typename t_b_type, int t_b_size, bool t_simd>                     \
+    FORCE_INLINE t_vec operator=(const vec<t_b_type, t_b_size, t_simd> &b) {   \
+        constexpr unsigned int l = (t_size < t_b_size) ? t_size : t_b_size;    \
         for (unsigned int i = 0; i < l; ++i) {                                 \
             data[i] = t_scalar(b.data[i]);                                     \
         }                                                                      \
