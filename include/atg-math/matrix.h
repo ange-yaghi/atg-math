@@ -200,7 +200,7 @@ struct matrix<t_scalar_, 4, true> {
     }
 
     inline t_matrix &set_transpose() { return set_transpose(this); }
-    inline t_matrix transpose() {
+    inline t_matrix transpose() const {
         t_matrix result;
         return set_transpose(&result);
     }
@@ -246,6 +246,31 @@ struct matrix<t_scalar_, 4, true> {
 
     inline t_matrix operator*=(const t_matrix &v) {
         return *this = (*this) * v;
+    }
+
+    inline t_matrix orthogonal_inverse() const {
+        const t_matrix r = {
+                columns[0],
+                columns[1],
+                columns[2],
+                {t_scalar(0), t_scalar(0), t_scalar(0), t_scalar(1)}};
+        const t_matrix r_inv = r.transpose();
+
+        t_matrix t_inv;
+        t_inv.set_identity();
+        t_inv.columns[3] = (-columns[3]).position();
+
+        return r_inv * t_inv;
+    }
+
+    inline t_vec orthogonal_inverse_mul(const t_vec &v) const {
+        const t_matrix r = {
+                columns[0],
+                columns[1],
+                columns[2],
+                {t_scalar(0), t_scalar(0), t_scalar(0), t_scalar(1)}};
+        const t_matrix r_inv = r.transpose();
+        return r_inv * (v - columns[3].with_w(0));
     }
 };
 

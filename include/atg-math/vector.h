@@ -206,6 +206,36 @@ struct vec {};
         return result;                                                         \
     }
 
+#define ATG_MATH_DEFINE_SIN                                                    \
+    FORCE_INLINE t_vec sin() const {                                           \
+        t_vec result;                                                          \
+        for (unsigned int i = 0; i < t_size; ++i) {                            \
+            result.data[i] = std::sin(data[i]);                                \
+        }                                                                      \
+                                                                               \
+        return result;                                                         \
+    }
+
+#define ATG_MATH_DEFINE_COS                                                    \
+    FORCE_INLINE t_vec cos() const {                                           \
+        t_vec result;                                                          \
+        for (unsigned int i = 0; i < t_size; ++i) {                            \
+            result.data[i] = std::cos(data[i]);                                \
+        }                                                                      \
+                                                                               \
+        return result;                                                         \
+    }
+
+#define ATG_MATH_DEFINE_TANH                                                   \
+    FORCE_INLINE t_vec tanh() const {                                          \
+        t_vec result;                                                          \
+        for (unsigned int i = 0; i < t_size; ++i) {                            \
+            result.data[i] = std::tanh(data[i]);                               \
+        }                                                                      \
+                                                                               \
+        return result;                                                         \
+    }
+
 #define ATG_MATH_DEFINE_SQRT                                                   \
     FORCE_INLINE t_vec sqrt() const {                                          \
         t_vec result;                                                          \
@@ -554,6 +584,9 @@ struct vec<t_scalar_, 1, false> {
     ATG_MATH_DEFINE_MIN_COMPONENT
     ATG_MATH_DEFINE_MAX_COMPONENT
     ATG_MATH_DEFINE_ABS
+    ATG_MATH_DEFINE_SIN
+    ATG_MATH_DEFINE_COS
+    ATG_MATH_DEFINE_TANH
     ATG_MATH_DEFINE_SUM
 
     ATG_MATH_COMPARE_GE_MASK
@@ -634,6 +667,9 @@ struct vec<t_scalar_, 2, false> {
     ATG_MATH_DEFINE_MAX_COMPONENT
 
     ATG_MATH_DEFINE_ABS
+    ATG_MATH_DEFINE_SIN
+    ATG_MATH_DEFINE_COS
+    ATG_MATH_DEFINE_TANH
     ATG_MATH_DEFINE_MAGNITUDE
     ATG_MATH_DEFINE_MAGNITUDE_SQUARED
     ATG_MATH_DEFINE_NORMALIZE
@@ -734,6 +770,9 @@ struct vec<t_scalar_, 3, false> {
     ATG_MATH_DEFINE_MAX_COMPONENT
 
     ATG_MATH_DEFINE_ABS
+    ATG_MATH_DEFINE_SIN
+    ATG_MATH_DEFINE_COS
+    ATG_MATH_DEFINE_TANH
     ATG_MATH_DEFINE_MAGNITUDE_SQUARED
     ATG_MATH_DEFINE_MAGNITUDE
     ATG_MATH_DEFINE_NORMALIZE
@@ -842,6 +881,9 @@ struct vec<t_scalar_, 4, false> {
     ATG_MATH_DEFINE_MAX_COMPONENT
 
     ATG_MATH_DEFINE_ABS
+    ATG_MATH_DEFINE_SIN
+    ATG_MATH_DEFINE_COS
+    ATG_MATH_DEFINE_TANH
     ATG_MATH_DEFINE_MAGNITUDE_SQUARED
     ATG_MATH_DEFINE_MAGNITUDE
     ATG_MATH_DEFINE_NORMALIZE
@@ -927,6 +969,9 @@ struct vec<t_scalar_, t_size_, false> {
     ATG_MATH_DEFINE_MAX_COMPONENT
 
     ATG_MATH_DEFINE_ABS
+    ATG_MATH_DEFINE_SIN
+    ATG_MATH_DEFINE_COS
+    ATG_MATH_DEFINE_TANH
     ATG_MATH_DEFINE_MAGNITUDE_SQUARED
     ATG_MATH_DEFINE_MAGNITUDE
     ATG_MATH_DEFINE_NORMALIZE
@@ -1162,6 +1207,10 @@ struct vec<float, 4, true> {
         const __m128 mask = _mm_castsi128_ps(_mm_set1_epi32(0x7FFFFFFF));
         return _mm_and_ps(data_v, mask);
     }
+
+    FORCE_INLINE t_vec sin() const { return _mm_sin_ps(data_v); }
+    FORCE_INLINE t_vec cos() const { return _mm_cos_ps(data_v); }
+    FORCE_INLINE t_vec tanh() const { return _mm_tanh_ps(data_v); }
 
     FORCE_INLINE t_scalar min() const {
         const __m128 a = _mm_min_ps(
@@ -1441,6 +1490,10 @@ struct vec<float, 8, true> {
         const __m256 mask = _mm256_castsi256_ps(_mm256_set1_epi32(0x7FFFFFFF));
         return _mm256_and_ps(data_v, mask);
     }
+
+    FORCE_INLINE t_vec sin() const { return _mm256_sin_ps(data_v); }
+    FORCE_INLINE t_vec cos() const { return _mm256_cos_ps(data_v); }
+    FORCE_INLINE t_vec tanh() const { return _mm256_tanh_ps(data_v); }
 
     FORCE_INLINE t_vec sign() const {
         const __m256 mask = _mm256_castsi256_ps(_mm256_set1_epi32(~0x7FFFFFFF));
@@ -1742,6 +1795,10 @@ struct vec<double, 2, true> {
         return _mm_div_pd(data_v, magnitude());
     }
 
+    FORCE_INLINE t_vec sin() const { return _mm_sin_pd(data_v); }
+    FORCE_INLINE t_vec cos() const { return _mm_cos_pd(data_v); }
+    FORCE_INLINE t_vec tanh() const { return _mm_tanh_pd(data_v); }
+
     FORCE_INLINE t_vec l_shift() const { return shuffle<1, 1>(); }
     FORCE_INLINE t_vec r_shift() const { return shuffle<0, 0>(); }
 
@@ -2007,6 +2064,10 @@ struct vec<double, 4, true> {
                 _mm256_castsi256_pd(_mm256_set1_epi64x(0x7FFFFFFFFFFFFFFF));
         return _mm256_and_pd(data_v, mask);
     }
+
+    FORCE_INLINE t_vec sin() const { return _mm256_sin_pd(data_v); }
+    FORCE_INLINE t_vec cos() const { return _mm256_cos_pd(data_v); }
+    FORCE_INLINE t_vec tanh() const { return _mm256_tanh_pd(data_v); }
 
     FORCE_INLINE t_vec sign() const {
         const __m256d mask =
@@ -2305,6 +2366,24 @@ abs(const vec<t_scalar_, t_size, t_enable_simd> &v) {
 
 template<typename t_scalar_, unsigned int t_size, bool t_enable_simd>
 FORCE_INLINE vec<t_scalar_, t_size, t_enable_simd>
+sin(const vec<t_scalar_, t_size, t_enable_simd> &v) {
+    return v.sin();
+}
+
+template<typename t_scalar_, unsigned int t_size, bool t_enable_simd>
+FORCE_INLINE vec<t_scalar_, t_size, t_enable_simd>
+cos(const vec<t_scalar_, t_size, t_enable_simd> &v) {
+    return v.cos();
+}
+
+template<typename t_scalar_, unsigned int t_size, bool t_enable_simd>
+FORCE_INLINE vec<t_scalar_, t_size, t_enable_simd>
+tanh(const vec<t_scalar_, t_size, t_enable_simd> &v) {
+    return v.tanh();
+}
+
+template<typename t_scalar_, unsigned int t_size, bool t_enable_simd>
+FORCE_INLINE vec<t_scalar_, t_size, t_enable_simd>
 min(const vec<t_scalar_, t_size, t_enable_simd> &a,
     const vec<t_scalar_, t_size, t_enable_simd> &b) {
     return a.min(b);
@@ -2376,36 +2455,6 @@ FORCE_INLINE bool any(const vec<t_scalar_, t_size, t_enable_simd> &x) {
 }
 
 ATG_MATH_DEFINE_LEFT_SCALAR_OPERATOR(*);
-
-template<>
-struct base_type<double> {
-    using type = double;
-};
-
-template<>
-struct base_type<float> {
-    using type = float;
-};
-
-template<>
-struct base_type<int> {
-    using type = int;
-};
-
-template<>
-FORCE_INLINE constexpr unsigned int type_width<float>() {
-    return 1;
-}
-
-template<>
-FORCE_INLINE constexpr unsigned int type_width<double>() {
-    return 1;
-}
-
-template<>
-FORCE_INLINE constexpr unsigned int type_width<int>() {
-    return 1;
-}
 
 typedef vec<float, 2, false> vec2_s;
 typedef vec<int, 2, false> ivec2_s;

@@ -224,6 +224,21 @@ inline constexpr t_scalar maxComponent(t_scalar a) {
     return a;
 }
 
+template<typename t_scalar>
+inline t_scalar sin(t_scalar s) {
+    return std::sin(s);
+}
+
+template<typename t_scalar>
+inline t_scalar cos(t_scalar s) {
+    return std::cos(s);
+}
+
+template<typename t_scalar>
+inline t_scalar tanh(t_scalar s) {
+    return std::tanh(s);
+}
+
 }// namespace atg_math
 
 #endif /* ATG_MATH_FUNCTIONS_H */

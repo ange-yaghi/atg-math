@@ -109,9 +109,9 @@ void infTest() {
                       t_vec::t_scalar(INFINITY), t_vec::t_scalar(INFINITY),
                       t_vec::t_scalar(INFINITY), t_vec::t_scalar(INFINITY),
                       t_vec::t_scalar(INFINITY), t_vec::t_scalar(INFINITY)};
-    const t_vec v1 = {0, -t_vec::t_scalar(INFINITY), 0,
-                      t_vec::t_scalar(INFINITY), 0, -t_vec::t_scalar(INFINITY), 0,
-                      t_vec::t_scalar(INFINITY)};
+    const t_vec v1 = {
+            0, -t_vec::t_scalar(INFINITY), 0, t_vec::t_scalar(INFINITY),
+            0, -t_vec::t_scalar(INFINITY), 0, t_vec::t_scalar(INFINITY)};
     const t_vec v2 = {0, 0, 0, 0, 0, 0, 0, 0};
 
     EXPECT_TRUE(atg_math::any(atg_math::isinf(v0)));
@@ -119,9 +119,7 @@ void infTest() {
     EXPECT_FALSE(atg_math::any(atg_math::isinf(v2)));
 }
 
-TEST(Vector8Tests, InfTest) {
-    infTest<atg_math::vec<float, 8, true>>();
-}
+TEST(Vector8Tests, InfTest) { infTest<atg_math::vec<float, 8, true>>(); }
 
 template<typename t_vec>
 void nanTest() {
@@ -134,6 +132,4 @@ void nanTest() {
     EXPECT_FALSE(atg_math::any(atg_math::isnan(v2 * (v0 / v0))));
 }
 
-TEST(Vector8Tests, NanTest) {
-    nanTest<atg_math::vec<float, 8, true>>();
-}
+TEST(Vector8Tests, NanTest) { nanTest<atg_math::vec<float, 8, true>>(); }
