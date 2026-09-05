@@ -2386,14 +2386,14 @@ template<typename t_scalar_, unsigned int t_size, bool t_enable_simd>
 FORCE_INLINE vec<t_scalar_, t_size, t_enable_simd>
 min(const vec<t_scalar_, t_size, t_enable_simd> &a,
     const vec<t_scalar_, t_size, t_enable_simd> &b) {
-    return a.min(b);
+    return b.min(a);
 }
 
 template<typename t_scalar_, unsigned int t_size, bool t_enable_simd>
 FORCE_INLINE vec<t_scalar_, t_size, t_enable_simd>
 max(const vec<t_scalar_, t_size, t_enable_simd> &a,
     const vec<t_scalar_, t_size, t_enable_simd> &b) {
-    return a.max(b);
+    return b.max(a);
 }
 
 template<typename t_scalar_, unsigned int t_size, bool t_enable_simd>
