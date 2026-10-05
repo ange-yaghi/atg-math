@@ -149,7 +149,7 @@ struct matrix<t_scalar_, t_size, false> {
                 columns[2],
                 {t_scalar(0), t_scalar(0), t_scalar(0), t_scalar(1)}};
         const t_matrix r_inv = r.transpose();
-        return r_inv * (v - columns[3].with_w(0));
+        return r_inv * (v - columns[3].with_w(0) * v.w());
     }
     // end-temp
 };// namespace atg_math
