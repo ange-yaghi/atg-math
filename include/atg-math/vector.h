@@ -1208,6 +1208,12 @@ struct vec<float, 4, true> {
         return _mm_and_ps(data_v, mask);
     }
 
+    FORCE_INLINE t_vec sign() const {
+        const __m128 mask =
+                _mm_castsi128_ps(_mm_set1_epi32(~0x7FFFFFFF));
+        return _mm_or_ps(_mm_set1_ps(1.0f), _mm_and_ps(data_v, mask));
+    }
+
     FORCE_INLINE t_vec sin() const { return _mm_sin_ps(data_v); }
     FORCE_INLINE t_vec cos() const { return _mm_cos_ps(data_v); }
     FORCE_INLINE t_vec tanh() const { return _mm_tanh_ps(data_v); }
@@ -2421,6 +2427,12 @@ ternary(const vec<t_scalar_, t_size, t_enable_simd> &condition,
         const vec<t_scalar_, t_size, t_enable_simd> &a,
         const vec<t_scalar_, t_size, t_enable_simd> &b) {
     return a.and_mask(condition).bitwise_or(b.and_not_mask(condition));
+}
+
+template<typename t_scalar_, unsigned int t_size, bool t_enable_simd>
+FORCE_INLINE vec<t_scalar_, t_size, t_enable_simd>
+sign(const vec<t_scalar_, t_size, t_enable_simd> &x) {
+    return x.sign();
 }
 
 template<typename t_scalar_, unsigned int t_size, bool t_enable_simd>

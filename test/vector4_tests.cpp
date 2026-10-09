@@ -161,3 +161,10 @@ TEST(Vector4Tests, NanTest) {
     nanTest<atg_math::vec<double, 4, false>>();
     nanTest<atg_math::vec<double, 4, true>>();
 }
+
+TEST(Vector4Tests, SignTest) {
+    atg_math::vec<float, 4, true> s = {-10.0f, +10.0f, -10.0f, +10.0f};
+    atg_math::vec<float, 4, true> sgn = s.sign();
+    EXPECT_TRUE(bool(sgn ==
+                     atg_math::vec<float, 4, true>{-1.0f, 1.0f, -1.0f, 1.0f}));
+}
