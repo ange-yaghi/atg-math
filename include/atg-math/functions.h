@@ -62,6 +62,16 @@ FORCE_INLINE constexpr t_scalar max(t_scalar data0, t_scalar data1) {
 }
 
 template<typename t_scalar>
+FORCE_INLINE constexpr t_scalar floor(t_scalar s) {
+    return std::floor(s);
+}
+
+template<typename t_scalar>
+FORCE_INLINE constexpr t_scalar ceil(t_scalar s) {
+    return std::ceil(s);
+}
+
+template<typename t_scalar>
 FORCE_INLINE constexpr t_scalar abs(t_scalar data0) {
     return data0 > t_scalar(0) ? data0 : -data0;
 }

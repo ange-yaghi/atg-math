@@ -206,6 +206,26 @@ struct vec {};
         return result;                                                         \
     }
 
+#define ATG_MATH_DEFINE_FLOOR                                                  \
+    FORCE_INLINE t_vec floor() const {                                         \
+        t_vec result;                                                          \
+        for (unsigned int i = 0; i < t_size; ++i) {                            \
+            result.data[i] = std::floor(data[i]);                              \
+        }                                                                      \
+                                                                               \
+        return result;                                                         \
+    }
+
+#define ATG_MATH_DEFINE_CEIL                                                   \
+    FORCE_INLINE t_vec ceil() const {                                          \
+        t_vec result;                                                          \
+        for (unsigned int i = 0; i < t_size; ++i) {                            \
+            result.data[i] = std::ceil(data[i]);                               \
+        }                                                                      \
+                                                                               \
+        return result;                                                         \
+    }
+
 #define ATG_MATH_DEFINE_SIN                                                    \
     FORCE_INLINE t_vec sin() const {                                           \
         t_vec result;                                                          \
@@ -573,6 +593,8 @@ struct vec<t_scalar_, 1, false> {
     ATG_MATH_DEFINE_LEFT_SHIFT
     ATG_MATH_DEFINE_RIGHT_SHIFT
     ATG_MATH_DEFINE_SIGN
+    ATG_MATH_DEFINE_FLOOR
+    ATG_MATH_DEFINE_CEIL
 
     ATG_MATH_DEFINE_ASSIGNMENT_OPERATOR(+=, +)
     ATG_MATH_DEFINE_ASSIGNMENT_OPERATOR(-=, -)
@@ -674,6 +696,8 @@ struct vec<t_scalar_, 2, false> {
     ATG_MATH_DEFINE_MAGNITUDE_SQUARED
     ATG_MATH_DEFINE_NORMALIZE
     ATG_MATH_DEFINE_SIGN
+    ATG_MATH_DEFINE_FLOOR
+    ATG_MATH_DEFINE_CEIL
     ATG_MATH_DEFINE_SQRT
     ATG_MATH_DEFINE_LEFT_SHIFT
     ATG_MATH_DEFINE_RIGHT_SHIFT
@@ -777,6 +801,8 @@ struct vec<t_scalar_, 3, false> {
     ATG_MATH_DEFINE_MAGNITUDE
     ATG_MATH_DEFINE_NORMALIZE
     ATG_MATH_DEFINE_SIGN
+    ATG_MATH_DEFINE_FLOOR
+    ATG_MATH_DEFINE_CEIL
     ATG_MATH_DEFINE_SQRT
     ATG_MATH_DEFINE_LEFT_SHIFT
     ATG_MATH_DEFINE_RIGHT_SHIFT
@@ -888,6 +914,8 @@ struct vec<t_scalar_, 4, false> {
     ATG_MATH_DEFINE_MAGNITUDE
     ATG_MATH_DEFINE_NORMALIZE
     ATG_MATH_DEFINE_SIGN
+    ATG_MATH_DEFINE_FLOOR
+    ATG_MATH_DEFINE_CEIL
     ATG_MATH_DEFINE_SQRT
     ATG_MATH_DEFINE_LEFT_SHIFT
     ATG_MATH_DEFINE_RIGHT_SHIFT
@@ -977,6 +1005,8 @@ struct vec<t_scalar_, t_size_, false> {
     ATG_MATH_DEFINE_NORMALIZE
     ATG_MATH_DEFINE_SQRT
     ATG_MATH_DEFINE_SIGN
+    ATG_MATH_DEFINE_FLOOR
+    ATG_MATH_DEFINE_CEIL
     ATG_MATH_DEFINE_LEFT_SHIFT
     ATG_MATH_DEFINE_RIGHT_SHIFT
 
@@ -1209,10 +1239,12 @@ struct vec<float, 4, true> {
     }
 
     FORCE_INLINE t_vec sign() const {
-        const __m128 mask =
-                _mm_castsi128_ps(_mm_set1_epi32(~0x7FFFFFFF));
+        const __m128 mask = _mm_castsi128_ps(_mm_set1_epi32(~0x7FFFFFFF));
         return _mm_or_ps(_mm_set1_ps(1.0f), _mm_and_ps(data_v, mask));
     }
+
+    FORCE_INLINE t_vec floor() const { return _mm_floor_ps(data_v); }
+    FORCE_INLINE t_vec ceil() const { return _mm_ceil_ps(data_v); }
 
     FORCE_INLINE t_vec sin() const { return _mm_sin_ps(data_v); }
     FORCE_INLINE t_vec cos() const { return _mm_cos_ps(data_v); }
@@ -1496,6 +1528,9 @@ struct vec<float, 8, true> {
         const __m256 mask = _mm256_castsi256_ps(_mm256_set1_epi32(0x7FFFFFFF));
         return _mm256_and_ps(data_v, mask);
     }
+
+    FORCE_INLINE t_vec floor() const { return _mm256_floor_ps(data_v); }
+    FORCE_INLINE t_vec ceil() const { return _mm256_ceil_ps(data_v); }
 
     FORCE_INLINE t_vec sin() const { return _mm256_sin_ps(data_v); }
     FORCE_INLINE t_vec cos() const { return _mm256_cos_ps(data_v); }
@@ -1794,6 +1829,9 @@ struct vec<double, 2, true> {
         return _mm_and_pd(data_v, mask);
     }
 
+    FORCE_INLINE t_vec floor() const { return _mm_floor_pd(data_v); }
+    FORCE_INLINE t_vec ceil() const { return _mm_ceil_pd(data_v); }
+
     FORCE_INLINE t_vec magnitude_squared() const { return dot(*this); }
     FORCE_INLINE t_vec sqrt() const { return _mm_sqrt_pd(data_v); }
     FORCE_INLINE t_vec magnitude() const { return magnitude_squared().sqrt(); }
@@ -2071,6 +2109,9 @@ struct vec<double, 4, true> {
         return _mm256_and_pd(data_v, mask);
     }
 
+    FORCE_INLINE t_vec floor() const { return _mm256_floor_pd(data_v); }
+    FORCE_INLINE t_vec ceil() const { return _mm256_ceil_pd(data_v); }
+
     FORCE_INLINE t_vec sin() const { return _mm256_sin_pd(data_v); }
     FORCE_INLINE t_vec cos() const { return _mm256_cos_pd(data_v); }
     FORCE_INLINE t_vec tanh() const { return _mm256_tanh_pd(data_v); }
@@ -2318,6 +2359,8 @@ struct vec<double, 8, true> {
         return {data0.max(b.data0), data1.max(b.data1)};
     }
 
+    FORCE_INLINE t_vec floor() const { return {data0.floor(), data1.floor()}; }
+    FORCE_INLINE t_vec ceil() const { return {data0.ceil(), data1.ceil()}; }
     FORCE_INLINE t_vec abs() const { return {data0.abs(), data1.abs()}; }
     FORCE_INLINE t_vec sign() const { return {data0.sign(), data1.sign()}; }
     FORCE_INLINE t_vec magnitude_squared() const { return dot(*this); }
@@ -2368,6 +2411,18 @@ template<typename t_scalar_, unsigned int t_size, bool t_enable_simd>
 FORCE_INLINE vec<t_scalar_, t_size, t_enable_simd>
 abs(const vec<t_scalar_, t_size, t_enable_simd> &v) {
     return v.abs();
+}
+
+template<typename t_scalar_, unsigned int t_size, bool t_enable_simd>
+FORCE_INLINE vec<t_scalar_, t_size, t_enable_simd>
+floor(const vec<t_scalar_, t_size, t_enable_simd> &v) {
+    return v.floor();
+}
+
+template<typename t_scalar_, unsigned int t_size, bool t_enable_simd>
+FORCE_INLINE vec<t_scalar_, t_size, t_enable_simd>
+ceil(const vec<t_scalar_, t_size, t_enable_simd> &v) {
+    return v.ceil();
 }
 
 template<typename t_scalar_, unsigned int t_size, bool t_enable_simd>
